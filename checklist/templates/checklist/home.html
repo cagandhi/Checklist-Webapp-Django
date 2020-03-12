@@ -1,0 +1,9 @@
+{% extends "checklist/base.html" %}
+
+{% block content %}
+	{% for post in posts_var %}
+		<h1>{{post.title}}</h1>
+		<p>By {{post.author}} on {{post.date}}</p>
+		<p>{{ post.content }}</p>
+	{% endfor %}
+{% endblock %}
