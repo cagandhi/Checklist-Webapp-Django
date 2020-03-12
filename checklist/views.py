@@ -9,13 +9,13 @@ posts = [
 		'title': 'checklist 1',
 		'author': 'Chintan Gandhi',
 		'content': 'This is checklist 1',
-		'date': 'Today'
+		'date_posted': 'Today'
 	},
 	{
 		'title': 'checklist 2',
 		'author': 'Romil Gandhi',
 		'content': 'This is checklist 2',
-		'date': 'Yesterday'
+		'date_posted': 'Yesterday'
 	},
 ]
 
