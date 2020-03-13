@@ -5,15 +5,15 @@
 <!-- only replace the block content with this code -->
 {% block content %}
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for post in posts_var %}
+	{% for checklist in checklists_var %}
 		<article class="media content-section">
 		  <div class="media-body">
 		    <div class="article-metadata">
-		      <a class="mr-2" href="#">{{ post.author }}</a>
-		      <small class="text-muted">{{ post.date_posted }}</small>
+		      <a class="mr-2" href="#">{{ checklist.author }}</a>
+		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 		    </div>
-		    <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
-		    <p class="article-content">{{ post.content }}</p>
+		    <h2><a class="article-title" href="#">{{ checklist.title }}</a></h2>
+		    <p class="article-content">{{ checklist.content }}</p>
 		  </div>
 		</article>
 		<!-- <h1>{{post.title}}</h1>
