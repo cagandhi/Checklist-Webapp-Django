@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (ListView, 
 	DetailView, 
-	CreateView
+	CreateView,
+	UpdateView
 )
 
 from .models import Checklist
@@ -39,6 +40,20 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
+
+
+class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+	model = Checklist
+	fields = ['title', 'content']
+
+	# to add link logged in user as author to the checklist
+	def form_valid(self, form):
+		form.instance.author = self.request.user
+		return super().form_valid(form)
+
+	def test_func(self):
+		checklist = self.get_object()
+		return (self.request.user == checklist.author)
 
 
 def about(request):
