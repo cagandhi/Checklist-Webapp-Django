@@ -4,22 +4,6 @@ from .models import Checklist
 
 # Create your views here.
 
-# create dummy data - no need after we fetch the checklists from the database
-# checklists = [
-# 	{
-# 		'title': 'checklist 1',
-# 		'author': 'Chintan Gandhi',
-# 		'content': 'This is checklist 1',
-# 		'date_posted': 'Today'
-# 	},
-# 	{
-# 		'title': 'checklist 2',
-# 		'author': 'Romil Gandhi',
-# 		'content': 'This is checklist 2',
-# 		'date_posted': 'Yesterday'
-# 	},
-# ]
-
 # home page - this function will be called when I navigate to "localhost:8000/admin"
 def home(request):
 	# return HttpResponse('<h1>This is your home page! Welcome</h1>')
@@ -32,3 +16,12 @@ def home(request):
 
 def about(request):
 	return render(request, 'checklist/about.html')
+
+# my checklist page - shows checklists written by the logged in user only
+def mychecklist(request):
+	context = {
+		'checklists_var': request.user.checklist_set.all(),
+		'title': 'My Checklists'
+	}
+
+	return render(request, 'checklist/mychecklist.html', context) # because render looks in templates subdirectory, by default
