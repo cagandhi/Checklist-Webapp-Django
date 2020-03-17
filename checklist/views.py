@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Checklist
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (ListView, 
 	DetailView, 
 	CreateView
 )
 
+from .models import Checklist
 # Create your views here.
 
 # home page - this function will be called when I navigate to "localhost:8000/admin"
@@ -30,7 +31,7 @@ class ChecklistDetailView(DetailView):
 	model = Checklist
 
 
-class ChecklistCreateView(CreateView):
+class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	model = Checklist
 	fields = ['title', 'content']
 
