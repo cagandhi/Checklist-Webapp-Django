@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (ListView, 
@@ -7,6 +7,7 @@ from django.views.generic import (ListView,
 	UpdateView,
 	DeleteView
 )
+from django.contrib.auth.models import User
 
 from .models import Checklist
 # Create your views here.
@@ -27,6 +28,18 @@ class ChecklistListView(ListView):
 	template_name = 'checklist/home.html' # <app_name>/<model>_<viewtype>.html
 	context_object_name = 'checklists_var'
 	ordering = ['-date_posted']
+	paginate_by = 5
+
+
+class UserChecklistListView(ListView):
+	model = Checklist
+	template_name = 'checklist/user_checklists.html' # <app_name>/<model>_<viewtype>.html
+	context_object_name = 'checklists_var'
+	paginate_by = 5
+
+	def get_queryset(self):
+		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		return Checklist.objects.filter(author=user).order_by('-date_posted')
 
 
 class ChecklistDetailView(DetailView):
