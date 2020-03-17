@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Checklist
-from django.views.generic import ListView, DetailView
+from django.views.generic import (ListView, 
+	DetailView, 
+	CreateView
+)
 
 # Create your views here.
 
@@ -15,14 +18,27 @@ def home(request):
 	}
 	return render(request, 'checklist/home.html', context) # because render looks in templates subdirectory, by default
 
+
 class ChecklistListView(ListView):
 	model = Checklist
 	template_name = 'checklist/home.html' # <app_name>/<model>_<viewtype>.html
 	context_object_name = 'checklists_var'
 	ordering = ['-date_posted']
 
+
 class ChecklistDetailView(DetailView):
 	model = Checklist
+
+
+class ChecklistCreateView(CreateView):
+	model = Checklist
+	fields = ['title', 'content']
+
+	# to add link logged in user as author to the checklist
+	def form_valid(self, form):
+		form.instance.author = self.request.user
+		return super().form_valid(form)
+
 
 def about(request):
 	return render(request, 'checklist/about.html')
