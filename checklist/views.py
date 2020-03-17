@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (ListView, 
 	DetailView, 
 	CreateView,
-	UpdateView
+	UpdateView,
+	DeleteView
 )
 
 from .models import Checklist
@@ -36,21 +37,32 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	model = Checklist
 	fields = ['title', 'content']
 
-	# to add link logged in user as author to the checklist
+	# to link logged in user as author to the checklist being created
 	def form_valid(self, form):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
 
-
+# mixins for checking if user is logged in and the checklist author is the same as logged in user
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Checklist
 	fields = ['title', 'content']
 
-	# to add link logged in user as author to the checklist
+	# to link logged in user as author to the checklist being updated
 	def form_valid(self, form):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
 
+	# checks if currently logged in user is the checklist author
+	def test_func(self):
+		checklist = self.get_object()
+		return (self.request.user == checklist.author)
+
+
+class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+	model = Checklist
+	success_url = '/'
+
+	# checks if currently logged in user is the checklist author
 	def test_func(self):
 		checklist = self.get_object()
 		return (self.request.user == checklist.author)
@@ -62,7 +74,7 @@ def about(request):
 # my checklist page - shows checklists written by the logged in user only
 def mychecklist(request):
 	context = {
-		'checklists_var': request.user.checklist_set.all(),
+		'checklists_var': request.user.checklist_set.all().order_by('-date_posted'),
 		'title': 'My Checklists'
 	}
 
