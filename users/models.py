@@ -10,8 +10,9 @@ class Profile(models.Model):
 	def __str__(self):
 		return f'{self.user.username} Profile'
 
-	def save(self):
-		super().save()
+	# When you are overriding model's save method in Django, you should also pass *args and **kwargs to overridden method.
+	def save(self, *args, **kwargs):	
+		super().save(*args, **kwargs)
 
 		img = Image.open(self.image.path)
 
