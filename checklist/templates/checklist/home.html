@@ -5,21 +5,33 @@
 <!-- only replace the block content with this code -->
 {% block content %}
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for checklist in checklists_var %}
+	{% for checklist, uvote in checklist_upvotes %}
 		<article class="media content-section">
 			<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
-		  <div class="media-body">
-		    <div class="article-metadata">
-		      <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
-		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
-		    </div>
-		    <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
-		    <p class="article-content">{{ checklist.content }}</p>
-		  </div>
+			<div class="media-body">
+				<div class="article-metadata">
+					<a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
+					<small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
+				</div>
+				<h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
+				<p class="article-content">{{ checklist.content }}</p>
+				{% if user.is_authenticated and checklist.author.username != user.username %}
+					<a class="btn btn-outline-info" href="{% url 'upvote' checklist.id user.username %}">Upvote | {{ uvote }}</a>
+				{% else %}
+					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+				{% endif %}
+				<!-- {% if messages %}
+					{% for message in messages %}
+						<div class="article-metadata" style="color:blue;">{{ message }}</div>
+					{% endfor %}	
+				{% endif %} -->
+				<!-- <div class="article-metadata" style="color:blue;">Yeah</div> -->
+			</div>
 		</article>
 	{% endfor %}
 
-	{% if is_paginated %}
+	<!-- pagination part; display page numbers to view posts -->
+	<!-- {% if is_paginated %}
 
 		{% if page_obj.has_previous %}
 			<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
@@ -38,6 +50,5 @@
 			<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
 			<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
 		{% endif %}
-
-	{% endif %}
+	{% endif %} -->
 {% endblock content  %}

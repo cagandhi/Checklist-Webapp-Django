@@ -16,3 +16,10 @@ class Checklist(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('checklist-detail', kwargs={'pk': self.id})
+
+class Upvote(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return self.user.username + " - " + self.checklist.title
