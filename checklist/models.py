@@ -23,3 +23,10 @@ class Upvote(models.Model):
 
 	def __str__(self):
 		return self.user.username + " - " + self.checklist.title
+
+class Bookmark(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return self.user.username + " - " + self.checklist.title

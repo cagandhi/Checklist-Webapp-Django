@@ -15,11 +15,14 @@
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
 				<p class="article-content">{{ checklist.content }}</p>
+				<!-- since user cannot upvote own post; does not need to bookmark own post, can see it under my checklists -->
 				{% if user.is_authenticated and checklist.author.username != user.username %}
-					<a class="btn btn-outline-info" href="{% url 'upvote' checklist.id user.username %}">Upvote | {{ uvote }}</a>
+					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id user.username %}">Upvote | {{ uvote }}</a>
+					<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id user.username %}">Bookmark</a>
 				{% else %}
 					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
 				{% endif %}
+
 				<!-- {% if messages %}
 					{% for message in messages %}
 						<div class="article-metadata" style="color:blue;">{{ message }}</div>

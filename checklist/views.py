@@ -10,7 +10,7 @@ from django.views.generic import (ListView,
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-from .models import Checklist, Upvote
+from .models import Checklist, Upvote, Bookmark
 
 # home page - this function will be called when I navigate to "localhost:8000/"
 def home(request):
@@ -100,7 +100,9 @@ def mychecklist(request):
 
 	return render(request, 'checklist/mychecklist.html', context) # because render looks in templates subdirectory, by default
 
-def upvote_post(request, checklist_id, username):
+
+# UPVOTE POST FUNCTIONALITY
+def upvote_checklist(request, checklist_id, username):
 	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
 	
 	""" if user cannot retract upvote, then this code be uncommented
@@ -124,4 +126,24 @@ def upvote_post(request, checklist_id, username):
 		messages.info(request, msg)
 
 	# redirect to home url; simply reload the page
-	return redirect('checklist-home') 
+	return redirect('checklist-home')
+
+
+# BOOKMARK FUNCTIONALITY
+def bookmark_checklist(request, checklist_id, username):
+	# remove user's bookmark if he has already bookmarked
+	obj = Bookmark.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
+	if obj:
+		obj.delete()
+		msg = 'Bookmark removed!'
+		messages.info(request, msg)
+	else:
+		# if fetching by id, use "get()", else "filter()"
+		bookmark_obj = Bookmark(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
+		bookmark_obj.save()
+
+		msg = 'Checklist bookmarked!'
+		messages.info(request, msg)
+
+	# redirect to home url; simply reload the page
+	return redirect('checklist-home')

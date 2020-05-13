@@ -19,5 +19,6 @@ urlpatterns = [
     path('checklist/<int:pk>/delete/', ChecklistDeleteView.as_view(), name='checklist-delete'),
     path('about/', views.about, name='checklist-about'),
     path('mychecklist/', views.mychecklist, name='checklist-mychecklist'),
-    path('checklist/<int:checklist_id>/<str:username>/upvote/', views.upvote_post, name='upvote')
+    path('checklist/<int:checklist_id>/<str:username>/upvote/', views.upvote_checklist, name='checklist-upvote'),
+    path('checklist/<int:checklist_id>/<str:username>/bookmark/', views.bookmark_checklist, name='checklist-bookmark')
 ]
