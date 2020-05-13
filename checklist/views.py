@@ -103,8 +103,17 @@ def mychecklist(request):
 def upvote_post(request, checklist_id, username):
 	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
 	
+	""" if user cannot retract upvote, then this code be uncommented
 	if Upvote.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id)):
 		msg = 'You have already upvoted the checklist once!'
+		messages.info(request, msg)
+	"""
+
+	# remove user's upvote if he has already upvoted
+	obj = Upvote.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
+	if obj:
+		obj.delete()
+		msg = 'Upvote retracted!'
 		messages.info(request, msg)
 	else:
 		# if fetching by id, use "get()", else "filter()"
