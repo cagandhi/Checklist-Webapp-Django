@@ -1,10 +1,9 @@
-
 <!-- template inheritance -->
 {% extends "checklist/base.html" %}
 
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Checklists by {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1>
+	<h1 class="mb-3">Your Bookmarks ({{ page_obj.paginator.count }})</h1>
 
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
 	{% for checklist in checklists_var %}
@@ -12,7 +11,7 @@
 			<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
 		  <div class="media-body">
 		    <div class="article-metadata">
-		      <!-- <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a> -->
+		      <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 		    </div>
 		    <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>

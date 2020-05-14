@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
+# mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (ListView, 
 	DetailView, 
@@ -12,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from .models import Checklist, Upvote, Bookmark
 
-# home page - this function will be called when I navigate to "localhost:8000/"
+# HOME - show all checklists - this function will be called when user navigates to "localhost:8000/"
 def home(request):
 	# return HttpResponse('<h1>This is your home page! Welcome</h1>')
 
@@ -39,6 +40,7 @@ class ChecklistListView(ListView):
 	paginate_by = 5
 
 
+# DISPLAY CHECKLISTS BY LOGGED IN USER
 class UserChecklistListView(ListView):
 	model = Checklist
 	template_name = 'checklist/user_checklists.html' # <app_name>/<model>_<viewtype>.html
@@ -50,10 +52,12 @@ class UserChecklistListView(ListView):
 		return Checklist.objects.filter(author=user).order_by('-date_posted')
 
 
+# DISPLAY A CHECKLIST IN FULL PAGE - WHEN USE CLICKS ON THE CHECKLIST
 class ChecklistDetailView(DetailView):
 	model = Checklist
 
 
+# CREATE CHECKLIST
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	model = Checklist
 	fields = ['title', 'content']
@@ -63,7 +67,8 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
 
-# mixins for checking if user is logged in and the checklist author is the same as logged in user
+
+# UPDATE CHECKLIST
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Checklist
 	fields = ['title', 'content']
@@ -79,6 +84,7 @@ class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		return (self.request.user == checklist.author)
 
 
+# DELETE CHECKLIST 
 class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 	model = Checklist
 	success_url = '/'
@@ -88,10 +94,13 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 		checklist = self.get_object()
 		return (self.request.user == checklist.author)
 
+
+# ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
 
-# my checklist page - shows checklists written by the logged in user only
+
+# SHOW CHECKLISTS POSTED BY LOGGED IN USER
 def mychecklist(request):
 	context = {
 		'checklists_var': request.user.checklist_set.all().order_by('-date_posted'),
@@ -147,3 +156,28 @@ def bookmark_checklist(request, checklist_id, username):
 
 	# redirect to home url; simply reload the page
 	return redirect('checklist-home')
+
+
+# VIEW BOOKMARKS
+class BookmarkChecklistListView(ListView):
+	model = Checklist
+	template_name = 'checklist/bookmark_checklists.html' # <app_name>/<model>_<viewtype>.html
+	context_object_name = 'checklists_var'
+	paginate_by = 5
+
+	def get_queryset(self):
+		print('--- DICTIONARY ---')
+		print(self.kwargs)
+		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		print(user)
+		print(Bookmark.objects.filter(user=user))
+		return Bookmark.objects.filter(user=user)
+
+
+def mybookmark(request):
+	context = {
+		'bookmarks_var': Bookmark.objects.filter(user=request.user),
+		'title': 'My Bookmarks'
+	}
+
+	return render(request, 'checklist/mybookmark.html', context) # because render looks in templates subdirectory, by default

@@ -9,15 +9,12 @@
 			<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
 		  <div class="media-body">
 		    <div class="article-metadata">
-		      <a class="mr-2" href="#">{{ checklist.author }}</a>
+		      <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 		    </div>
 		    <h2><a class="article-title" href="#">{{ checklist.title }}</a></h2>
 		    <p class="article-content">{{ checklist.content }}</p>
 		  </div>
 		</article>
-		<!-- <h1>{{post.title}}</h1>
-		<p>By {{post.author}} on {{post.date}}</p>
-		<p>{{ post.content }}</p> -->
 	{% endfor %}
 {% endblock %}

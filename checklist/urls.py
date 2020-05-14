@@ -6,13 +6,15 @@ from .views import (ChecklistListView,
 	ChecklistCreateView,
 	ChecklistUpdateView,
 	ChecklistDeleteView,
-
+    BookmarkChecklistListView,
 )
 
 urlpatterns = [
     # path('', ChecklistListView.as_view(), name='checklist-home'),
     path('', views.home, name='checklist-home'), 
-    path('user/<str:username>', UserChecklistListView.as_view(), name='user-checklists'), #path('', views.home, 
+    path('user/<str:username>/', UserChecklistListView.as_view(), name='user-checklists'),
+    path('user/<str:username>/bookmarks/', BookmarkChecklistListView.as_view(), name='user-bookmarks'),
+    path('mybookmark/', views.mybookmark, name='checklist-mybookmark'),
     path('checklist/<int:pk>/', ChecklistDetailView.as_view(), name='checklist-detail'),
     path('checklist/new/', ChecklistCreateView.as_view(), name='checklist-create'),
     path('checklist/<int:pk>/update/', ChecklistUpdateView.as_view(), name='checklist-update'),
