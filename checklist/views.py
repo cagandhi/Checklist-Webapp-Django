@@ -160,17 +160,13 @@ def bookmark_checklist(request, checklist_id, username):
 
 # VIEW BOOKMARKS
 class BookmarkChecklistListView(ListView):
-	model = Checklist
-	template_name = 'checklist/bookmark_checklists.html' # <app_name>/<model>_<viewtype>.html
-	context_object_name = 'checklists_var'
+	model = Bookmark
+	template_name = 'checklist/bookmark_checklists.html'
+	context_object_name = 'bookmarks_var'
 	paginate_by = 5
 
 	def get_queryset(self):
-		print('--- DICTIONARY ---')
-		print(self.kwargs)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
-		print(user)
-		print(Bookmark.objects.filter(user=user))
 		return Bookmark.objects.filter(user=user)
 
 

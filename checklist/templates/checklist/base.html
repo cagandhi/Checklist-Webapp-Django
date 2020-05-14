@@ -40,8 +40,8 @@
                 <a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a>
                 <!-- <a class="nav-item nav-link" href="{% url 'checklist-mychecklist' %}">My CheckLists</a> -->
                 <a class="nav-item nav-link" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
-                <!-- <a class="nav-item nav-link" href="{% url 'user-bookmarks' user.username %}">My Bookmarks</a> -->
-                <a class="nav-item nav-link" href="{% url 'checklist-mybookmark' %}">My Bookmarks</a>
+                <a class="nav-item nav-link" href="{% url 'user-bookmarks' user.username %}">My Bookmarks</a>
+                <!-- <a class="nav-item nav-link" href="{% url 'checklist-mybookmark' %}">My Bookmarks</a> -->
                 <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
               {% else %}
