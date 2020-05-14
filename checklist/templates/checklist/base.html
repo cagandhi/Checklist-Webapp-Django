@@ -40,7 +40,7 @@
                 <a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a>
                 <!-- <a class="nav-item nav-link" href="{% url 'checklist-mychecklist' %}">My CheckLists</a> -->
                 <a class="nav-item nav-link" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
-                <a class="nav-item nav-link" href="{% url 'user-bookmarks' user.username %}">My Bookmarks</a>
+                <a class="nav-item nav-link" href="{% url 'bookmarks' %}">My Bookmarks</a>
                 <!-- <a class="nav-item nav-link" href="{% url 'checklist-mybookmark' %}">My Bookmarks</a> -->
                 <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
@@ -55,7 +55,7 @@
     </header>
     <!-- NAVIGATION BAR end -->
 
-    <!-- MAIN CONTENT along with sidebar -->
+    <!-- MAIN CONTENT along with sidebar (disabled for now) -->
 	<main role="main" class="container">
       <div class="row">
         <div class="col-md-8">

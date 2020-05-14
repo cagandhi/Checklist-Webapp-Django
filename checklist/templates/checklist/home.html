@@ -17,8 +17,8 @@
 				<p class="article-content">{{ checklist.content }}</p>
 				<!-- since user cannot upvote own post; does not need to bookmark own post, can see it under my checklists -->
 				{% if user.is_authenticated and checklist.author.username != user.username %}
-					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id user.username %}">Upvote | {{ uvote }}</a>
-					<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id user.username %}">Bookmark</a>
+					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+					<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
 				{% else %}
 					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
 				{% endif %}

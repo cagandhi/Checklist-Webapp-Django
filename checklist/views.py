@@ -95,6 +95,17 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 		return (self.request.user == checklist.author)
 
 
+# VIEW BOOKMARKS PAGE
+class BookmarkChecklistListView(ListView):
+	model = Bookmark
+	template_name = 'checklist/bookmark_checklists.html'
+	context_object_name = 'bookmarks_var'
+	paginate_by = 5
+
+	def get_queryset(self):
+		return Bookmark.objects.filter(user=self.request.user)
+
+
 # ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
@@ -111,7 +122,7 @@ def mychecklist(request):
 
 
 # UPVOTE POST FUNCTIONALITY
-def upvote_checklist(request, checklist_id, username):
+def upvote_checklist(request, checklist_id):
 	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
 	
 	""" if user cannot retract upvote, then this code be uncommented
@@ -120,56 +131,54 @@ def upvote_checklist(request, checklist_id, username):
 		messages.info(request, msg)
 	"""
 
-	# remove user's upvote if he has already upvoted
-	obj = Upvote.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
-	if obj:
-		obj.delete()
-		msg = 'Upvote retracted!'
+	if Checklist.objects.get(id=checklist_id).author == request.user:
+		msg = 'Action Denied! You cannot upvote your own checklist!'
 		messages.info(request, msg)
 	else:
-		# if fetching by id, use "get()", else "filter()"
-		upvote_obj = Upvote(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
-		upvote_obj.save()
+		# remove user's upvote if he has already upvoted
+		obj = Upvote.objects.filter(user=request.user, checklist=Checklist.objects.get(id=checklist_id))
+		if obj:
+			obj.delete()
+			msg = 'Upvote retracted!'
+			messages.info(request, msg)
+		else:
+			# if fetching by id, use "get()", else "filter()" 
+			# User.objects.filter(username=username).first()
+			upvote_obj = Upvote(user=request.user, checklist=Checklist.objects.get(id=checklist_id))
+			upvote_obj.save()
 
-		msg = 'Checklist upvoted!'
-		messages.info(request, msg)
+			msg = 'Checklist upvoted!'
+			messages.info(request, msg)
 
 	# redirect to home url; simply reload the page
 	return redirect('checklist-home')
 
 
 # BOOKMARK FUNCTIONALITY
-def bookmark_checklist(request, checklist_id, username):
+def bookmark_checklist(request, checklist_id):
 	# remove user's bookmark if he has already bookmarked
-	obj = Bookmark.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
-	if obj:
-		obj.delete()
-		msg = 'Bookmark removed!'
+	if Checklist.objects.get(id=checklist_id).author == request.user:
+		msg = 'Action Denied! You cannot bookmark your own checklist!'
 		messages.info(request, msg)
 	else:
-		# if fetching by id, use "get()", else "filter()"
-		bookmark_obj = Bookmark(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id))
-		bookmark_obj.save()
 
-		msg = 'Checklist bookmarked!'
-		messages.info(request, msg)
+		obj = Bookmark.objects.filter(user=request.user, checklist=Checklist.objects.get(id=checklist_id))
+		if obj:
+			obj.delete()
+			msg = 'Bookmark removed!'
+			messages.info(request, msg)
+		else:
+			bookmark_obj = Bookmark(user=request.user, checklist=Checklist.objects.get(id=checklist_id))
+			bookmark_obj.save()
+
+			msg = 'Checklist bookmarked!'
+			messages.info(request, msg)
 
 	# redirect to home url; simply reload the page
 	return redirect('checklist-home')
 
 
-# VIEW BOOKMARKS
-class BookmarkChecklistListView(ListView):
-	model = Bookmark
-	template_name = 'checklist/bookmark_checklists.html'
-	context_object_name = 'bookmarks_var'
-	paginate_by = 5
-
-	def get_queryset(self):
-		user = get_object_or_404(User, username=self.kwargs.get('username'))
-		return Bookmark.objects.filter(user=user)
-
-
+# VIWE BOOKMARKS PAGE | ALTERNATE - can be used if "BookmarkChecklistListView" does not work
 def mybookmark(request):
 	context = {
 		'bookmarks_var': Bookmark.objects.filter(user=request.user),
