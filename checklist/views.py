@@ -155,7 +155,7 @@ def upvote_checklist(request, checklist_id):
 
 
 # BOOKMARK FUNCTIONALITY
-def bookmark_checklist(request, checklist_id):
+def bookmark_checklist(request, checklist_id, type):
 	# remove user's bookmark if he has already bookmarked
 	if Checklist.objects.get(id=checklist_id).author == request.user:
 		msg = 'Action Denied! You cannot bookmark your own checklist!'
@@ -174,8 +174,10 @@ def bookmark_checklist(request, checklist_id):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
-	# redirect to home url; simply reload the page
-	return redirect('checklist-home')
+	if type == 'add':
+		return redirect('checklist-home')
+	else:
+		return redirect('bookmarks')
 
 
 # VIWE BOOKMARKS PAGE | ALTERNATE - can be used if "BookmarkChecklistListView" does not work
