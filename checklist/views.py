@@ -59,7 +59,10 @@ class UserChecklistListView(ListView):
 	paginate_by = 5
 
 	# https://stackoverflow.com/a/36950584/6543250 - when to use get_queryset() vs get_context_data()
-	# https://stackoverflow.com/a/33485595/6543250 - how to paginate when get_context_data() implemented
+	
+	# how to paginate when get_context_data() implemented
+	# 1. https://stackoverflow.com/a/33485595/6543250
+	# 2. https://docs.djangoproject.com/en/1.8/topics/pagination/#using-paginator-in-a-view
 	def get_context_data(self, **kwargs):
 		context = super(UserChecklistListView, self).get_context_data(**kwargs)
 
