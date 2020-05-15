@@ -15,8 +15,6 @@ from .models import Checklist, Upvote, Bookmark
 
 # HOME - show all checklists - this function will be called when user navigates to "localhost:8000/"
 def home(request):
-	# return HttpResponse('<h1>This is your home page! Welcome</h1>')
-
 	# count upvotes for each post
 	upvotes_cnt_list = []
 	checklists_var = Checklist.objects.all().order_by('-date_posted')
@@ -24,10 +22,24 @@ def home(request):
 		upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
 	checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+	paginate_by = 5
+	paginator = Paginator(list(checklist_upvotes), paginate_by)
+	page = request.GET.get('page')
+
+	try:
+		page_checklist_upvotes = paginator.page(page)
+	except PageNotAnInteger:
+		page_checklist_upvotes = paginator.page(1)
+	except EmptyPage:
+		page_checklist_upvotes = paginator.page(paginator.num_pages)
+
 	context = {
-		'checklist_upvotes': checklist_upvotes,
-		'title': 'home'
+		'checklist_upvotes': page_checklist_upvotes,
+		'title': 'home',
+		'is_paginated': True
 	}
+
 	return render(request, 'checklist/home.html', context) # because render looks in templates subdirectory, by default
 
 
@@ -44,13 +56,38 @@ class ChecklistListView(ListView):
 class UserChecklistListView(ListView):
 	model = Checklist
 	template_name = 'checklist/user_checklists.html' # <app_name>/<model>_<viewtype>.html
-	context_object_name = 'checklists_var'
 	paginate_by = 5
 
-	def get_queryset(self):
-		user = get_object_or_404(User, username=self.kwargs.get('username'))
-		return Checklist.objects.filter(author=user).order_by('-date_posted')
+	# https://stackoverflow.com/a/36950584/6543250 - when to use get_queryset() vs get_context_data()
+	# https://stackoverflow.com/a/33485595/6543250 - how to paginate when get_context_data() implemented
+	def get_context_data(self, **kwargs):
+		context = super(UserChecklistListView, self).get_context_data(**kwargs)
 
+		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		upvotes_cnt_list = []
+		checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
+		
+		for checklist in checklists_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'user'
+		context['is_paginated'] = True
+
+		return context
+		
 
 # DISPLAY A CHECKLIST IN FULL PAGE - WHEN USE CLICKS ON THE CHECKLIST
 class ChecklistDetailView(DetailView):
