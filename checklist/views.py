@@ -13,43 +13,40 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from .models import Checklist, Upvote, Bookmark
 
-# HOME - show all checklists - this function will be called when user navigates to "localhost:8000/"
-def home(request):
-	# count upvotes for each post
-	upvotes_cnt_list = []
-	checklists_var = Checklist.objects.all().order_by('-date_posted')
-	for checklist in checklists_var:
-		upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
-
-	checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
-
-	paginate_by = 5
-	paginator = Paginator(list(checklist_upvotes), paginate_by)
-	page = request.GET.get('page')
-
-	try:
-		page_checklist_upvotes = paginator.page(page)
-	except PageNotAnInteger:
-		page_checklist_upvotes = paginator.page(1)
-	except EmptyPage:
-		page_checklist_upvotes = paginator.page(paginator.num_pages)
-
-	context = {
-		'checklist_upvotes': page_checklist_upvotes,
-		'title': 'home',
-		'is_paginated': True
-	}
-
-	return render(request, 'checklist/home.html', context) # because render looks in templates subdirectory, by default
 
 
-# can be used instead of "home" method - however useless
+# CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
 	model = Checklist
 	template_name = 'checklist/home.html' # <app_name>/<model>_<viewtype>.html
-	context_object_name = 'checklists_var'
-	ordering = ['-date_posted']
 	paginate_by = 5
+
+	def get_context_data(self, **kwargs):
+		context = super(ChecklistListView, self).get_context_data(**kwargs)
+
+		upvotes_cnt_list = []
+		checklists_var = Checklist.objects.all().order_by('-date_posted')
+		
+		for checklist in checklists_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'home'
+		context['is_paginated'] = True
+
+		return context
 
 
 # DISPLAY CHECKLISTS BY LOGGED IN USER
@@ -153,19 +150,20 @@ class BookmarkChecklistListView(ListView):
 		return Bookmark.objects.filter(user=self.request.user)
 
 
+# VIEW UPVOTE PAGE
+class UpvoteChecklistListView(ListView):
+	model = Upvote
+	template_name = 'checklist/upvote_checklists.html'
+	context_object_name = 'upvotes_var'
+	paginate_by = 5
+
+	def get_queryset(self):
+		return Upvote.objects.filter(user=self.request.user)
+
+
 # ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
-
-
-# SHOW CHECKLISTS POSTED BY LOGGED IN USER
-def mychecklist(request):
-	context = {
-		'checklists_var': request.user.checklist_set.all().order_by('-date_posted'),
-		'title': 'My Checklists'
-	}
-
-	return render(request, 'checklist/mychecklist.html', context) # because render looks in templates subdirectory, by default
 
 
 # UPVOTE POST FUNCTIONALITY
@@ -177,7 +175,6 @@ def upvote_checklist(request, checklist_id):
 		msg = 'You have already upvoted the checklist once!'
 		messages.info(request, msg)
 	"""
-	print(request.META)
 	if Checklist.objects.get(id=checklist_id).author == request.user:
 		msg = 'Action Denied! You cannot upvote your own checklist!'
 		messages.info(request, msg)
@@ -199,12 +196,11 @@ def upvote_checklist(request, checklist_id):
 
 	# redirect to home url; simply reload the page
 	# return redirect('checklist-home')
-	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
 # BOOKMARK FUNCTIONALITY
 def bookmark_checklist(request, checklist_id):
-	# print(request.path_info)
 	# remove user's bookmark if he has already bookmarked
 	if Checklist.objects.get(id=checklist_id).author == request.user:
 		msg = 'Action Denied! You cannot bookmark your own checklist!'
@@ -223,14 +219,52 @@ def bookmark_checklist(request, checklist_id):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
-	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
-
-	# if type == 'add':
-	# 	return redirect('checklist-home')
-	# else:
-	# 	return redirect('bookmarks')
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
+# @DEPRECATED
+# HOME - show all checklists - this function will be called when user navigates to "localhost:8000/"
+def home(request):
+	# count upvotes for each post
+	upvotes_cnt_list = []
+	checklists_var = Checklist.objects.all().order_by('-date_posted')
+	for checklist in checklists_var:
+		upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+	checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+	paginate_by = 5
+	paginator = Paginator(list(checklist_upvotes), paginate_by)
+	page = request.GET.get('page')
+
+	try:
+		page_checklist_upvotes = paginator.page(page)
+	except PageNotAnInteger:
+		page_checklist_upvotes = paginator.page(1)
+	except EmptyPage:
+		page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+	context = {
+		'checklist_upvotes': page_checklist_upvotes,
+		'title': 'home',
+		'is_paginated': True
+	}
+
+	return render(request, 'checklist/home.html', context) # because render looks in templates subdirectory, by default
+
+
+# @DEPRECATED
+# SHOW CHECKLISTS POSTED BY LOGGED IN USER
+def mychecklist(request):
+	context = {
+		'checklists_var': request.user.checklist_set.all().order_by('-date_posted'),
+		'title': 'My Checklists'
+	}
+
+	return render(request, 'checklist/mychecklist.html', context) # because render looks in templates subdirectory, by default
+
+
+# @DEPRECATED
 # VIWE BOOKMARKS PAGE | ALTERNATE - can be used if "BookmarkChecklistListView" does not work
 def mybookmark(request):
 	context = {
