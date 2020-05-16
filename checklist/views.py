@@ -96,6 +96,13 @@ class UserChecklistListView(ListView):
 class ChecklistDetailView(DetailView):
 	model = Checklist
 
+	def get_context_data(self, **kwargs):
+		context = super(ChecklistDetailView, self).get_context_data(**kwargs)
+		# context['object'] = Checklist.objects.get(id=self.kwargs.get('pk'))
+
+		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
+		context['uvote'] = uvote
+		return context
 
 # CREATE CHECKLIST
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
@@ -170,7 +177,7 @@ def upvote_checklist(request, checklist_id):
 		msg = 'You have already upvoted the checklist once!'
 		messages.info(request, msg)
 	"""
-
+	print(request.META)
 	if Checklist.objects.get(id=checklist_id).author == request.user:
 		msg = 'Action Denied! You cannot upvote your own checklist!'
 		messages.info(request, msg)
@@ -191,11 +198,13 @@ def upvote_checklist(request, checklist_id):
 			messages.info(request, msg)
 
 	# redirect to home url; simply reload the page
-	return redirect('checklist-home')
+	# return redirect('checklist-home')
+	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
 
 
 # BOOKMARK FUNCTIONALITY
-def bookmark_checklist(request, checklist_id, type):
+def bookmark_checklist(request, checklist_id):
+	# print(request.path_info)
 	# remove user's bookmark if he has already bookmarked
 	if Checklist.objects.get(id=checklist_id).author == request.user:
 		msg = 'Action Denied! You cannot bookmark your own checklist!'
@@ -214,10 +223,12 @@ def bookmark_checklist(request, checklist_id, type):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
-	if type == 'add':
-		return redirect('checklist-home')
-	else:
-		return redirect('bookmarks')
+	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+
+	# if type == 'add':
+	# 	return redirect('checklist-home')
+	# else:
+	# 	return redirect('bookmarks')
 
 
 # VIWE BOOKMARKS PAGE | ALTERNATE - can be used if "BookmarkChecklistListView" does not work

@@ -18,6 +18,12 @@
 	    </div>
 	    <h2 class="article-title">{{ object.title }}</h2>
 	    <p class="article-content">{{ object.content }}</p>
+	    {% if user.is_authenticated and object.author != user %}
+			<a class="btn btn-outline-info" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+			<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+		{% else %}
+			<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+		{% endif %}
 	  </div>
 	</article>
 {% endblock %}
