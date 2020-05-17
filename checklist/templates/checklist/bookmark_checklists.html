@@ -17,7 +17,7 @@
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' bookmark.checklist.id %}">{{ bookmark.checklist.title }}</a></h2>
 				<p class="article-content">{{ bookmark.checklist.content }}</p>
-				{% if user.is_authenticated and checklist.author.username != user.username %}
+				{% if user.is_authenticated and bookmark.checklist.author.username != user.username %}
 					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
 				{% else %}
 					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
