@@ -84,7 +84,7 @@ class UserChecklistListView(ListView):
 
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'user'
-		context['is_paginated'] = True
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
 		return context
 		
@@ -143,11 +143,38 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class BookmarkChecklistListView(ListView):
 	model = Bookmark
 	template_name = 'checklist/bookmark_checklists.html'
-	context_object_name = 'bookmarks_var'
+	# context_object_name = 'bookmarks_var'
 	paginate_by = 5
 
-	def get_queryset(self):
-		return Bookmark.objects.filter(user=self.request.user)
+	# def get_queryset(self):
+	# 	return Bookmark.objects.filter(user=self.request.user)
+
+	def get_context_data(self, **kwargs):
+		context = super(BookmarkChecklistListView, self).get_context_data(**kwargs)
+
+		upvotes_cnt_list = []
+		bookmarks_var = Bookmark.objects.filter(user=self.request.user)
+
+		for bookmark in bookmarks_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=bookmark.checklist).count())
+
+		checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'bookmarks'
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+
+		return context
 
 
 # VIEW UPVOTE PAGE

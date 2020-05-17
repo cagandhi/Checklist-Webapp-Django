@@ -3,10 +3,10 @@
 
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Your Bookmarks ({{ page_obj.paginator.count }})</h1>
+	<h1 class="mb-3">Your Bookmarks ({{ checklist_upvotes.paginator.count }})</h1>
 
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for bookmark in bookmarks_var %}
+	{% for bookmark, uvote in checklist_upvotes %}
 		<article class="media content-section">
 			<img class="rounded-circle article-img" src="{{ bookmark.checklist.author.profile.image.url }}">
 			<div class="media-body">
@@ -17,6 +17,11 @@
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' bookmark.checklist.id %}">{{ bookmark.checklist.title }}</a></h2>
 				<p class="article-content">{{ bookmark.checklist.content }}</p>
+				{% if user.is_authenticated and checklist.author.username != user.username %}
+					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
+				{% else %}
+					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+				{% endif %}
 			</div>
 		</article>
 	{% endfor %}
@@ -24,23 +29,22 @@
 	<!-- pagination part -->
 	{% if is_paginated %}
 
-		{% if page_obj.has_previous %}
+		{% if checklist_upvotes.has_previous %}
 			<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
 		{% endif %}
 
-		{% for num in page_obj.paginator.page_range %}
-			{% if num == page_obj.number %}
+		{% for num in checklist_upvotes.paginator.page_range %}
+			{% if num == checklist_upvotes.number %}
 				<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
 				<a class="btn btn-info-outline mb-4" href="?page={{ num }}">{{ num }}</a>
 			{% endif %}
 		{% endfor %}
 
-		{% if page_obj.has_next %}
-			<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+		{% if checklist_upvotes.has_next %}
+			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.next_page_number }}">Next</a>
+			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
 		{% endif %}
-
 	{% endif %}
 {% endblock content  %}
