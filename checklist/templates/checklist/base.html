@@ -23,37 +23,44 @@
 
     <!-- NAVIGATION BAR start -->
 	<header class="site-header">
-      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-        <div class="container">
-          <!-- <a class="navbar-brand mr-4" href="{% url 'checklist-home' %}">Django Checklist</a> -->
-          <div class="navbar-brand mr-4">Django Checklist</div>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarToggle">
-            <div class="navbar-nav mr-auto">
-              <a class="nav-item nav-link" href="{% url 'checklist-home' %}">Home</a>
-              <a class="nav-item nav-link" href="{% url 'checklist-about' %}">About</a>
+        <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+            <div class="navbar-brand mr-4 ml-4" href="#">Django Checklist</div>
+
+            <div class="collapse navbar-collapse" id="navbarToggle">
+                <!-- Navbar Left Side -->
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item active"> <a class="nav-item nav-link" href="{% url 'checklist-home' %}">Home</a> </li>
+                  <li class="nav-item"> <a class="nav-item nav-link" href="{% url 'checklist-about' %}">About</a> </li>
+                </ul>
+
+                <!-- Navbar Right Side -->
+                <ul class="navbar-nav mr-5">
+                    {% if user.is_authenticated %}
+                        <li><a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Collections </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
+                                <a class="dropdown-item" href="{% url 'bookmarks' %}">My Bookmarks</a>
+                                <!-- <div class="dropdown-divider"></div> -->
+                                <a class="dropdown-item" href="{% url 'upvotes' %}">My Upvoted Lists</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Profile </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{% url 'profile' %}">Account</a>
+                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                            </div>
+                        </li>
+                    {% else %}
+                        <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                        <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+
+                    {% endif %}
+                </ul>
             </div>
-            <!-- Navbar Right Side -->
-            <div class="navbar-nav">
-              {% if user.is_authenticated %}
-                <a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a>
-                <!-- <a class="nav-item nav-link" href="{% url 'checklist-mychecklist' %}">My CheckLists</a> -->
-                <a class="nav-item nav-link" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
-                <a class="nav-item nav-link" href="{% url 'bookmarks' %}">My Bookmarks</a>
-                <!-- <a class="nav-item nav-link" href="{% url 'checklist-mybookmark' %}">My Bookmarks</a> -->
-                <a class="nav-item nav-link" href="{% url 'upvotes' %}">My Upvoted Lists</a>
-                <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
-                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
-              {% else %}
-                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
-                <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </nav>
+    </nav>
     </header>
     <!-- NAVIGATION BAR end -->
 
