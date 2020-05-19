@@ -2,11 +2,15 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from djrichtextfield.models import RichTextField
 
 # Create your models here.
 class Checklist(models.Model):
 	title = models.CharField(max_length=100)
-	content = models.TextField()
+	# content = models.TextField()
+
+	# https://pypi.org/project/django-richtextfield/ - to store rich text in database [ GitHub: https://github.com/jaap3/django-richtextfield ]
+	content = RichTextField() 
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete = models.CASCADE)
 	visibility = models.IntegerField(default=0)

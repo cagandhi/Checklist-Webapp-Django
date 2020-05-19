@@ -16,7 +16,7 @@
 					<a style="margin-left: 280px" class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-bookmark' bookmark.checklist.id %}">Remove bookmark</a>
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' bookmark.checklist.id %}">{{ bookmark.checklist.title }}</a></h2>
-				<p class="article-content">{{ bookmark.checklist.content }}</p>
+				<p class="article-content">{{ bookmark.checklist.content|safe }}</p>
 				{% if user.is_authenticated and bookmark.checklist.author.username != user.username %}
 					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
 				{% else %}

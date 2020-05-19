@@ -13,7 +13,7 @@
 		      <small class="text-muted">{{ bookmark.checklist.date_posted|date:'F d, Y' }}</small>
 		    </div>
 		    <h2><a class="article-title" href="#">{{ bookmark.checklist.title }}</a></h2>
-		    <p class="article-content">{{ bookmark.checklist.content }}</p>
+		    <p class="article-content">{{ bookmark.checklist.content|safe }}</p>
 		  </div>
 		</article>
 	{% endfor %}

@@ -13,7 +13,7 @@
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 		    </div>
 		    <h2><a class="article-title" href="#">{{ checklist.title }}</a></h2>
-		    <p class="article-content">{{ checklist.content }}</p>
+		    <p class="article-content">{{ checklist.content|safe }}</p>
 		  </div>
 		</article>
 	{% endfor %}

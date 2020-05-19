@@ -14,7 +14,8 @@
 					<small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
-				<p class="article-content">{{ checklist.content }}</p>
+				<!-- https://docs.djangoproject.com/en/dev/ref/templates/builtins/#safe -->
+				<p class="article-content">{{ checklist.content|safe }}</p>
 				<!-- since user cannot upvote own post; does not need to bookmark own post, can see it under my checklists -->
 				{% if user.is_authenticated and checklist.author.username != user.username %}
 					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
