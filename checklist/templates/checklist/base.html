@@ -33,6 +33,12 @@
                   <li class="nav-item"> <a class="nav-item nav-link" href="{% url 'checklist-about' %}">About</a> </li>
                 </ul>
 
+                <!-- search bar here -->
+                <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}" method="get" placeholder="Search" aria-label="Search">
+                    <input type="text" size="30" maxlength="30" placeholder="Search checklists" name="q" value="" class="form-control mr-sm-2" id="q">
+                    <input type="submit" value="Search" class="btn btn-outline-success my-2 my-sm-0">
+                </form>
+
                 <!-- Navbar Right Side -->
                 <ul class="navbar-nav mr-5">
                     {% if user.is_authenticated %}
@@ -49,7 +55,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Profile </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{% url 'profile' %}">Account</a>
+                                <a class="dropdown-item" href="{% url 'profile' %}">Account Page</a>
                                 <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                             </div>
                         </li>

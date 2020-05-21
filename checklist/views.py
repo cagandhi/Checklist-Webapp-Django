@@ -11,8 +11,9 @@ from django.views.generic import (ListView,
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-from .models import Checklist, Upvote, Bookmark
+from django.db.models import Q
 
+from .models import Checklist, Upvote, Bookmark
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -44,7 +45,7 @@ class ChecklistListView(ListView):
 
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'home'
-		context['is_paginated'] = True
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
 		return context
 
@@ -181,11 +182,7 @@ class BookmarkChecklistListView(ListView):
 class UpvoteChecklistListView(ListView):
 	model = Upvote
 	template_name = 'checklist/upvote_checklists.html'
-	# context_object_name = 'upvotes_var'
 	paginate_by = 5
-
-	# def get_queryset(self):
-	# 	return Upvote.objects.filter(user=self.request.user)
 
 	def get_context_data(self, **kwargs):
 		context = super(UpvoteChecklistListView, self).get_context_data(**kwargs)
@@ -211,6 +208,48 @@ class UpvoteChecklistListView(ListView):
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'bookmarks'
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+
+		return context
+
+
+# SEARCH RESULTS PAGE
+class SearchChecklistListView(ListView):
+	model = Checklist
+	template_name = 'checklist/search_checklists.html'
+	paginate_by = 5
+
+	def get_context_data(self, **kwargs):
+		context = super(SearchChecklistListView, self).get_context_data(**kwargs)
+
+		query = ""
+		if self.request.GET:
+			checklists_var = None
+			# if a query string is present in URL
+			if ('q' in self.request.GET) and self.request.GET['q'].strip():
+				query = self.request.GET['q']
+				checklists_var = Checklist.objects.filter(Q(title__icontains=query) | Q(content__icontains=query))
+
+		upvotes_cnt_list = []
+		
+		for checklist in checklists_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'search'
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+		context['query_string'] = query
 
 		return context
 
