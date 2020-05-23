@@ -12,6 +12,7 @@
 				<div class="article-metadata">
 					<a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
 					<small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
+					<button class="btn btn-sm btn-warning" disabled>{{ checklist.category }}</button>
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
 				<!-- https://docs.djangoproject.com/en/dev/ref/templates/builtins/#safe -->

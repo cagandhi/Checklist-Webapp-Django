@@ -102,10 +102,11 @@ class ChecklistDetailView(DetailView):
 		context['uvote'] = uvote
 		return context
 
+
 # CREATE CHECKLIST
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	model = Checklist
-	fields = ['title', 'content']
+	fields = ['title', 'content','category']
 
 	# to link logged in user as author to the checklist being created
 	def form_valid(self, form):
