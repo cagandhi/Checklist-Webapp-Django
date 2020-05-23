@@ -3,7 +3,7 @@
 
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Checklists in category: <strong>{{ view.kwargs.category }}</strong> ({{ checklist_upvotes.paginator.count }})</h1>
+	<h1 class="mb-3">Checklists in <strong>{{ view.kwargs.category }}</strong> ({{ checklist_upvotes.paginator.count }})</h1>
 
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
 	{% for checklist, uvote in checklist_upvotes %}
