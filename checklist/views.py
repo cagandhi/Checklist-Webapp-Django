@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from .models import Checklist, Upvote, Bookmark
+from .models import Checklist, Upvote, Bookmark, Category
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -117,7 +117,7 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 # UPDATE CHECKLIST
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Checklist
-	fields = ['title', 'content']
+	fields = ['title', 'content', 'category']
 
 	# to link logged in user as author to the checklist being updated
 	def form_valid(self, form):
@@ -256,6 +256,43 @@ class SearchChecklistListView(ListView):
 
 		return context
 
+
+# DISPLAY CHECKLISTS FOR A CATEGORY PAGE
+class CategoryChecklistListView(ListView):
+	model = Checklist
+	template_name = 'checklist/category_checklists.html' # <app_name>/<model>_<viewtype>.html
+	paginate_by = 5
+
+	def get_context_data(self, **kwargs):
+		context = super(CategoryChecklistListView, self).get_context_data(**kwargs)
+
+		print('CATEGORY: '+self.kwargs.get('category'))
+		category = get_object_or_404(Category, name=self.kwargs.get('category'))
+
+		# category_id = Category.objects.filter(name=self.kwargs.get('category')).first().id
+		upvotes_cnt_list = []
+		checklists_var = Checklist.objects.filter(category_id=category.id).order_by('-date_posted')
+		
+		for checklist in checklists_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'user'
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+
+		return context
 
 # ABOUT PAGE
 def about(request):

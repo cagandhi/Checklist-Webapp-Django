@@ -3,7 +3,7 @@
 
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Checklists by {{ view.kwargs.username }} ({{ checklist_upvotes.paginator.count }})</h1>
+	<h1 class="mb-3">Checklists in category: <strong>{{ view.kwargs.category }}</strong> ({{ checklist_upvotes.paginator.count }})</h1>
 
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
 	{% for checklist, uvote in checklist_upvotes %}
@@ -13,7 +13,7 @@
 		    <div class="article-metadata">
 		      <!-- <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a> -->
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
-		      <a class="btn btn-sm btn-warning" href="{% url 'category' checklist.category %}" >{{ checklist.category }}</a>
+		      <button class="btn btn-sm btn-warning" disabled>{{ checklist.category }}</button>
 		    </div>
 		    <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
 		    <p class="article-content">{{ checklist.content|safe }}</p>

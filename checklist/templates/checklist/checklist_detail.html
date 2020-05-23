@@ -9,7 +9,7 @@
 	    <div class="article-metadata">
 	      <a class="mr-2" href="{% url 'user-checklists' object.author.username %}">{{ object.author }}</a>
 	      <small class="text-muted">{{ object.date_posted|date:'F d, Y' }}</small>
-	      <button class="btn btn-sm btn-warning" disabled>{{ object.category }}</button>
+	      <a class="btn btn-sm btn-warning" href="{% url 'category' object.category %}" >{{ object.category }}</a>
 	      {% if object.author == user %}
 	      	<div>
 		      	<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-update' object.id %}">Update</a>
