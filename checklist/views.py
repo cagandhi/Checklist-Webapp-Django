@@ -237,7 +237,7 @@ class SearchChecklistListView(ListView):
 		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-		page = self.request.GET.get('page')
+		page = self.request.GET.get('page',1)
 
 		try:
 			page_checklist_upvotes = paginator.page(page)
@@ -245,6 +245,8 @@ class SearchChecklistListView(ListView):
 			page_checklist_upvotes = paginator.page(1)
 		except EmptyPage:
 			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		print(paginator.num_pages)
 
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'search'
@@ -366,3 +368,4 @@ def mybookmark(request):
 	}
 
 	return render(request, 'checklist/mybookmark.html', context) # because render looks in templates subdirectory, by default
+

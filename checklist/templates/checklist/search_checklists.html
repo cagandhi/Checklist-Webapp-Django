@@ -1,6 +1,7 @@
-
 <!-- template inheritance -->
 {% extends "checklist/base.html" %}
+
+{% load url_replace %}
 
 <!-- only replace the block content with this code -->
 {% block content %}
@@ -38,21 +39,23 @@
 	{% if is_paginated %}
 
 		{% if checklist_upvotes.has_previous %}
-			<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
+			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page=1">First</a> -->
+			<a class="btn btn-outline-info mb-4" href="?{% url_replace page=1 %}">First</a>
+			<a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.previous_page_number }}">Previous</a>
 		{% endif %}
 
 		{% for num in checklist_upvotes.paginator.page_range %}
 			{% if num == checklist_upvotes.number %}
-				<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+				<a class="btn btn-info mb-4" href="?q={{ query_string }}&page={{ num }}">{{ num }}</a>
 			{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
-				<a class="btn btn-info-outline mb-4" href="?page={{ num }}">{{ num }}</a>
+				<a class="btn btn-info-outline mb-4" href="?q={{ query_string }}&page={{ num }}">{{ num }}</a>
 			{% endif %}
 		{% endfor %}
 
 		{% if checklist_upvotes.has_next %}
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.next_page_number }}">Next</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
+			<a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.next_page_number }}">Next</a>
+			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.paginator.num_pages }}">Last</a> -->
+			<a class="btn btn-outline-info mb-4" href="?{% url_replace page=checklist_upvotes.paginator.num_pages %}">Last</a>
 		{% endif %}
 	{% endif %}
 {% endblock content  %}
