@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'checklist_project.urls'
@@ -68,6 +69,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'checklist.context_processors.add_variable_to_context',
+                'social_django.context_processors.backends',  # <--
+                'social_django.context_processors.login_redirect', # <--
             ],
         },
     },
@@ -108,22 +111,29 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 
+# SOCIAL LOGINS 
+# Reference: 
+# GOOGLE - https://medium.com/trabe/oauth-authentication-in-django-with-social-auth-c67a002479c1
+# FACEBOOK - https://simpleisbetterthancomplex.com/tutorial/2016/10/24/how-to-add-social-login-to-django.html
+
+# GOOGLE LOGIN
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '680082496151-lql8b7bdb1b8m97r8qqga831a8p75m7d.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'cmbtKMdujPAjXn1p67IUULF_'
-
-
-LOGIN_URL = '/auth/login/google-oauth2/'
-
-LOGIN_REDIRECT_URL = '/'
-
-
+# SOCIAL_AUTH_GOOGLE_LOGIN_URL = '/auth/login/google-oauth2/'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'profile'
+
+# FB LOGIN
+SOCIAL_AUTH_FACEBOOK_KEY = '909652762843741'  # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = '663ea8f95badf0a65f30a53f3b584b07'  # App Secret
 
 
+# django-richtextfield -> refer: https://github.com/jaap3/django-richtextfield
 DJRICHTEXTFIELD_CONFIG = {
     'js': ['//tinymce.cachefly.net/4.1/tinymce.min.js'],
     'init_template': 'djrichtextfield/init/tinymce.js',

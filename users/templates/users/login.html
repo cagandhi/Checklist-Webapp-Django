@@ -14,6 +14,12 @@
 				<small class='text-muted ml-2'>
 					<a href="{% url 'password_reset' %}">Forgot Password?</a>
 				</small>
+				<div class="form-group mt-3">
+					<small class="text-muted">
+						<a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
+						<a href="{% url 'social:begin' 'facebook' %}">Login with Facebook</a>
+					</small>
+				</div>
 			</div>
 		</form>
 
@@ -24,9 +30,7 @@
 			</small>
 		</div>
 		<div class="border-top pt-3">
-			<small class="text-muted">
-				<a href="{% url 'social:begin' 'google-oauth2' %}">Google Login</a>
-			</small>
+			
 		</div>
 	</div>
 {% endblock %}
