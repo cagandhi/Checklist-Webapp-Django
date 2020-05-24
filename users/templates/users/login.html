@@ -23,5 +23,10 @@
 				<a href="{% url 'register' %}">Sign Up</a>
 			</small>
 		</div>
+		<div class="border-top pt-3">
+			<small class="text-muted">
+				<a href="{% url 'social:begin' 'google-oauth2' %}">Google Login</a>
+			</small>
+		</div>
 	</div>
 {% endblock %}

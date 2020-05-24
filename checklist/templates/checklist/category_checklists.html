@@ -11,7 +11,7 @@
 			<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
 		  <div class="media-body">
 		    <div class="article-metadata">
-		      <!-- <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a> -->
+		      <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
 		      <button class="btn btn-sm btn-warning" disabled>{{ checklist.category }}</button>
 		    </div>
