@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djrichtextfield',
-    'social_django'
+    'social_django',
+    'django_social_share'
 ]
 
 MIDDLEWARE = [
@@ -117,6 +118,7 @@ AUTHENTICATION_BACKENDS = (
 
 
 # SOCIAL LOGINS 
+
 # Reference: 
 # GOOGLE - https://medium.com/trabe/oauth-authentication-in-django-with-social-auth-c67a002479c1
 # FACEBOOK - https://simpleisbetterthancomplex.com/tutorial/2016/10/24/how-to-add-social-login-to-django.html

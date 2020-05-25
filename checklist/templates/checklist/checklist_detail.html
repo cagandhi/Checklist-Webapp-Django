@@ -1,6 +1,8 @@
 <!-- view a single post - ChecklistDetailView -->
 {% extends "checklist/base.html" %}
 
+{% load social_share %}
+
 <!-- only replace the block content with this code -->
 {% block content %}
 	<article class="media content-section">
@@ -26,6 +28,13 @@
 		{% else %}
 			<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
 		{% endif %}
+		<div/>
+		<div style="margin-top: 15px"> 
+			{% post_to_facebook request.build_absolute_uri %}
+			{% post_to_twitter object.title request.build_absolute_uri %}
+			{% post_to_linkedin object.title request.build_absolute_uri %}
+			{% post_to_reddit object.title request.build_absolute_uri %}
+		</div>
 	  </div>
 	</article>
 {% endblock %}
