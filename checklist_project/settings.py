@@ -28,9 +28,6 @@ DEBUG = (os.environ.get('DEBUG_VALUE') == 'True') #True
 
 ALLOWED_HOSTS = ['django-checklist.herokuapp.com']
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True 
-
 # Application definition
 
 INSTALLED_APPS = [
