@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djrichtextfield',
     'social_django',
-    'django_social_share'
+    'django_social_share',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -181,5 +182,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'chintangandhi97caa@gmail.com'
-EMAIL_HOST_PASSWORD = 'ooiqtffnmgcppfky'
+EMAIL_HOST_USER = os.environ.get('DJANGO_CHECKLIST_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_CHECKLIST_EMAIL_HOST_PASSWORD')
+
+
+# REFER: https://django-storages.readthedocs.io/en/latest/
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# REGION to be set as default region seems to be us-east-2 
+AWS_S3_REGION_NAME = 'us-east-1'
