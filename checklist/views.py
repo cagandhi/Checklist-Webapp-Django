@@ -13,7 +13,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from .models import Checklist, Upvote, Bookmark, Category
+from .models import Checklist, Upvote, Bookmark, Category, Item
+from django import forms
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -111,6 +112,37 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	# to link logged in user as author to the checklist being created
 	def form_valid(self, form):
 		form.instance.author = self.request.user
+		return super().form_valid(form)
+
+
+# CREATE ITEM
+class ItemCreateView(LoginRequiredMixin, CreateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	checklist_id = 0
+
+	# 1st method executed
+	def dispatch(self, *args, **kwargs):
+		self.checklist_id = self.kwargs.get('checklist_id')
+		if Checklist.objects.get(id=self.checklist_id).author != self.request.user:
+			
+			# clear all messages
+			system_messages = messages.get_messages(self.request)
+			for message in system_messages:
+				# This iteration is necessary
+				pass
+			system_messages.used = True
+
+			msg = 'Action Denied! You can only add items to your own checklist!'
+			messages.info(self.request, msg)
+			return redirect('checklist-detail', pk=self.checklist_id)
+		else:
+			return super().dispatch(*args, **kwargs)
+
+	# 2nd method executed
+	def form_valid(self, form):
+		form.instance.checklist = Checklist.objects.get(id=self.checklist_id)
 		return super().form_valid(form)
 
 
@@ -294,6 +326,7 @@ class CategoryChecklistListView(ListView):
 
 		return context
 
+
 # ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
@@ -406,4 +439,3 @@ def mybookmark(request):
 	}
 
 	return render(request, 'checklist/mybookmark.html', context) # because render looks in templates subdirectory, by default
-

@@ -13,6 +13,7 @@
 	      <small class="text-muted">{{ object.date_posted|date:'F d, Y' }}</small>
 	      <a class="btn btn-sm btn-warning" href="{% url 'category' object.category %}" >{{ object.category }}</a>
 	      {% if object.author == user %}
+	      	<a style="float: right;" class="btn btn-sm btn-info mb-3 mr-1" href="{% url 'item-create' object.id %}">Add Item</a>
 	      	<div>
 		      	<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-update' object.id %}">Update</a>
 		      	<a class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-delete' object.id %}">Delete</a>

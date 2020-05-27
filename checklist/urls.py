@@ -8,7 +8,9 @@ from .views import (ChecklistListView,
 	ChecklistDeleteView,
     BookmarkChecklistListView,
     UpvoteChecklistListView,
+    SearchChecklistListView,
     CategoryChecklistListView,
+    ItemCreateView,
 )
 
 urlpatterns = [
@@ -26,6 +28,7 @@ urlpatterns = [
     path('mychecklist/', views.mychecklist, name='checklist-mychecklist'),
     path('checklist/<int:checklist_id>/upvote/', views.upvote_checklist, name='checklist-upvote'),
     path('checklist/<int:checklist_id>/bookmark/', views.bookmark_checklist, name='checklist-bookmark'),
-    path('search/', views.SearchChecklistListView.as_view(), name='search'),
-    path('checklist/<str:category>/', views.CategoryChecklistListView.as_view(), name='category')
+    path('search/', SearchChecklistListView.as_view(), name='search'),
+    path('checklist/<str:category>/', CategoryChecklistListView.as_view(), name='category'),
+    path('checklist/<int:checklist_id>/item/new/', ItemCreateView.as_view(), name='item-create'),
 ]
