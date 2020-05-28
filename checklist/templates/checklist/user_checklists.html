@@ -13,7 +13,7 @@
 		    <div class="article-metadata">
 		      <!-- <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a> -->
 		      <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
-		      <a class="btn btn-sm btn-warning" href="{% url 'category' checklist.category %}" >{{ checklist.category }}</a>
+		      <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' checklist.category %}" >{{ checklist.category }}</a>
 		    </div>
 		    <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
 		    <p class="article-content">{{ checklist.content|safe }}</p>

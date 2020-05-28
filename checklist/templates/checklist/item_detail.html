@@ -12,8 +12,10 @@
 			<p class="article-content"><strong>Checklist: </strong><a href="{% url 'checklist-detail' object.checklist.id %}">{{ object.checklist.title }}</a></p>
 		</div>
 		<div>
-			<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'item-update' object.id %}">Update</a>
-			<a style="float: right;" class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'item-action' object.id 'delete' %}">Delete</a>
+			{% if object.checklist.author == user %}
+				<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'item-update' object.id %}">Update</a>
+				<a style="float: right;" class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'item-action' object.id 'delete' %}">Delete</a>
+			{% endif %}
 		</div>
 	</article>
 {% endblock %}

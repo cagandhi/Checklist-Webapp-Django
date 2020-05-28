@@ -13,7 +13,7 @@
 				<div class="article-metadata">
 					<a class="mr-2" href="{% url 'user-checklists' upvote.checklist.author.username %}">{{ upvote.checklist.author }}</a>
 					<small class="text-muted">{{ upvote.checklist.date_posted|date:'F d, Y' }}</small>
-					<a class="btn btn-sm btn-warning" href="{% url 'category' upvote.checklist.category %}" >{{ upvote.checklist.category }}</a>
+					<a class="btn btn-sm btn-warning mb-1" href="{% url 'category' upvote.checklist.category %}" >{{ upvote.checklist.category }}</a>
 					<a style="float: right;" class="btn btn-danger btn-sm mb-3 mr-1" href="{% url 'checklist-upvote' upvote.checklist.id %}">Remove Upvote</a>
 				</div>
 				<h2><a class="article-title" href="{% url 'checklist-detail' upvote.checklist.id %}">{{ upvote.checklist.title }}</a></h2>

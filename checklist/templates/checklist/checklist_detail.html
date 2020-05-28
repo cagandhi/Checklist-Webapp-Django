@@ -11,7 +11,7 @@
 	    <div class="article-metadata">
 	      <a class="mr-2" href="{% url 'user-checklists' object.author.username %}">{{ object.author }}</a>
 	      <small class="text-muted">{{ object.date_posted|date:'F d, Y' }}</small>
-	      <a class="btn btn-sm btn-warning" href="{% url 'category' object.category %}" >{{ object.category }}</a>
+	      <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' object.category %}" >{{ object.category }}</a>
 	      {% if object.author == user %}
 	      	<a style="float: right;" class="btn btn-sm btn-info mb-3 mr-1" href="{% url 'item-create' object.id %}">Add Item</a>
 	      	<div>
@@ -31,7 +31,9 @@
 			      <th scope="col">Item title</th>
 			      <th scope="col">Completed?</th>
 			      <th scope="col">Priority</th>
-			      <th scope="col">Actions</th>
+			      {% if object.author == user %}
+			      	<th scope="col">Actions</th>
+			      {% endif %}
 			    </tr>
 			  </thead>
 			  <tbody>
@@ -42,12 +44,14 @@
 							No
 						</td>
 						<td>{{ item.priority }}</td>
-						<td>
-							<span>
-								<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
-								<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
-							</span>
-						</td>
+						{% if object.author == user %}
+							<td>
+								<span>
+									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
+									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+								</span>
+							</td>
+						{% endif %}
 					</tr>
 				{% endfor %}
 				{% for item in itemset_complete %}
@@ -57,12 +61,14 @@
 							Yes
 						</td>
 						<td>{{ item.priority }}</td>
-						<td>
-							<span>
-								<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
-								<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
-							</span>
-						</td>
+						{% if object.author == user %}
+							<td>
+								<span>
+									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
+									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+								</span>
+							</td>
+						{% endif %}
 					</tr>
 				{% endfor %}
 			  </tbody>

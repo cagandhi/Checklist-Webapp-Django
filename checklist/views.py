@@ -15,6 +15,7 @@ from django.db.models import Q
 
 from .models import Checklist, Upvote, Bookmark, Category, Item
 from django import forms
+from django.contrib.auth.decorators import login_required
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -201,7 +202,7 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 # VIEW BOOKMARKS PAGE
-class BookmarkChecklistListView(ListView):
+class BookmarkChecklistListView(LoginRequiredMixin, ListView):
 	model = Bookmark
 	template_name = 'checklist/bookmark_checklists.html'
 	# context_object_name = 'bookmarks_var'
@@ -239,7 +240,7 @@ class BookmarkChecklistListView(ListView):
 
 
 # VIEW UPVOTE PAGE
-class UpvoteChecklistListView(ListView):
+class UpvoteChecklistListView(LoginRequiredMixin, ListView):
 	model = Upvote
 	template_name = 'checklist/upvote_checklists.html'
 	paginate_by = 5
@@ -360,6 +361,7 @@ def about(request):
 
 
 # UPVOTE POST FUNCTIONALITY
+@login_required
 def upvote_checklist(request, checklist_id):
 	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
 	
@@ -387,12 +389,16 @@ def upvote_checklist(request, checklist_id):
 			msg = 'Checklist upvoted!'
 			messages.info(request, msg)
 
+	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+		return redirect('checklist-home')
+	
 	# redirect to home url; simply reload the page
 	# return redirect('checklist-home')
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
 # BOOKMARK FUNCTIONALITY
+@login_required
 def bookmark_checklist(request, checklist_id):
 	# remove user's bookmark if he has already bookmarked
 	if Checklist.objects.get(id=checklist_id).author == request.user:
@@ -412,10 +418,14 @@ def bookmark_checklist(request, checklist_id):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
+	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+		return redirect('checklist-home')
+	
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
 ## COMPLETE/DELETE ITEM
+@login_required
 def item_action(request, item_id, action_type):
 	if Item.objects.get(id=item_id).checklist.author != request.user:
 		msg = 'Action Denied! You can only make changes to your own checklist!'
