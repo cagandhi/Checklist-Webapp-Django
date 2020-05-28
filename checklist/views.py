@@ -91,7 +91,7 @@ class UserChecklistListView(ListView):
 		return context
 		
 
-# DISPLAY A CHECKLIST IN FULL PAGE - WHEN USE CLICKS ON THE CHECKLIST
+# DISPLAY A SINGLE CHECKLIST 
 class ChecklistDetailView(DetailView):
 	model = Checklist
 
@@ -101,8 +101,11 @@ class ChecklistDetailView(DetailView):
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
 
-		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.all()
-		context['itemset'] = itemset
+		itemset_incomplete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=False)
+		itemset_complete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=True)
+
+		context['itemset_incomplete'] = itemset_incomplete
+		context['itemset_complete'] = itemset_complete
 
 		return context
 
@@ -149,6 +152,11 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
 		return super().form_valid(form)
 
 
+# DISPLAY A SINGLE ITEM 
+class ItemDetailView(DetailView):
+	model = Item
+
+
 # UPDATE CHECKLIST
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Checklist
@@ -174,6 +182,22 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 	def test_func(self):
 		checklist = self.get_object()
 		return (self.request.user == checklist.author)
+
+
+# UPDATE ITEM
+class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	# # to link logged in user as author to the checklist being updated
+	# def form_valid(self, form):
+	# 	form.instance.author = self.request.user
+	# 	return super().form_valid(form)
+
+	# checks if currently logged in user is the checklist author
+	def test_func(self):
+		item = self.get_object()
+		return (self.request.user == item.checklist.author)
 
 
 # VIEW BOOKMARKS PAGE
@@ -392,9 +416,11 @@ def bookmark_checklist(request, checklist_id):
 
 
 ## COMPLETE/DELETE ITEM
-def item_action(request, checklist_id, item_id, action_type):
-	if Checklist.objects.get(id=checklist_id).author != request.user:
+def item_action(request, item_id, action_type):
+	if Item.objects.get(id=item_id).checklist.author != request.user:
 		msg = 'Action Denied! You can only make changes to your own checklist!'
+		messages.info(request, msg)
+		return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 	else:
 		obj = Item.objects.get(id=item_id)
 
@@ -407,8 +433,9 @@ def item_action(request, checklist_id, item_id, action_type):
 			obj.delete()
 			msg = 'Item deleted'
 
-	messages.info(request, msg)
-	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+		messages.info(request, msg)
+		return redirect('checklist-detail', pk=obj.checklist.id)
+	
 
 
 # ------------------------------------------------------------------------------------------------

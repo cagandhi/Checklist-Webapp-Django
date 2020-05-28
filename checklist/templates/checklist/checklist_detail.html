@@ -25,7 +25,7 @@
 		<div/>
 
 		<div style="margin-top: 20px">
-			<table class="table">
+			<table class="table table-sm">
 			  <thead class="thead-light">
 			    <tr>
 			      <th scope="col">Item title</th>
@@ -35,12 +35,34 @@
 			    </tr>
 			  </thead>
 			  <tbody>
-			  	{% for item in itemset %}
-					<tr>
-						<td><a href="#">{{ item.title }}</a></td>
-						<td>{{ item.completed }}</td>
+			  	{% for item in itemset_incomplete %}
+			  		<tr>
+						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
+						<td>
+							No
+						</td>
 						<td>{{ item.priority }}</td>
-						<td><span><a class="btn btn-outline-success" href="{% url 'item-action' object.id item.id 'complete' %}">Done {{ item.id }}</a><a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' object.id item.id 'delete' %}">Delete</a></span></td>
+						<td>
+							<span>
+								<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
+								<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+							</span>
+						</td>
+					</tr>
+				{% endfor %}
+				{% for item in itemset_complete %}
+			  		<tr>
+						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
+						<td>
+							Yes
+						</td>
+						<td>{{ item.priority }}</td>
+						<td>
+							<span>
+								<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
+								<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+							</span>
+						</td>
 					</tr>
 				{% endfor %}
 			  </tbody>
@@ -52,7 +74,7 @@
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
 			{% else %}
-				<a class="btn btn-outline-info disabled" style="margin-top: 10px">{{ uvote }} Upvotes</a>
+				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>
 			{% endif %}
 		</div>
 

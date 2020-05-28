@@ -1,0 +1,19 @@
+<!-- view a single post - ChecklistDetailView -->
+{% extends "checklist/base.html" %}
+
+<!-- only replace the block content with this code -->
+{% block content %}
+	<article class="media content-section">
+		<div class="media-body">
+			<h2>Item Description</h2><br>
+			<p class="article-content"><strong>Item title: </strong>{{ object.title }}</h2>
+			<p class="article-content"><strong>Priority: </strong>{{ object.priority }}</p>
+			<p class="article-content"><strong>Completed: </strong>{% if object.completed %} Yes {% else %} No {% endif %}</p>
+			<p class="article-content"><strong>Checklist: </strong><a href="{% url 'checklist-detail' object.checklist.id %}">{{ object.checklist.title }}</a></p>
+		</div>
+		<div>
+			<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'item-update' object.id %}">Update</a>
+			<a style="float: right;" class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'item-action' object.id 'delete' %}">Delete</a>
+		</div>
+	</article>
+{% endblock %}
