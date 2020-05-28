@@ -23,13 +23,38 @@
 	    <h2 class="article-title">{{ object.title }}</h2>
 	    <p class="article-content">{{ object.content|safe }}</p>
 	    <!-- <p><? echo htmlspecialchars( {{ object.content|safe }} ); ?></p> -->
-	    {% if user.is_authenticated and object.author != user %}
-			<a class="btn btn-outline-info" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
-			<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
-		{% else %}
-			<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
-		{% endif %}
 		<div/>
+
+		<div style="margin-top: 20px">
+			<table class="table">
+			  <thead class="thead-dark">
+			    <tr>
+			      <th scope="col">Item title</th>
+			      <th scope="col">Completed?</th>
+			      <th scope="col">Priority</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			  	{% for item in itemset %}
+					<tr>
+						<td>{{ item.title }}</td>
+						<td>{{ item.completed }}</td>
+						<td>{{ item.priority }}</td>
+					</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+		</div>
+
+		<div>
+			{% if user.is_authenticated and object.author != user %}
+				<a class="btn btn-outline-info" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+				<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+			{% else %}
+				<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+			{% endif %}
+		</div>
+
 		<div style="margin-top: 15px"> 
 			{% post_to_facebook request.build_absolute_uri %}
 			{% post_to_twitter object.title request.build_absolute_uri %}

@@ -97,10 +97,13 @@ class ChecklistDetailView(DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super(ChecklistDetailView, self).get_context_data(**kwargs)
-		# context['object'] = Checklist.objects.get(id=self.kwargs.get('pk'))
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
+
+		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.all()
+		context['itemset'] = itemset
+		
 		return context
 
 
