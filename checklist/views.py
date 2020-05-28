@@ -13,7 +13,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from .models import Checklist, Upvote, Bookmark, Category
+from .models import Checklist, Upvote, Bookmark, Category, Item
+from django import forms
+from django.contrib.auth.decorators import login_required
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -90,16 +92,22 @@ class UserChecklistListView(ListView):
 		return context
 		
 
-# DISPLAY A CHECKLIST IN FULL PAGE - WHEN USE CLICKS ON THE CHECKLIST
+# DISPLAY A SINGLE CHECKLIST 
 class ChecklistDetailView(DetailView):
 	model = Checklist
 
 	def get_context_data(self, **kwargs):
 		context = super(ChecklistDetailView, self).get_context_data(**kwargs)
-		# context['object'] = Checklist.objects.get(id=self.kwargs.get('pk'))
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
+
+		itemset_incomplete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=False)
+		itemset_complete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=True)
+
+		context['itemset_incomplete'] = itemset_incomplete
+		context['itemset_complete'] = itemset_complete
+
 		return context
 
 
@@ -112,6 +120,42 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		form.instance.author = self.request.user
 		return super().form_valid(form)
+
+
+# CREATE ITEM
+class ItemCreateView(LoginRequiredMixin, CreateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	checklist_id = 0
+
+	# 1st method executed
+	def dispatch(self, *args, **kwargs):
+		self.checklist_id = self.kwargs.get('checklist_id')
+		if Checklist.objects.get(id=self.checklist_id).author != self.request.user:
+			
+			# clear all messages
+			system_messages = messages.get_messages(self.request)
+			for message in system_messages:
+				# This iteration is necessary
+				pass
+			system_messages.used = True
+
+			msg = 'Action Denied! You can only add items to your own checklist!'
+			messages.info(self.request, msg)
+			return redirect('checklist-detail', pk=self.checklist_id)
+		else:
+			return super().dispatch(*args, **kwargs)
+
+	# 2nd method executed
+	def form_valid(self, form):
+		form.instance.checklist = Checklist.objects.get(id=self.checklist_id)
+		return super().form_valid(form)
+
+
+# DISPLAY A SINGLE ITEM 
+class ItemDetailView(DetailView):
+	model = Item
 
 
 # UPDATE CHECKLIST
@@ -141,8 +185,24 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 		return (self.request.user == checklist.author)
 
 
+# UPDATE ITEM
+class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	# # to link logged in user as author to the checklist being updated
+	# def form_valid(self, form):
+	# 	form.instance.author = self.request.user
+	# 	return super().form_valid(form)
+
+	# checks if currently logged in user is the checklist author
+	def test_func(self):
+		item = self.get_object()
+		return (self.request.user == item.checklist.author)
+
+
 # VIEW BOOKMARKS PAGE
-class BookmarkChecklistListView(ListView):
+class BookmarkChecklistListView(LoginRequiredMixin, ListView):
 	model = Bookmark
 	template_name = 'checklist/bookmark_checklists.html'
 	# context_object_name = 'bookmarks_var'
@@ -180,7 +240,7 @@ class BookmarkChecklistListView(ListView):
 
 
 # VIEW UPVOTE PAGE
-class UpvoteChecklistListView(ListView):
+class UpvoteChecklistListView(LoginRequiredMixin, ListView):
 	model = Upvote
 	template_name = 'checklist/upvote_checklists.html'
 	paginate_by = 5
@@ -294,12 +354,14 @@ class CategoryChecklistListView(ListView):
 
 		return context
 
+
 # ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
 
 
 # UPVOTE POST FUNCTIONALITY
+@login_required
 def upvote_checklist(request, checklist_id):
 	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
 	
@@ -327,12 +389,16 @@ def upvote_checklist(request, checklist_id):
 			msg = 'Checklist upvoted!'
 			messages.info(request, msg)
 
+	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+		return redirect('checklist-home')
+	
 	# redirect to home url; simply reload the page
 	# return redirect('checklist-home')
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
 # BOOKMARK FUNCTIONALITY
+@login_required
 def bookmark_checklist(request, checklist_id):
 	# remove user's bookmark if he has already bookmarked
 	if Checklist.objects.get(id=checklist_id).author == request.user:
@@ -352,7 +418,38 @@ def bookmark_checklist(request, checklist_id):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
+	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+		return redirect('checklist-home')
+	
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
+
+## COMPLETE/DELETE ITEM
+@login_required
+def item_action(request, item_id, action_type):
+	if Item.objects.get(id=item_id).checklist.author != request.user:
+		msg = 'Action Denied! You can only make changes to your own checklist!'
+		messages.info(request, msg)
+		return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+	else:
+		obj = Item.objects.get(id=item_id)
+
+		if action_type == 'complete':
+			obj.completed = not obj.completed
+			obj.save()
+
+			msg = 'Item marked as Done/Not Done!'
+		elif action_type == 'delete':
+			obj.delete()
+			msg = 'Item deleted'
+
+		messages.info(request, msg)
+		return redirect('checklist-detail', pk=obj.checklist.id)
+	
+
+
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 
 # @DEPRECATED
@@ -406,4 +503,3 @@ def mybookmark(request):
 	}
 
 	return render(request, 'checklist/mybookmark.html', context) # because render looks in templates subdirectory, by default
-

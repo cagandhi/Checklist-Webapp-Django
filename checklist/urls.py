@@ -8,12 +8,15 @@ from .views import (ChecklistListView,
 	ChecklistDeleteView,
     BookmarkChecklistListView,
     UpvoteChecklistListView,
+    SearchChecklistListView,
     CategoryChecklistListView,
+    ItemCreateView,
+    ItemDetailView,
+    ItemUpdateView
 )
 
 urlpatterns = [
     path('', ChecklistListView.as_view(), name='checklist-home'),
-    # path('', views.home, name='checklist-home'), 
     path('user/<str:username>/', UserChecklistListView.as_view(), name='user-checklists'),
     path('bookmarks/', BookmarkChecklistListView.as_view(), name='bookmarks'),
     path('mybookmark/', views.mybookmark, name='checklist-mybookmark'),
@@ -26,6 +29,10 @@ urlpatterns = [
     path('mychecklist/', views.mychecklist, name='checklist-mychecklist'),
     path('checklist/<int:checklist_id>/upvote/', views.upvote_checklist, name='checklist-upvote'),
     path('checklist/<int:checklist_id>/bookmark/', views.bookmark_checklist, name='checklist-bookmark'),
-    path('search/', views.SearchChecklistListView.as_view(), name='search'),
-    path('checklist/<str:category>/', views.CategoryChecklistListView.as_view(), name='category')
+    path('search/', SearchChecklistListView.as_view(), name='search'),
+    path('checklist/<str:category>/', CategoryChecklistListView.as_view(), name='category'),
+    path('checklist/<int:checklist_id>/item/new/', ItemCreateView.as_view(), name='item-create'),
+    path('checklist/item/<int:pk>/view/', ItemDetailView.as_view(), name='item-detail'),
+    path('checklist/item/<int:pk>/update/', ItemUpdateView.as_view(), name='item-update'),
+    path('checklist/item/<int:item_id>/<str:action_type>/', views.item_action, name='item-action'),
 ]

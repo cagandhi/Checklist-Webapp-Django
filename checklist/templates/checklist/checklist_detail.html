@@ -11,8 +11,9 @@
 	    <div class="article-metadata">
 	      <a class="mr-2" href="{% url 'user-checklists' object.author.username %}">{{ object.author }}</a>
 	      <small class="text-muted">{{ object.date_posted|date:'F d, Y' }}</small>
-	      <a class="btn btn-sm btn-warning" href="{% url 'category' object.category %}" >{{ object.category }}</a>
+	      <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' object.category %}" >{{ object.category }}</a>
 	      {% if object.author == user %}
+	      	<a style="float: right;" class="btn btn-sm btn-info mb-3 mr-1" href="{% url 'item-create' object.id %}">Add Item</a>
 	      	<div>
 		      	<a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-update' object.id %}">Update</a>
 		      	<a class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'checklist-delete' object.id %}">Delete</a>
@@ -21,19 +22,73 @@
 	    </div>
 	    <h2 class="article-title">{{ object.title }}</h2>
 	    <p class="article-content">{{ object.content|safe }}</p>
-	    <!-- <p><? echo htmlspecialchars( {{ object.content|safe }} ); ?></p> -->
-	    {% if user.is_authenticated and object.author != user %}
-			<a class="btn btn-outline-info" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
-			<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
-		{% else %}
-			<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
-		{% endif %}
 		<div/>
-		<div style="margin-top: 15px"> 
-			{% post_to_facebook request.build_absolute_uri %}
-			{% post_to_twitter object.title request.build_absolute_uri %}
-			{% post_to_linkedin object.title request.build_absolute_uri %}
-			{% post_to_reddit object.title request.build_absolute_uri %}
+
+		<div style="margin-top: 20px">
+			<table class="table table-sm">
+			  <thead class="thead-light">
+			    <tr>
+			      <th scope="col">Item title</th>
+			      <th scope="col">Completed?</th>
+			      <th scope="col">Priority</th>
+			      {% if object.author == user %}
+			      	<th scope="col">Actions</th>
+			      {% endif %}
+			    </tr>
+			  </thead>
+			  <tbody>
+			  	{% for item in itemset_incomplete %}
+			  		<tr>
+						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
+						<td>
+							No
+						</td>
+						<td>{{ item.priority }}</td>
+						{% if object.author == user %}
+							<td>
+								<span>
+									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
+									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+								</span>
+							</td>
+						{% endif %}
+					</tr>
+				{% endfor %}
+				{% for item in itemset_complete %}
+			  		<tr>
+						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
+						<td>
+							Yes
+						</td>
+						<td>{{ item.priority }}</td>
+						{% if object.author == user %}
+							<td>
+								<span>
+									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
+									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+								</span>
+							</td>
+						{% endif %}
+					</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+		</div>
+
+		<div class="border-top">
+			{% if user.is_authenticated and object.author != user %}
+				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+			{% else %}
+				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>
+			{% endif %}
+		</div>
+
+		<div style="margin-top: 15px"> <strong>Share on: </strong>
+			{% post_to_facebook request.build_absolute_uri "Facebook" %} | 
+			{% post_to_twitter object.title request.build_absolute_uri "Twitter" %} | 
+			{% post_to_linkedin object.title request.build_absolute_uri "LinkedIn" %} | 
+			{% post_to_reddit object.title request.build_absolute_uri "Reddit" %}
 		</div>
 	  </div>
 	</article>

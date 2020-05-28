@@ -62,7 +62,7 @@ ROOT_URLCONF = 'checklist_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # https://stackoverflow.com/a/38353582/6543250 - override 3rd party app templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,7 +133,7 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 # FB LOGIN
 SOCIAL_AUTH_FACEBOOK_KEY = '909652762843741'  # App ID
-SOCIAL_AUTH_FACEBOOK_SECRET = '663ea8f95badf0a65f30a53f3b584b07'  # App Secret
+SOCIAL_AUTH_FACEBOOK_SECRET = 'f3a40a1fb9ad240ab48e61171bbc1e0d'  # App Secret
 
 
 # django-richtextfield -> refer: https://github.com/jaap3/django-richtextfield

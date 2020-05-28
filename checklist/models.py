@@ -10,10 +10,10 @@ class Checklist(models.Model):
 	# content = models.TextField()
 
 	# https://pypi.org/project/django-richtextfield/ - to store rich text in database [ GitHub: https://github.com/jaap3/django-richtextfield ]
-	content = RichTextField() 
+	content = RichTextField()
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete = models.CASCADE)
-	visibility = models.IntegerField(default=0)
+	visibility = models.PositiveIntegerField(default=0)
 	category = models.ForeignKey('Category', null=True, on_delete = models.SET_NULL)
 
 	def __str__(self):
@@ -21,6 +21,17 @@ class Checklist(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('checklist-detail', kwargs={'pk': self.id})
+
+
+class Item(models.Model):
+	title = models.CharField(max_length=100)
+	# description = RichTextField()
+	priority = models.PositiveIntegerField(default=0)
+	completed = models.BooleanField(default=False)
+	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
+
+	def get_absolute_url(self):
+		return reverse('checklist-detail', kwargs={'pk': self.checklist.id})
 
 
 class Upvote(models.Model):
