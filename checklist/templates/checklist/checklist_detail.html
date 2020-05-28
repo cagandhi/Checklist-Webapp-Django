@@ -22,7 +22,6 @@
 	    </div>
 	    <h2 class="article-title">{{ object.title }}</h2>
 	    <p class="article-content">{{ object.content|safe }}</p>
-	    <!-- <p><? echo htmlspecialchars( {{ object.content|safe }} ); ?></p> -->
 		<div/>
 
 		<div style="margin-top: 20px">
@@ -55,11 +54,11 @@
 			{% endif %}
 		</div>
 
-		<div style="margin-top: 15px"> 
-			{% post_to_facebook request.build_absolute_uri %}
-			{% post_to_twitter object.title request.build_absolute_uri %}
-			{% post_to_linkedin object.title request.build_absolute_uri %}
-			{% post_to_reddit object.title request.build_absolute_uri %}
+		<div style="margin-top: 15px"> Share on: 
+			{% post_to_facebook request.build_absolute_uri "Facebook" %} | 
+			{% post_to_twitter object.title request.build_absolute_uri "Twitter" %} | 
+			{% post_to_linkedin object.title request.build_absolute_uri "LinkedIn" %} | 
+			{% post_to_reddit object.title request.build_absolute_uri "Reddit" %}
 		</div>
 	  </div>
 	</article>
