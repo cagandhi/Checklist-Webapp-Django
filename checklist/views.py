@@ -103,7 +103,7 @@ class ChecklistDetailView(DetailView):
 
 		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.all()
 		context['itemset'] = itemset
-		
+
 		return context
 
 
@@ -389,6 +389,30 @@ def bookmark_checklist(request, checklist_id):
 			messages.info(request, msg)
 
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
+
+## COMPLETE/DELETE ITEM
+def item_action(request, checklist_id, item_id, action_type):
+	if Checklist.objects.get(id=checklist_id).author != request.user:
+		msg = 'Action Denied! You can only make changes to your own checklist!'
+	else:
+		obj = Item.objects.get(id=item_id)
+
+		if action_type == 'complete':
+			obj.completed = not obj.completed
+			obj.save()
+
+			msg = 'Item marked as Done/Not Done!'
+		elif action_type == 'delete':
+			obj.delete()
+			msg = 'Item deleted'
+
+	messages.info(request, msg)
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
+
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 
 # @DEPRECATED

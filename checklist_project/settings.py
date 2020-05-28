@@ -62,7 +62,7 @@ ROOT_URLCONF = 'checklist_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # https://stackoverflow.com/a/38353582/6543250 - override 3rd party app templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

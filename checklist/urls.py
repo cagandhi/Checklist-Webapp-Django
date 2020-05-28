@@ -31,4 +31,5 @@ urlpatterns = [
     path('search/', SearchChecklistListView.as_view(), name='search'),
     path('checklist/<str:category>/', CategoryChecklistListView.as_view(), name='category'),
     path('checklist/<int:checklist_id>/item/new/', ItemCreateView.as_view(), name='item-create'),
+    path('checklist/<int:checklist_id>/item/<int:item_id>/<str:action_type>/', views.item_action, name='item-action'),
 ]

@@ -26,35 +26,37 @@
 
 		<div style="margin-top: 20px">
 			<table class="table">
-			  <thead class="thead-dark">
+			  <thead class="thead-light">
 			    <tr>
 			      <th scope="col">Item title</th>
 			      <th scope="col">Completed?</th>
 			      <th scope="col">Priority</th>
+			      <th scope="col">Actions</th>
 			    </tr>
 			  </thead>
 			  <tbody>
 			  	{% for item in itemset %}
 					<tr>
-						<td>{{ item.title }}</td>
+						<td><a href="#">{{ item.title }}</a></td>
 						<td>{{ item.completed }}</td>
 						<td>{{ item.priority }}</td>
+						<td><span><a class="btn btn-outline-success" href="{% url 'item-action' object.id item.id 'complete' %}">Done {{ item.id }}</a><a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' object.id item.id 'delete' %}">Delete</a></span></td>
 					</tr>
 				{% endfor %}
 			  </tbody>
 			</table>
 		</div>
 
-		<div>
+		<div class="border-top">
 			{% if user.is_authenticated and object.author != user %}
-				<a class="btn btn-outline-info" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
-				<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
 			{% else %}
-				<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+				<a class="btn btn-outline-info disabled" style="margin-top: 10px">{{ uvote }} Upvotes</a>
 			{% endif %}
 		</div>
 
-		<div style="margin-top: 15px"> Share on: 
+		<div style="margin-top: 15px"> <strong>Share on: </strong>
 			{% post_to_facebook request.build_absolute_uri "Facebook" %} | 
 			{% post_to_twitter object.title request.build_absolute_uri "Twitter" %} | 
 			{% post_to_linkedin object.title request.build_absolute_uri "LinkedIn" %} | 
