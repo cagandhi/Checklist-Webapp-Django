@@ -125,15 +125,15 @@ AUTHENTICATION_BACKENDS = (
 # FACEBOOK - https://simpleisbetterthancomplex.com/tutorial/2016/10/24/how-to-add-social-login-to-django.html
 
 # GOOGLE LOGIN
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '680082496151-lql8b7bdb1b8m97r8qqga831a8p75m7d.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'cmbtKMdujPAjXn1p67IUULF_'
-# SOCIAL_AUTH_GOOGLE_LOGIN_URL = '/auth/login/google-oauth2/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
+# SOCIAL_AUTH_GOOGLE_LOGIN_URL = '/auth/login/google-oauth2/'
 # SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'profile'
 
 # FB LOGIN
-SOCIAL_AUTH_FACEBOOK_KEY = '909652762843741'  # App ID
-SOCIAL_AUTH_FACEBOOK_SECRET = 'f3a40a1fb9ad240ab48e61171bbc1e0d'  # App Secret
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get('SOCIAL_AUTH_FACEBOOK_KEY') 
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get('SOCIAL_AUTH_FACEBOOK_SECRET')
 
 
 # django-richtextfield -> refer: https://github.com/jaap3/django-richtextfield
@@ -195,7 +195,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# REGION to be set as default region seems to be us-east-2 
+# REGION to be set as default region is us-east-2 and my S3 bucket is in us-east-1
 AWS_S3_REGION_NAME = 'us-east-1'
 
 django_heroku.settings(locals())
