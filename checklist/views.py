@@ -389,8 +389,9 @@ def upvote_checklist(request, checklist_id):
 			msg = 'Checklist upvoted!'
 			messages.info(request, msg)
 
-	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
-		return redirect('checklist-home')
+	if request.META.get('HTTP_REFERER'):
+		if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+			return redirect('checklist-home')
 	
 	# redirect to home url; simply reload the page
 	# return redirect('checklist-home')
@@ -418,8 +419,9 @@ def bookmark_checklist(request, checklist_id):
 			msg = 'Checklist bookmarked!'
 			messages.info(request, msg)
 
-	if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
-		return redirect('checklist-home')
+	if request.META.get('HTTP_REFERER'):
+		if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+			return redirect('checklist-home')
 	
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
