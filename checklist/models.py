@@ -23,10 +23,20 @@ class Checklist(models.Model):
 		return reverse('checklist-detail', kwargs={'pk': self.id})
 
 
+PRIORITY_CHOICES = ( (1, 'Low'), (2, 'Medium'), (3, 'High'), )
 class Item(models.Model):
+	LOW_PRIORITY = 1
+	MEDIUM_PRIORITY = 2
+	HIGH_PRIORITY = 3
+	PRIORITY_CHOICES = (
+        (LOW_PRIORITY, 'Low'),
+        (MEDIUM_PRIORITY, 'Medium'),
+        (HIGH_PRIORITY, 'High'),
+    )
+
 	title = models.CharField(max_length=100)
 	# description = RichTextField()
-	priority = models.PositiveIntegerField(default=0)
+	priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES, default=MEDIUM_PRIORITY)
 	completed = models.BooleanField(default=False)
 	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
 
