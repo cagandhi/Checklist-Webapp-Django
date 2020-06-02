@@ -79,7 +79,8 @@
 			{% post_to_facebook request.build_absolute_uri "Facebook" %} | 
 			{% post_to_twitter object.title request.build_absolute_uri "Twitter" %} | 
 			{% post_to_linkedin object.title request.build_absolute_uri "LinkedIn" %} | 
-			{% post_to_reddit object.title request.build_absolute_uri "Reddit" %}
+			{% post_to_reddit object.title request.build_absolute_uri "Reddit" %} | 
+			{% post_to_whatsapp request.build_absolute_uri "Whatsapp" %} | 
 		</div>
 	  </div>
 	</article>
