@@ -37,34 +37,25 @@
 			    </tr>
 			  </thead>
 			  <tbody>
-			  	{% for item in itemset_incomplete %}
+			  	{% for item, priority in itemset_priority %}
 			  		<tr>
 						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
 						<td>
-							No
+							{% if item.completed %}
+								Yes
+							{% else %}
+								No
+							{% endif %}
 						</td>
-						<td>{{ item.priority }}</td>
+						<td>{{ priority }}</td>
 						{% if object.author == user %}
 							<td>
 								<span>
-									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
-									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
-								</span>
-							</td>
-						{% endif %}
-					</tr>
-				{% endfor %}
-				{% for item in itemset_complete %}
-			  		<tr>
-						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
-						<td>
-							Yes
-						</td>
-						<td>{{ item.priority }}</td>
-						{% if object.author == user %}
-							<td>
-								<span>
-									<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
+									{% if item.completed %}
+										<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
+									{% else %}
+										<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
+									{% endif %}
 									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
 								</span>
 							</td>

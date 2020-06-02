@@ -104,13 +104,17 @@ class ChecklistDetailView(DetailView):
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
 
-		itemset_incomplete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=False)
-		itemset_complete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=True)
+		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.order_by('completed','-priority','title')
+		
+		priority_levels = []
+		d = dict(Item.PRIORITY_CHOICES)
 
-		context['itemset_incomplete'] = itemset_incomplete
-		context['itemset_complete'] = itemset_complete
-		# print(dict(Item.PRIORITY_CHOICES))
-		# context['priority_set'] = dict(Item.PRIORITY_CHOICES)
+		for item in itemset:
+			priority_levels.append(d.get(item.priority, 'None'))
+		print(priority_levels)
+
+		itemset_priority = zip(itemset, priority_levels)
+		context['itemset_priority'] = itemset_priority
 
 		return context
 
