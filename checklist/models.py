@@ -35,7 +35,6 @@ class Item(models.Model):
     )
 
 	title = models.CharField(max_length=100)
-	# description = RichTextField()
 	priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES, default=MEDIUM_PRIORITY)
 	completed = models.BooleanField(default=False)
 	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)

@@ -18,8 +18,6 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 
 
-PRIORITY_CHOICES = ( (1, 'Low'), (2, 'Normal'), (3, 'High'), )
-
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
 	model = Checklist
