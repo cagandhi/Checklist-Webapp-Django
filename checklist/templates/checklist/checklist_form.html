@@ -17,6 +17,8 @@
 			</fieldset>
 			<div class="form-group">
 				<button class="btn btn-outline-success" type="submit">Create/Update</button>
+				<!-- https://stackoverflow.com/a/56014882/6543250 - for cancel button ; use DOM history to redirect to previous page -->
+				<button type="button" class="btn btn-outline-danger" onclick="window.history.back();">Cancel</button>
 			</div>
 		</form>
 	</div>

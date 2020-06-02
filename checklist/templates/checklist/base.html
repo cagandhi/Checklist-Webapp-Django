@@ -48,8 +48,9 @@
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
                                 <a class="dropdown-item" href="{% url 'bookmarks' %}">My Bookmarks</a>
-                                <!-- <div class="dropdown-divider"></div> -->
                                 <a class="dropdown-item" href="{% url 'upvotes' %}">My Upvoted Lists</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'user-drafts' %}">My Drafts</a>
                             </div>
                         </li>
                         <li class="nav-item dropdown">

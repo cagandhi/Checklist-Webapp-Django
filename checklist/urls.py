@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from .views import (ChecklistListView,
-    UserChecklistListView, 
+    UserChecklistListView,
+    UserDraftChecklistListView,
 	ChecklistDetailView, 
 	ChecklistCreateView,
 	ChecklistUpdateView,
@@ -18,6 +19,7 @@ from .views import (ChecklistListView,
 urlpatterns = [
     path('', ChecklistListView.as_view(), name='checklist-home'),
     path('user/<str:username>/', UserChecklistListView.as_view(), name='user-checklists'),
+    path('checklist/drafts', UserDraftChecklistListView.as_view(), name='user-drafts'),
     path('bookmarks/', BookmarkChecklistListView.as_view(), name='bookmarks'),
     path('mybookmark/', views.mybookmark, name='checklist-mybookmark'),
     path('upvotes/', UpvoteChecklistListView.as_view(), name='upvotes'),

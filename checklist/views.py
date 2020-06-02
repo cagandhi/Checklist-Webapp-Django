@@ -28,7 +28,7 @@ class ChecklistListView(ListView):
 		context = super(ChecklistListView, self).get_context_data(**kwargs)
 
 		upvotes_cnt_list = []
-		checklists_var = Checklist.objects.all().order_by('-date_posted')
+		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
@@ -68,6 +68,8 @@ class UserChecklistListView(ListView):
 
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
 		upvotes_cnt_list = []
+		# to protect draft checklists from being seen
+		# checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by('-date_posted')
 		checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
 		
 		for checklist in checklists_var:
@@ -87,10 +89,52 @@ class UserChecklistListView(ListView):
 
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'user'
+		context['username'] = self.kwargs.get('username')
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
 		return context
 		
+
+# DRAFT CHECKLISTS BY USER
+class UserDraftChecklistListView(ListView):
+	model = Checklist
+	template_name = 'checklist/user_checklists.html' # <app_name>/<model>_<viewtype>.html
+	paginate_by = 5
+
+	# https://stackoverflow.com/a/36950584/6543250 - when to use get_queryset() vs get_context_data()
+	
+	# how to paginate when get_context_data() implemented
+	# 1. https://stackoverflow.com/a/33485595/6543250
+	# 2. https://docs.djangoproject.com/en/1.8/topics/pagination/#using-paginator-in-a-view
+	def get_context_data(self, **kwargs):
+		context = super(UserDraftChecklistListView, self).get_context_data(**kwargs)
+
+		upvotes_cnt_list = []
+		# to protect draft checklists from being seen
+		checklists_var = Checklist.objects.filter(author=self.request.user, is_draft=True).order_by('-date_posted')
+		
+		for checklist in checklists_var:
+			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+
+		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+		page = self.request.GET.get('page')
+
+		try:
+			page_checklist_upvotes = paginator.page(page)
+		except PageNotAnInteger:
+			page_checklist_upvotes = paginator.page(1)
+		except EmptyPage:
+			page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+		context['checklist_upvotes'] = page_checklist_upvotes
+		context['title'] = 'user'
+		context['username'] = self.request.user.username
+		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+
+		return context
+
 
 # DISPLAY A SINGLE CHECKLIST 
 class ChecklistDetailView(DetailView):
@@ -117,10 +161,18 @@ class ChecklistDetailView(DetailView):
 		return context
 
 
+"""
+class ChecklistCreateForm(forms.ModelForm):
+	class Meta:
+		model = Checklist
+		fields = ['title', 'content','category','is_draft']
+"""
+
 # CREATE CHECKLIST
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
-	model = Checklist
-	fields = ['title', 'content','category']
+	model = Checklist # even though model is specified in ChecklistCreateForm, we need to specify the model again here
+	fields = ['title', 'content','category','is_draft']
+	# form_class = ChecklistCreateForm # to define custom form 
 
 	# to link logged in user as author to the checklist being created
 	def form_valid(self, form):
@@ -128,46 +180,10 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 		return super().form_valid(form)
 
 
-# CREATE ITEM
-class ItemCreateView(LoginRequiredMixin, CreateView):
-	model = Item
-	fields = ['title', 'priority']
-
-	checklist_id = 0
-
-	# 1st method executed
-	def dispatch(self, *args, **kwargs):
-		self.checklist_id = self.kwargs.get('checklist_id')
-		if Checklist.objects.get(id=self.checklist_id).author != self.request.user:
-			
-			# clear all messages
-			system_messages = messages.get_messages(self.request)
-			for message in system_messages:
-				# This iteration is necessary
-				pass
-			system_messages.used = True
-
-			msg = 'Action Denied! You can only add items to your own checklist!'
-			messages.info(self.request, msg)
-			return redirect('checklist-detail', pk=self.checklist_id)
-		else:
-			return super().dispatch(*args, **kwargs)
-
-	# 2nd method executed
-	def form_valid(self, form):
-		form.instance.checklist = Checklist.objects.get(id=self.checklist_id)
-		return super().form_valid(form)
-
-
-# DISPLAY A SINGLE ITEM 
-class ItemDetailView(DetailView):
-	model = Item
-
-
 # UPDATE CHECKLIST
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Checklist
-	fields = ['title', 'content', 'category']
+	fields = ['title', 'content', 'category','is_draft']
 
 	# to link logged in user as author to the checklist being updated
 	def form_valid(self, form):
@@ -189,22 +205,6 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 	def test_func(self):
 		checklist = self.get_object()
 		return (self.request.user == checklist.author)
-
-
-# UPDATE ITEM
-class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-	model = Item
-	fields = ['title', 'priority']
-
-	# # to link logged in user as author to the checklist being updated
-	# def form_valid(self, form):
-	# 	form.instance.author = self.request.user
-	# 	return super().form_valid(form)
-
-	# checks if currently logged in user is the checklist author
-	def test_func(self):
-		item = self.get_object()
-		return (self.request.user == item.checklist.author)
 
 
 # VIEW BOOKMARKS PAGE
@@ -294,7 +294,7 @@ class SearchChecklistListView(ListView):
 			# if a query string is present in URL
 			if ('q' in self.request.GET) and self.request.GET['q'].strip():
 				query = self.request.GET['q']
-				checklists_var = Checklist.objects.filter(Q(title__icontains=query) | Q(content__icontains=query))
+				checklists_var = Checklist.objects.filter((Q(title__icontains=query) | Q(content__icontains=query)) & Q(is_draft=False))
 
 		upvotes_cnt_list = []
 		
@@ -337,7 +337,7 @@ class CategoryChecklistListView(ListView):
 
 		# category_id = Category.objects.filter(name=self.kwargs.get('category')).first().id
 		upvotes_cnt_list = []
-		checklists_var = Checklist.objects.filter(category_id=category.id).order_by('-date_posted')
+		checklists_var = Checklist.objects.filter(category_id=category.id, is_draft=False).order_by('-date_posted')
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
@@ -359,6 +359,60 @@ class CategoryChecklistListView(ListView):
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
 		return context
+
+
+# CREATE ITEM
+class ItemCreateView(LoginRequiredMixin, CreateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	checklist_id = 0
+
+	# 1st method executed
+	def dispatch(self, *args, **kwargs):
+		self.checklist_id = self.kwargs.get('checklist_id')
+		if Checklist.objects.get(id=self.checklist_id).author != self.request.user:
+			
+			# clear all messages
+			system_messages = messages.get_messages(self.request)
+			for message in system_messages:
+				# This iteration is necessary
+				pass
+			system_messages.used = True
+
+			msg = 'Action Denied! You can only add items to your own checklist!'
+			messages.info(self.request, msg)
+			return redirect('checklist-detail', pk=self.checklist_id)
+		else:
+			return super().dispatch(*args, **kwargs)
+
+	# 2nd method executed
+	def form_valid(self, form):
+		form.instance.checklist = Checklist.objects.get(id=self.checklist_id)
+		return super().form_valid(form)
+
+
+# DISPLAY A SINGLE ITEM 
+class ItemDetailView(DetailView):
+	model = Item
+
+
+# UPDATE ITEM
+class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+	model = Item
+	fields = ['title', 'priority']
+
+	# # to link logged in user as author to the checklist being updated
+	# def form_valid(self, form):
+	# 	form.instance.author = self.request.user
+	# 	return super().form_valid(form)
+
+	# checks if currently logged in user is the checklist author
+	def test_func(self):
+		item = self.get_object()
+		return (self.request.user == item.checklist.author)
+
+
 
 
 # ABOUT PAGE
@@ -432,7 +486,7 @@ def bookmark_checklist(request, checklist_id):
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 
-## COMPLETE/DELETE ITEM
+# COMPLETE/DELETE ITEM
 @login_required
 def item_action(request, item_id, action_type):
 	if Item.objects.get(id=item_id).checklist.author != request.user:
@@ -454,7 +508,6 @@ def item_action(request, item_id, action_type):
 		messages.info(request, msg)
 		return redirect('checklist-detail', pk=obj.checklist.id)
 	
-
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------

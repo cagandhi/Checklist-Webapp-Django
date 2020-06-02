@@ -7,14 +7,13 @@ from djrichtextfield.models import RichTextField
 
 class Checklist(models.Model):
 	title = models.CharField(max_length=100)
-	# content = models.TextField()
-
 	# https://pypi.org/project/django-richtextfield/ - to store rich text in database [ GitHub: https://github.com/jaap3/django-richtextfield ]
 	content = RichTextField()
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete = models.CASCADE)
 	visibility = models.PositiveIntegerField(default=0)
 	category = models.ForeignKey('Category', null=True, on_delete = models.SET_NULL)
+	is_draft = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.title
@@ -23,7 +22,6 @@ class Checklist(models.Model):
 		return reverse('checklist-detail', kwargs={'pk': self.id})
 
 
-PRIORITY_CHOICES = ( (1, 'Low'), (2, 'Medium'), (3, 'High'), )
 class Item(models.Model):
 	LOW_PRIORITY = 1
 	MEDIUM_PRIORITY = 2
