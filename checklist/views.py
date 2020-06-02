@@ -18,6 +18,8 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 
 
+PRIORITY_CHOICES = ( (1, 'Low'), (2, 'Normal'), (3, 'High'), )
+
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
 	model = Checklist
@@ -102,11 +104,17 @@ class ChecklistDetailView(DetailView):
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
 
-		itemset_incomplete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=False)
-		itemset_complete = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.filter(completed=True)
+		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.order_by('completed','-priority','title')
+		
+		priority_levels = []
+		d = dict(Item.PRIORITY_CHOICES)
 
-		context['itemset_incomplete'] = itemset_incomplete
-		context['itemset_complete'] = itemset_complete
+		for item in itemset:
+			priority_levels.append(d.get(item.priority, 'None'))
+		print(priority_levels)
+
+		itemset_priority = zip(itemset, priority_levels)
+		context['itemset_priority'] = itemset_priority
 
 		return context
 
