@@ -73,6 +73,9 @@
 			{% else %}
 				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>
 			{% endif %}
+			{% if object.is_draft %}
+				<a style="float: right;margin-top: 20px" class="btn btn-sm btn-info mb-3" href="{% url 'checklist-publish' object.id %}">Publish Draft</a>
+			{% endif %}
 		</div>
 
 		<div style="margin-top: 15px"> <strong>Share on: </strong>

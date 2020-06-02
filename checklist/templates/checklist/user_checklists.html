@@ -3,7 +3,12 @@
 
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Checklists by {{ username }} ({{ checklist_upvotes.paginator.count }})</h1>
+	{% if draft %}
+		<h1 class="mb-3">Your Drafts ({{ checklist_upvotes.paginator.count }})</h1>	
+	{% else %}
+		<h1 class="mb-3">Checklists by {{ view.kwargs.username }} ({{ checklist_upvotes.paginator.count }})</h1>
+	{% endif %}
+	
 
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
 	{% for checklist, uvote in checklist_upvotes %}

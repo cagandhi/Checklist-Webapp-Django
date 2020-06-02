@@ -69,8 +69,8 @@ class UserChecklistListView(ListView):
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
 		upvotes_cnt_list = []
 		# to protect draft checklists from being seen
-		# checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by('-date_posted')
-		checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
+		checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by('-date_posted')
+		# checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
@@ -89,7 +89,6 @@ class UserChecklistListView(ListView):
 
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'user'
-		context['username'] = self.kwargs.get('username')
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
 		return context
@@ -129,7 +128,7 @@ class UserDraftChecklistListView(ListView):
 			page_checklist_upvotes = paginator.page(paginator.num_pages)
 
 		context['checklist_upvotes'] = page_checklist_upvotes
-		context['title'] = 'user'
+		context['draft'] = 'draft'
 		context['username'] = self.request.user.username
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
 
@@ -413,8 +412,6 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		return (self.request.user == item.checklist.author)
 
 
-
-
 # ABOUT PAGE
 def about(request):
 	return render(request, 'checklist/about.html', {'title_new': 'about'})
@@ -508,6 +505,35 @@ def item_action(request, item_id, action_type):
 		messages.info(request, msg)
 		return redirect('checklist-detail', pk=obj.checklist.id)
 	
+
+# PUBLISH DRAFT CHECKLISTS
+@login_required
+def publish_checklist(request, checklist_id):
+	# for "messages", refer https://stackoverflow.com/a/61603003/6543250
+	
+	""" if user cannot retract upvote, then this code be uncommented
+	if Upvote.objects.filter(user=User.objects.filter(username=username).first(), checklist=Checklist.objects.get(id=checklist_id)):
+		msg = 'You have already upvoted the checklist once!'
+		messages.info(request, msg)
+	"""
+	if Checklist.objects.get(id=checklist_id).author != request.user:
+		msg = 'Action Denied! You can only publish your own checklist!'
+		messages.info(request, msg)
+	else:
+		obj=Checklist.objects.get(id=checklist_id)
+		obj.is_draft=False
+		obj.save()
+	
+		msg = 'Checklist published and removed from drafts'
+		messages.info(request, msg)
+
+	if request.META.get('HTTP_REFERER'):
+		if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+			return redirect('checklist-home')
+	
+	# redirect to home url; simply reload the page
+	# return redirect('checklist-home')
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
