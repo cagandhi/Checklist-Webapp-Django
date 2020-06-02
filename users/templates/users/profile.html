@@ -8,7 +8,10 @@
 	    <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
 		    <div class="media-body">
 		      <h2 class="account-heading">{{ user.username }}</h2>
-		      <p class="text-secondary">{{ user.email }}</p>
+		      <span>
+		      	<p class="text-secondary">{{ user.email }}</p>
+		      	<a class="btn btn-outline-info" href="{% url 'password_change' %}">Change password</a>
+		      </span>
 		    </div>
 	  </div>
 	  <!-- FORM HERE -->
@@ -16,11 +19,11 @@
 			{% csrf_token %}
 			<fieldset class="form-group">
 				<legend class="border-bottom mb-4">Profile Info</legend>
-				{{ u_form|crispy }}<!-- {{ form.as_p }} -->
-				{{ p_form|crispy }}<!-- {{ form.as_p }} -->
+				{{ u_form|crispy }}
+				{{ p_form|crispy }}
 			</fieldset>
 			<div class="form-group">
-				<button class="btn btn-outline-info" type="submit">Update</button>
+				<button class="btn btn-outline-info" type="submit">Update Profile Info</button>
 			</div>
 		</form>
 	</div>
