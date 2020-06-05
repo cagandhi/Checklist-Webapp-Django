@@ -7,9 +7,12 @@
 		<h1 class="mb-3">Your Drafts ({{ checklist_upvotes.paginator.count }})</h1>	
 	{% else %}
 		<h1 class="mb-3">Checklists by {{ view.kwargs.username }} ({{ checklist_upvotes.paginator.count }})</h1>
+		{% if user.is_authenticated and user.username != view.kwargs.username %}
+			<a style="margin-bottom: 15px" class="btn btn-info" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+		{% endif %}
 	{% endif %}
 	
-
+	
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
 	{% for checklist, uvote in checklist_upvotes %}
 		<article class="media content-section">
