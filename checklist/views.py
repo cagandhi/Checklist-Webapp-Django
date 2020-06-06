@@ -13,9 +13,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from .models import Checklist, Upvote, Bookmark, Category, Item
+from .models import Checklist, Upvote, Bookmark, Category, Item, Follow
 from django import forms
 from django.contrib.auth.decorators import login_required
+from itertools import chain
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -26,14 +27,35 @@ class ChecklistListView(ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(ChecklistListView, self).get_context_data(**kwargs)
+		
+		""" 
+		# This code snippet is for displaying followed users posts on top
+
+		followed_checklists=Checklist.objects.none()
+		
+		for userFollowed in self.request.user.fromUser.all():
+			followed_checklists = followed_checklists.union(userFollowed.toUser.checklist_set.filter(is_draft=False))
+
+		# all checklists
+		checklists_all = Checklist.objects.filter(is_draft=False)
+		
+		# those checklists which are written by authors not followed by the logged in user
+		checklists_var = checklists_all.difference(followed_checklists).order_by('-date_posted')
+
+		followed_or_not_list = ['Followed']*followed_checklists.count()
+		followed_or_not_list.extend(['']*checklists_var.count())
+		
+		# arrange checklists by followed authors and then by non-followed authors
+		checklists_var = list(chain(followed_checklists, checklists_var))
+		"""
 
 		upvotes_cnt_list = []
+		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
-		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list) #,followed_or_not_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
@@ -520,7 +542,7 @@ def publish_checklist(request, checklist_id):
 		msg = 'Action Denied! You can only publish your own checklist!'
 		messages.info(request, msg)
 	else:
-		obj=Checklist.objects.get(id=checklist_id)
+		obj = Checklist.objects.get(id=checklist_id)
 		obj.is_draft=False
 		obj.save()
 	
@@ -533,6 +555,32 @@ def publish_checklist(request, checklist_id):
 	
 	# redirect to home url; simply reload the page
 	# return redirect('checklist-home')
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
+
+# FOLLOW USER
+@login_required
+def follow_user(request, username):
+	if request.user.username == username:
+		msg = 'Action Denied! You can only follow other users!'
+		messages.info(request, msg)
+	else:
+		toUser = User.objects.filter(username=username).first()
+		obj = Follow.objects.filter(fromUser=request.user, toUser=toUser)
+
+		if obj:
+			obj.delete()
+			msg = 'User unfollowed!'
+		else:
+			Follow(fromUser=request.user, toUser=toUser).save()
+			msg = 'User followed!'
+
+		messages.info(request, msg)
+
+	if request.META.get('HTTP_REFERER'):
+			if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+				return redirect('checklist-home')
+		
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 # ------------------------------------------------------------------------------------------------
