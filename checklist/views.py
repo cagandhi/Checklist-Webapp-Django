@@ -50,6 +50,7 @@ class ChecklistListView(ListView):
 		"""
 
 		upvotes_cnt_list = []
+		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
