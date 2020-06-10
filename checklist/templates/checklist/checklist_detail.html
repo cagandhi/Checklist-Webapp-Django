@@ -30,14 +30,13 @@
 			    <tr>
 			      <th scope="col">Item title</th>
 			      <th scope="col">Completed?</th>
-			      <th scope="col">Priority</th>
 			      {% if object.author == user %}
 			      	<th scope="col">Actions</th>
 			      {% endif %}
 			    </tr>
 			  </thead>
 			  <tbody>
-			  	{% for item, priority in itemset_priority %}
+			  	{% for item in itemset %}
 			  		<tr>
 						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
 						<td>
@@ -47,7 +46,6 @@
 								No
 							{% endif %}
 						</td>
-						<td>{{ priority }}</td>
 						{% if object.author == user %}
 							<td>
 								<span>

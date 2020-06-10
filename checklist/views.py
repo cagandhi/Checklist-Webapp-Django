@@ -167,17 +167,18 @@ class ChecklistDetailView(DetailView):
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		context['uvote'] = uvote
 
-		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.order_by('completed','-priority','title')
+		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.order_by('completed','title')
 		
-		priority_levels = []
-		d = dict(Item.PRIORITY_CHOICES)
+		# priority_levels = []
+		# d = dict(Item.PRIORITY_CHOICES)
 
-		for item in itemset:
-			priority_levels.append(d.get(item.priority, 'None'))
-		print(priority_levels)
+		# for item in itemset:
+		# 	priority_levels.append(d.get(item.priority, 'None'))
+		# print(priority_levels)
 
-		itemset_priority = zip(itemset, priority_levels)
-		context['itemset_priority'] = itemset_priority
+		# itemset_priority = zip(itemset, priority_levels)
+		
+		context['itemset'] = itemset
 
 		return context
 
@@ -385,7 +386,7 @@ class CategoryChecklistListView(ListView):
 # CREATE ITEM
 class ItemCreateView(LoginRequiredMixin, CreateView):
 	model = Item
-	fields = ['title', 'priority']
+	fields = ['title']
 
 	checklist_id = 0
 
@@ -421,7 +422,7 @@ class ItemDetailView(DetailView):
 # UPDATE ITEM
 class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Item
-	fields = ['title', 'priority']
+	fields = ['title']
 
 	# # to link logged in user as author to the checklist being updated
 	# def form_valid(self, form):
@@ -519,7 +520,7 @@ def item_action(request, item_id, action_type):
 			obj.completed = not obj.completed
 			obj.save()
 
-			msg = 'Item marked as Done/Not Done!'
+			msg = 'Item Ticked/Un-ticked!'
 		elif action_type == 'delete':
 			obj.delete()
 			msg = 'Item deleted'

@@ -23,17 +23,17 @@ class Checklist(models.Model):
 
 
 class Item(models.Model):
-	LOW_PRIORITY = 1
-	MEDIUM_PRIORITY = 2
-	HIGH_PRIORITY = 3
-	PRIORITY_CHOICES = (
-        (LOW_PRIORITY, 'Low'),
-        (MEDIUM_PRIORITY, 'Medium'),
-        (HIGH_PRIORITY, 'High'),
-    )
+	# LOW_PRIORITY = 1
+	# MEDIUM_PRIORITY = 2
+	# HIGH_PRIORITY = 3
+	# PRIORITY_CHOICES = (
+	# 	(LOW_PRIORITY, 'Low'),
+	# 	(MEDIUM_PRIORITY, 'Medium'),
+	# 	(HIGH_PRIORITY, 'High'),
+	# )
 
 	title = models.CharField(max_length=100)
-	priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES, default=MEDIUM_PRIORITY)
+	# priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES, default=MEDIUM_PRIORITY)
 	completed = models.BooleanField(default=False)
 	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
 
