@@ -10,7 +10,12 @@
 		      <h2 class="account-heading">{{ user.username }}</h2>
 		      <span>
 		      	<p class="text-secondary">{{ user.email }}</p>
-		      	<a class="btn btn-outline-info" href="{% url 'password_change' %}">Change password</a>
+
+		      	<!-- To check if user is logged in via social media or not, refer: https://stackoverflow.com/a/48502548/6543250 -->
+		      	<!-- user is not social -->
+				{% if not backends.associated %}
+					<a class="btn btn-outline-info" href="{% url 'password_change' %}">Change password</a>
+				{% endif %}
 		      </span>
 		    </div>
 	  </div>

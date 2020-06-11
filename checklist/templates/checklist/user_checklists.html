@@ -10,12 +10,10 @@
 		
 		{% if user.is_authenticated and user.username != view.kwargs.username %}
 			{% if if_followed %}
-				<a style="margin-bottom: 15px" class="btn btn-success" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+				<a style="margin-bottom: 15px" class="btn btn-success" href="{% url 'user-follow' view.kwargs.username %}">Un-Follow this user</a>
 			{% else %}
-				<a style="margin-bottom: 15px" class="btn btn-outline-success" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+				<a style="margin-bottom: 15px" class="btn btn-success" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
 			{% endif %}
-
-			<!-- <a style="margin-bottom: 15px" class="btn btn-info" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a> -->
 		{% endif %}
 	{% endif %}
 	
