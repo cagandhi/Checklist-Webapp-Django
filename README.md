@@ -10,14 +10,14 @@ Website: https://django-checklist.herokuapp.com/
 * restrict user to upvote again
 * View checklists w/o upvote functionality on logout
 * Restrict user from upvoting own checklist - button disabled with upvotes as count shown
-* Upvote retracted if user presses upvote again <br><br>
-
+* Upvote retracted if user presses upvote again
+------
 * Add/remove bookmarks functionality - bookmark is not public, so no need to display how many bookmarks for a certain checklist
 * Show bookmarks page
 * privacy setting in bookmarks - user B cannot see user A’s bookmarks
 * User cannot upvote/bookmark own post by navigating through URL
-* Remove bookmark option in my bookmarks page <br><br>
-
+* Remove bookmark option in my bookmarks page 
+------
 * Pagination
 * Bookmark and upvote option in user checklist view
 * Bookmark and upvote option in checklist detail view
@@ -26,31 +26,37 @@ Website: https://django-checklist.herokuapp.com/
 * Show how many upvotes for each checklist in show upvoted lists screen
 * Actual checklist editing options in text editor
 * Dropdown navbar
-* Search checklists by title, content <br><br>
-
+* Search checklists by title, content
+------
 * Assign topics to checklists
 * Display topics assigned on all checklists
 * Hyperlink topic to display checklists that have the same topic
-* Search checklists by topic / Display categories for checklists <br><br>
-
+* Search checklists by topic / Display categories for checklists 
+------
 * Google, Facebook login
-* share checklist link on social media <br><br>
-
-* DEPLOY <br><br>
-
+* share checklist link on social media 
 * AWS lambda function to reduce profile picture size on upload
 * Priority setting for checklist
 * Change password from profile page
 * Ability to save Drafts while creating checklists
 * Disable display of draft checklists in all listviews
 * Add navbar option to view drafts
-* Post draft checklists —> PUSHED TO HEROKU AS WELL <br><br>
+* Post draft checklists —> HEROKU VERSION
+* Follow other users
+* Save and edit others' checklists
 
 ## Features in Pipeline
-* Follow other users; show followed users checklists on top
-* Access control for checklists; use of visibility model field
+* Sort by option where lists are displayed
+* Queries in views to keep the button of upvote, bookmark, follow selected if record exists in the table
+* Recommendation for checklists below each checklist; start by suggesting same category checklists
+* Automatic category inference from checklist description (highly doubtful that it will be useful)
 * Disable advanced options in checklist content field in create form
 * Exception handling everywhere
+* Number of Views for a checklist
+* Tags for a checklist
+* Save checklists in json or something, give user option to upload them
+* Follow a checklist, notify user if a change is made by the author
+* Notifications when a user follows you, checklist upvoted, something like that
 
 ## Features on Hold
 * Don’t throw error if profile pic not found - NOT USEFUL for now - this ERROR does not happen when deployed on Heroku
