@@ -72,8 +72,18 @@
 
 		<div class="border-top">
 			{% if user.is_authenticated and object.author != user %}
-				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
-				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+				{% if if_upvoted %}
+					<a class="btn btn-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+				{% else %}
+					<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
+				{% endif %}
+				
+				{% if if_bookmarked %}
+					<a class="btn btn-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+				{% else %}
+					<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+				{% endif %}
+				
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-save' object.id %}">Save and Edit</a>
 			{% else %}
 				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>

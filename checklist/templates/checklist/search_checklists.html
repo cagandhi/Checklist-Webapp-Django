@@ -9,7 +9,7 @@
 		<h2 class="mb-3">({{ checklist_upvotes.paginator.count }}) search results for term: <strong>{{ query_string }}</strong></h2>
 
 		<!-- loop over posts list provided in context; use variable name used as key in context -->
-		{% for checklist, uvote in checklist_upvotes %}
+		{% for checklist, uvote, if_upvoted, if_bookmarked in checklist_upvotes %}
 			<article class="media content-section">
 				<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
 				<div class="media-body">
@@ -23,8 +23,21 @@
 					<p class="article-content">{{ checklist.content|safe }}</p>
 					<!-- since user cannot upvote own post; does not need to bookmark own post, can see it under my checklists -->
 					{% if user.is_authenticated and checklist.author.username != user.username %}
-						<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
-						<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+
+						{% if if_upvoted %}
+							<a class="btn btn-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+						{% else %}
+							<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+						{% endif %}
+						
+						{% if if_bookmarked %}
+							<a class="btn btn-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+						{% else %}
+							<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+						{% endif %}
+						
+						<!-- <a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+						<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a> -->
 					{% else %}
 						<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
 					{% endif %}

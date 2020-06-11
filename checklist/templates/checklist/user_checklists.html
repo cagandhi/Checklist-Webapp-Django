@@ -7,14 +7,21 @@
 		<h1 class="mb-3">Your Drafts ({{ checklist_upvotes.paginator.count }})</h1>	
 	{% else %}
 		<h1 class="mb-3">Checklists by {{ view.kwargs.username }} ({{ checklist_upvotes.paginator.count }})</h1>
+		
 		{% if user.is_authenticated and user.username != view.kwargs.username %}
-			<a style="margin-bottom: 15px" class="btn btn-info" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+			{% if if_followed %}
+				<a style="margin-bottom: 15px" class="btn btn-success" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+			{% else %}
+				<a style="margin-bottom: 15px" class="btn btn-outline-success" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a>
+			{% endif %}
+
+			<!-- <a style="margin-bottom: 15px" class="btn btn-info" href="{% url 'user-follow' view.kwargs.username %}">Follow this user</a> -->
 		{% endif %}
 	{% endif %}
 	
 	
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for checklist, uvote in checklist_upvotes %}
+	{% for checklist, uvote, if_upvoted, if_bookmarked in checklist_upvotes %}
 		<article class="media content-section">
 			<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
 		  <div class="media-body">
@@ -26,8 +33,21 @@
 		    <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
 		    <p class="article-content">{{ checklist.content|safe }}</p>
 		    {% if user.is_authenticated and checklist.author.username != user.username %}
-				<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
-				<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+		    	
+		    	{% if if_upvoted %}
+					<a class="btn btn-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+				{% else %}
+					<a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+				{% endif %}
+				
+				{% if if_bookmarked %}
+					<a class="btn btn-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+				{% else %}
+					<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a>
+				{% endif %}
+
+				<!-- <a class="btn btn-outline-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
+				<a class="btn btn-outline-info" href="{% url 'checklist-bookmark' checklist.id %}">Bookmark</a> -->
 			{% else %}
 				<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
 			{% endif %}

@@ -29,6 +29,7 @@ class ChecklistListView(ListView):
 		context = super(ChecklistListView, self).get_context_data(**kwargs)
 		
 		""" 
+		---------- X ----------
 		# This code snippet is for displaying followed users posts on top
 
 		followed_checklists=Checklist.objects.none()
@@ -47,15 +48,31 @@ class ChecklistListView(ListView):
 		
 		# arrange checklists by followed authors and then by non-followed authors
 		checklists_var = list(chain(followed_checklists, checklists_var))
+
+		---------- X ----------
 		"""
 
 		upvotes_cnt_list = []
+		upvoted_bool_list = []
+		bookmarked_bool_list = []
+
 		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
+		
 		for checklist in checklists_var:
-			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+			upvotes_cnt_list.append(checklist.upvote_set.count()) # Upvote.objects.filter(checklist=checklist).count()
 
-		checklist_upvotes = zip(checklists_var, upvotes_cnt_list) #,followed_or_not_list)
+			if checklist.upvote_set.filter(user=self.request.user):
+				upvoted_bool_list.append(True)
+			else:
+				upvoted_bool_list.append(False)
+
+			if checklist.bookmark_set.filter(user=self.request.user):
+				bookmarked_bool_list.append(True)
+			else:
+				bookmarked_bool_list.append(False)
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list) #,followed_or_not_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
@@ -89,15 +106,35 @@ class UserChecklistListView(ListView):
 		context = super(UserChecklistListView, self).get_context_data(**kwargs)
 
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
-		upvotes_cnt_list = []
+		
+		if self.request.user.fromUser.filter(toUser=user):
+			if_followed = True
+		else:
+			if_followed = False
+
 		# to protect draft checklists from being seen
 		checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by('-date_posted')
 		# checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
 		
+		upvotes_cnt_list = []
+		upvoted_bool_list = []
+		bookmarked_bool_list = []
+
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+			if checklist.upvote_set.filter(user=self.request.user):
+				upvoted_bool_list.append(True)
+			else:
+				upvoted_bool_list.append(False)
+
+			if checklist.bookmark_set.filter(user=self.request.user):
+				bookmarked_bool_list.append(True)
+			else:
+				bookmarked_bool_list.append(False)
+
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
@@ -109,6 +146,7 @@ class UserChecklistListView(ListView):
 		except EmptyPage:
 			page_checklist_upvotes = paginator.page(paginator.num_pages)
 
+		context['if_followed'] = if_followed
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'user'
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
@@ -164,10 +202,19 @@ class ChecklistDetailView(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(ChecklistDetailView, self).get_context_data(**kwargs)
 
-		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
-		context['uvote'] = uvote
+		chk = Checklist.objects.get(id=self.kwargs.get('pk'))
+		if chk.upvote_set.filter(user=self.request.user):
+			if_upvoted = True
+		else:
+			if_upvoted = False
 
-		itemset = Checklist.objects.get(id=self.kwargs.get('pk')).item_set.order_by('completed','title')
+		if chk.bookmark_set.filter(user=self.request.user):
+			if_bookmarked = True
+		else:
+			if_bookmarked = False			
+
+		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
+		itemset = chk.item_set.order_by('completed','title')
 		
 		# priority_levels = []
 		# d = dict(Item.PRIORITY_CHOICES)
@@ -178,6 +225,9 @@ class ChecklistDetailView(DetailView):
 
 		# itemset_priority = zip(itemset, priority_levels)
 		
+		context['if_upvoted'] = if_upvoted
+		context['if_bookmarked'] = if_bookmarked
+		context['uvote'] = uvote
 		context['itemset'] = itemset
 
 		return context
@@ -243,12 +293,19 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
 		context = super(BookmarkChecklistListView, self).get_context_data(**kwargs)
 
 		upvotes_cnt_list = []
+		upvoted_bool_list = []
+
 		bookmarks_var = Bookmark.objects.filter(user=self.request.user)
 
 		for bookmark in bookmarks_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=bookmark.checklist).count())
 
-		checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list)
+			if bookmark.checklist.upvote_set.filter(user=self.request.user):
+				upvoted_bool_list.append(True)
+			else:
+				upvoted_bool_list.append(False)
+
+		checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list, upvoted_bool_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
@@ -319,11 +376,23 @@ class SearchChecklistListView(ListView):
 				checklists_var = Checklist.objects.filter((Q(title__icontains=query) | Q(content__icontains=query)) & Q(is_draft=False))
 
 		upvotes_cnt_list = []
+		upvoted_bool_list = []
+		bookmarked_bool_list = []
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+			if checklist.upvote_set.filter(user=self.request.user):
+				upvoted_bool_list.append(True)
+			else:
+				upvoted_bool_list.append(False)
+
+			if checklist.bookmark_set.filter(user=self.request.user):
+				bookmarked_bool_list.append(True)
+			else:
+				bookmarked_bool_list.append(False)
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page',1)
@@ -358,13 +427,28 @@ class CategoryChecklistListView(ListView):
 		category = get_object_or_404(Category, name=self.kwargs.get('category'))
 
 		# category_id = Category.objects.filter(name=self.kwargs.get('category')).first().id
-		upvotes_cnt_list = []
 		checklists_var = Checklist.objects.filter(category_id=category.id, is_draft=False).order_by('-date_posted')
+
+		upvotes_cnt_list = []
+		upvoted_bool_list = []
+		bookmarked_bool_list = []
+
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-		checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+			if checklist.upvote_set.filter(user=self.request.user):
+				upvoted_bool_list.append(True)
+			else:
+				upvoted_bool_list.append(False)
+
+			if checklist.bookmark_set.filter(user=self.request.user):
+				bookmarked_bool_list.append(True)
+			else:
+				bookmarked_bool_list.append(False)
+
+
+		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
 
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
