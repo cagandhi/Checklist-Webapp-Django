@@ -26,6 +26,7 @@ urlpatterns = [
     path('upvotes/', UpvoteChecklistListView.as_view(), name='upvotes'),
     path('checklist/<int:pk>/', ChecklistDetailView.as_view(), name='checklist-detail'),
     path('checklist/<int:checklist_id>/publish', views.publish_checklist, name='checklist-publish'),
+    path('checklist/<int:checklist_id>/save', views.save_and_edit, name='checklist-save'),
     path('checklist/new/', ChecklistCreateView.as_view(), name='checklist-create'),
     path('checklist/<int:pk>/update/', ChecklistUpdateView.as_view(), name='checklist-update'),
     path('checklist/<int:pk>/delete/', ChecklistDeleteView.as_view(), name='checklist-delete'),

@@ -584,6 +584,39 @@ def follow_user(request, username):
 		
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
+
+# SAVE AND EDIT
+@login_required
+def save_and_edit(request, checklist_id):
+	old_obj = Checklist.objects.get(id=checklist_id)
+
+	if request.user != old_obj.author:
+		new_title = old_obj.title + ' by ' + request.user.username
+		
+		if not Checklist.objects.filter(title=new_title, content=old_obj.content, author=request.user, category=old_obj.category):
+			new_obj = Checklist(title=new_title, content=old_obj.content, author=request.user, category=old_obj.category)
+			new_obj.save()
+
+			msg = 'Checklist saved. You can now modify it as your own!'
+			messages.info(request, msg)
+
+			return redirect('checklist-detail', new_obj.id)
+		
+		else:
+			msg = "You have already saved this checklist once!"
+			messages.info(request, msg)
+	else:
+		msg = "You can only save and edit others' checklists"
+		messages.info(request, msg)
+
+		return redirect('checklist-detail', old_obj.id)
+
+	if request.META.get('HTTP_REFERER'):
+		if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+			return redirect('checklist-home')
+	
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
 

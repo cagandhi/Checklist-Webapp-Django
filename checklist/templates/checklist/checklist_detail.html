@@ -28,6 +28,7 @@
 			<table class="table table-sm">
 			  <thead class="thead-light">
 			    <tr>
+			      <!-- <th scope="col"></th> -->
 			      <th scope="col">Item title</th>
 			      <th scope="col">Completed?</th>
 			      {% if object.author == user %}
@@ -38,6 +39,11 @@
 			  <tbody>
 			  	{% for item in itemset %}
 			  		<tr>
+			  			<!-- <td>
+			  				<div class="checkbox">
+								<label><input type="checkbox" value=""></label>
+							</div>
+						</td> -->
 						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
 						<td>
 							{% if item.completed %}
@@ -68,6 +74,7 @@
 			{% if user.is_authenticated and object.author != user %}
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-upvote' object.id %}">Upvote | {{ uvote }}</a>
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-bookmark' object.id %}">Bookmark</a>
+				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-save' object.id %}">Save and Edit</a>
 			{% else %}
 				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>
 			{% endif %}
