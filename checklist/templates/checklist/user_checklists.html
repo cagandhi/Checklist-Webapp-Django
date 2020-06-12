@@ -56,21 +56,21 @@
 	{% if is_paginated %}
 
 		{% if checklist_upvotes.has_previous %}
-			<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
+			<a class="btn btn-outline-info mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page=1">First</a>
+			<a class="btn btn-outline-info mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
 		{% endif %}
 
 		{% for num in checklist_upvotes.paginator.page_range %}
 			{% if num == checklist_upvotes.number %}
-				<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+				<a class="btn btn-info mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page={{ num }}">{{ num }}</a>
 			{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
-				<a class="btn btn-info-outline mb-4" href="?page={{ num }}">{{ num }}</a>
+				<a class="btn btn-info-outline mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page={{ num }}">{{ num }}</a>
 			{% endif %}
 		{% endfor %}
 
 		{% if checklist_upvotes.has_next %}
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.next_page_number }}">Next</a>
-			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
+			<a class="btn btn-outline-info mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page={{ checklist_upvotes.next_page_number }}">Next</a>
+			<a class="btn btn-outline-info mb-4" href="{% url 'user-checklists' view.kwargs.username %}?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
 		{% endif %}
 
 	{% endif %}

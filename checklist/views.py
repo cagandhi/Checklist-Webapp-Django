@@ -58,19 +58,25 @@ class ChecklistListView(ListView):
 
 		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
-		
+
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(checklist.upvote_set.count()) # Upvote.objects.filter(checklist=checklist).count()
 
-			if checklist.upvote_set.filter(user=self.request.user):
-				upvoted_bool_list.append(True)
-			else:
-				upvoted_bool_list.append(False)
+			# if user is not anonymous
+			if not self.request.user.is_anonymous: 
 
-			if checklist.bookmark_set.filter(user=self.request.user):
-				bookmarked_bool_list.append(True)
+				if checklist.upvote_set.filter(user=self.request.user):
+					upvoted_bool_list.append(True)
+				else:
+					upvoted_bool_list.append(False)
+
+				if checklist.bookmark_set.filter(user=self.request.user):
+					bookmarked_bool_list.append(True)
+				else:
+					bookmarked_bool_list.append(False)
 			else:
-				bookmarked_bool_list.append(False)
+				upvoted_bool_list.append(True)
+				bookmarked_bool_list.append(True)
 
 		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list) #,followed_or_not_list)
 
@@ -107,10 +113,13 @@ class UserChecklistListView(ListView):
 
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
 		
-		if self.request.user.fromUser.filter(toUser=user):
-			if_followed = True
+		if not self.request.user.is_anonymous: 
+			if self.request.user.fromUser.filter(toUser=user):
+				if_followed = True
+			else:
+				if_followed = False
 		else:
-			if_followed = False
+			if_followed = True
 
 		# to protect draft checklists from being seen
 		checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by('-date_posted')
@@ -123,19 +132,23 @@ class UserChecklistListView(ListView):
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-			if checklist.upvote_set.filter(user=self.request.user):
+			if not self.request.user.is_anonymous:
+				if checklist.upvote_set.filter(user=self.request.user):
+					upvoted_bool_list.append(True)
+				else:
+					upvoted_bool_list.append(False)
+
+				if checklist.bookmark_set.filter(user=self.request.user):
+					bookmarked_bool_list.append(True)
+				else:
+					bookmarked_bool_list.append(False)
+			else:
 				upvoted_bool_list.append(True)
-			else:
-				upvoted_bool_list.append(False)
-
-			if checklist.bookmark_set.filter(user=self.request.user):
 				bookmarked_bool_list.append(True)
-			else:
-				bookmarked_bool_list.append(False)
 
-
+		print(len(checklists_var), len(upvotes_cnt_list), len(upvoted_bool_list), len(bookmarked_bool_list))
 		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
-
+		
 		paginator = Paginator(list(checklist_upvotes), self.paginate_by)
 		page = self.request.GET.get('page')
 
@@ -155,7 +168,7 @@ class UserChecklistListView(ListView):
 		
 
 # DRAFT CHECKLISTS BY USER
-class UserDraftChecklistListView(ListView):
+class UserDraftChecklistListView(LoginRequiredMixin, ListView):
 	model = Checklist
 	template_name = 'checklist/user_checklists.html' # <app_name>/<model>_<viewtype>.html
 	paginate_by = 5
@@ -203,15 +216,17 @@ class ChecklistDetailView(DetailView):
 		context = super(ChecklistDetailView, self).get_context_data(**kwargs)
 
 		chk = Checklist.objects.get(id=self.kwargs.get('pk'))
-		if chk.upvote_set.filter(user=self.request.user):
-			if_upvoted = True
-		else:
-			if_upvoted = False
 
-		if chk.bookmark_set.filter(user=self.request.user):
-			if_bookmarked = True
-		else:
-			if_bookmarked = False			
+		if not self.request.user.is_anonymous:
+			if chk.upvote_set.filter(user=self.request.user):
+				if_upvoted = True
+			else:
+				if_upvoted = False
+
+			if chk.bookmark_set.filter(user=self.request.user):
+				if_bookmarked = True
+			else:
+				if_bookmarked = False			
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		itemset = chk.item_set.order_by('completed','title')
@@ -300,10 +315,11 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
 		for bookmark in bookmarks_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=bookmark.checklist).count())
 
-			if bookmark.checklist.upvote_set.filter(user=self.request.user):
-				upvoted_bool_list.append(True)
-			else:
-				upvoted_bool_list.append(False)
+			if not self.request.user.is_anonymous:
+				if bookmark.checklist.upvote_set.filter(user=self.request.user):
+					upvoted_bool_list.append(True)
+				else:
+					upvoted_bool_list.append(False)
 
 		checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list, upvoted_bool_list)
 
@@ -382,15 +398,16 @@ class SearchChecklistListView(ListView):
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-			if checklist.upvote_set.filter(user=self.request.user):
-				upvoted_bool_list.append(True)
-			else:
-				upvoted_bool_list.append(False)
+			if not self.request.user.is_anonymous:
+				if checklist.upvote_set.filter(user=self.request.user):
+					upvoted_bool_list.append(True)
+				else:
+					upvoted_bool_list.append(False)
 
-			if checklist.bookmark_set.filter(user=self.request.user):
-				bookmarked_bool_list.append(True)
-			else:
-				bookmarked_bool_list.append(False)
+				if checklist.bookmark_set.filter(user=self.request.user):
+					bookmarked_bool_list.append(True)
+				else:
+					bookmarked_bool_list.append(False)
 
 		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
 
@@ -423,7 +440,6 @@ class CategoryChecklistListView(ListView):
 	def get_context_data(self, **kwargs):
 		context = super(CategoryChecklistListView, self).get_context_data(**kwargs)
 
-		print('CATEGORY: '+self.kwargs.get('category'))
 		category = get_object_or_404(Category, name=self.kwargs.get('category'))
 
 		# category_id = Category.objects.filter(name=self.kwargs.get('category')).first().id
@@ -432,20 +448,20 @@ class CategoryChecklistListView(ListView):
 		upvotes_cnt_list = []
 		upvoted_bool_list = []
 		bookmarked_bool_list = []
-
 		
 		for checklist in checklists_var:
 			upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-			if checklist.upvote_set.filter(user=self.request.user):
-				upvoted_bool_list.append(True)
-			else:
-				upvoted_bool_list.append(False)
+			if not self.request.user.is_anonymous:
+				if checklist.upvote_set.filter(user=self.request.user):
+					upvoted_bool_list.append(True)
+				else:
+					upvoted_bool_list.append(False)
 
-			if checklist.bookmark_set.filter(user=self.request.user):
-				bookmarked_bool_list.append(True)
-			else:
-				bookmarked_bool_list.append(False)
+				if checklist.bookmark_set.filter(user=self.request.user):
+					bookmarked_bool_list.append(True)
+				else:
+					bookmarked_bool_list.append(False)
 
 
 		checklist_upvotes = zip(checklists_var, upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list)
