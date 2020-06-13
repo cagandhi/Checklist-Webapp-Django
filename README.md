@@ -3,6 +3,8 @@ This is a demo project to learn Django web app framework and create a [<strong>c
 
 Website: https://django-checklist.herokuapp.com/
 
+Refer this link: [https://www.internalpointers.com/post/squash-commits-into-one-git](https://www.internalpointers.com/post/squash-commits-into-one-git) to see how to squash the last N commits through git commands.
+
 ## Features implemented
 * upvote a post by a user
 * show upvotes on posts
