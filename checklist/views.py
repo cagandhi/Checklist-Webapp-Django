@@ -610,6 +610,7 @@ def bookmark_checklist(request, checklist_id):
 # COMPLETE/DELETE ITEM
 @login_required
 def item_action(request, item_id, action_type):
+
 	if Item.objects.get(id=item_id).checklist.author != request.user:
 		msg = 'Action Denied! You can only make changes to your own checklist!'
 		messages.info(request, msg)

@@ -25,43 +25,63 @@
 		<div/>
 
 		<div style="margin-top: 20px">
-			<table class="table table-sm">
+			<table style="width: 70%" class="table table-sm">
 			  <thead class="thead-light">
 			    <tr>
-			      <!-- <th scope="col"></th> -->
-			      <th scope="col">Item title</th>
-			      <th scope="col">Completed?</th>
+			      <th style="text-align:center" scope="col"></th>
+			      <th style="text-align:center" scope="col">Item title</th>
+			      <!-- <th scope="col">Completed?</th> -->
 			      {% if object.author == user %}
-			      	<th scope="col">Actions</th>
+			      	<th style="text-align:center" scope="col">Actions</th>
 			      {% endif %}
 			    </tr>
 			  </thead>
 			  <tbody>
 			  	{% for item in itemset %}
 			  		<tr>
-			  			<!-- <td>
-			  				<div class="checkbox">
-								<label><input type="checkbox" value=""></label>
-							</div>
-						</td> -->
-						<td><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
-						<td>
+			  			<td style="text-align:center">
+
+			  				{% if object.author == user %}
+				  				<!-- refer: https://stackoverflow.com/a/17599126/6543250 to see how to trigger some action when checkbox is clicked; wrap it in a form and call its submit on checkbox onchange -->
+				  				<!-- refer this to see how to concatenate string in JS - https://stackoverflow.com/a/44215286/6543250 -->
+				  				<form id="formName" action="{% url 'item-action' item.id 'complete' %}" method="POST">
+				  					{% csrf_token %}
+				  					<!-- see this link: https://stackoverflow.com/a/298793/6543250 to access variable in JS -->
+									<!-- <input type="checkbox" value="" onchange="document.getElementById('formName{{item.id}}').submit()"> -->
+
+									{% if item.completed %}
+										<input type="checkbox" value="" onchange="this.form.submit()" checked>
+									{% else %}
+										<input type="checkbox" value="" onchange="this.form.submit()">
+									{% endif %}
+								</form>
+							{% else %}
+								{% if item.completed %}
+									<input type="checkbox" value="" checked disabled>
+								{% else %}
+									<input type="checkbox" value="" disabled>
+								{% endif %}
+							{% endif %}
+						</td>
+						<td style="text-align:center"><a href="{% url 'item-detail' item.id %}">{{ item.title }}</a></td>
+						<!-- <td>
 							{% if item.completed %}
 								Yes
 							{% else %}
 								No
 							{% endif %}
-						</td>
+						</td> -->
 						{% if object.author == user %}
-							<td>
-								<span>
+							<td style="text-align:center">
+								<a class="btn btn-outline-danger" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
+								<!-- <span>
 									{% if item.completed %}
 										<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Untick</a>
 									{% else %}
 										<a class="btn btn-outline-success" href="{% url 'item-action' item.id 'complete' %}">Tick</a>
 									{% endif %}
 									<a class="btn btn-outline-danger" style="float: right;" href="{% url 'item-action' item.id 'delete' %}">Delete</a>
-								</span>
+								</span> -->
 							</td>
 						{% endif %}
 					</tr>
