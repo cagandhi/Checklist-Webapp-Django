@@ -17,6 +17,7 @@ from .models import Checklist, Upvote, Bookmark, Category, Item, Follow
 from django import forms
 from django.contrib.auth.decorators import login_required
 from itertools import chain
+from django.utils import timezone
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -694,8 +695,14 @@ def save_and_edit(request, checklist_id):
 		new_title = old_obj.title + ' by ' + request.user.username
 		
 		if not Checklist.objects.filter(title=new_title, content=old_obj.content, author=request.user, category=old_obj.category):
-			new_obj = Checklist(title=new_title, content=old_obj.content, author=request.user, category=old_obj.category)
+
+			new_obj = Checklist(title=new_title, content=old_obj.content, author=request.user, date_posted=timezone.now(), category=old_obj.category)
 			new_obj.save()
+
+			for item in old_obj.item_set.all():
+				item.pk = None
+				item.checklist = new_obj
+				item.save()
 
 			msg = 'Checklist saved. You can now modify it as your own!'
 			messages.info(request, msg)
@@ -716,6 +723,7 @@ def save_and_edit(request, checklist_id):
 			return redirect('checklist-home')
 	
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
+
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
