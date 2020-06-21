@@ -18,6 +18,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from itertools import chain
 from django.utils import timezone
+from django.core import serializers
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -230,7 +231,7 @@ class ChecklistDetailView(DetailView):
 				if_bookmarked = False			
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
-		itemset = chk.item_set.order_by('completed','title')
+		itemset = chk.item_set.order_by('title','completed')
 		
 		# priority_levels = []
 		# d = dict(Item.PRIORITY_CHOICES)
