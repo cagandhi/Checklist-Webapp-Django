@@ -231,7 +231,7 @@ class ChecklistDetailView(DetailView):
 				if_bookmarked = False			
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
-		itemset = chk.item_set.order_by('title','completed')
+		itemset = chk.item_set.order_by('title') #,'completed')
 		
 		# priority_levels = []
 		# d = dict(Item.PRIORITY_CHOICES)
