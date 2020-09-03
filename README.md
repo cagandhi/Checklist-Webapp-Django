@@ -17,13 +17,13 @@ Website: https://django-checklist.herokuapp.com/
 * Assign topics to checklists and view checklists by topics
 
 ## Features in Pipeline
+* Recommendations for checklists below each checklist
+* Automatically infer category from checklist title and description
 * Follow a checklist and notify a user if a change is made by the author
 * Notifications functionality - when a user follows you, checklist upvoted
-* Recommendations for checklists below each checklist
-* Automatically infer category from checklist title and sdescription (may not be immensely useful)
 
 ## Usage Information
-<strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
+  > <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
 
 1. Clone the project.
 2. Create a new virtual environment with: ```python3 -m venv <path_to_new_env>```
