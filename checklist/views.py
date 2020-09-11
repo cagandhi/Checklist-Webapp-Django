@@ -219,6 +219,7 @@ class ChecklistDetailView(DetailView):
 
 		chk = Checklist.objects.get(id=self.kwargs.get('pk'))
 
+		# if user is not anonymous, meaning user is logged in
 		if not self.request.user.is_anonymous:
 			if chk.upvote_set.filter(user=self.request.user):
 				if_upvoted = True
@@ -228,7 +229,12 @@ class ChecklistDetailView(DetailView):
 			if chk.bookmark_set.filter(user=self.request.user):
 				if_bookmarked = True
 			else:
-				if_bookmarked = False			
+				if_bookmarked = False
+		else:
+			if_upvoted = True
+			if_bookmarked = True
+
+		# if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in. If not logged in, this is not relevant
 
 		uvote = Upvote.objects.filter(checklist_id=self.kwargs.get('pk')).count()
 		itemset = chk.item_set.order_by('title') #,'completed')
