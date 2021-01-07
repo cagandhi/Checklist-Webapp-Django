@@ -38,7 +38,7 @@ class Item(models.Model):
 	checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
 
 	def get_absolute_url(self):
-		return reverse('checklist-detail', kwargs={'pk': self.checklist.id})
+		return reverse('item-detail', kwargs={'pk': self.checklist.id})
 
 
 class Upvote(models.Model):
