@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from checklist.views import ChecklistListView
+from checklist.views import ChecklistListView, UserChecklistListView
 from django.urls import reverse, resolve
 
 from checklist.models import (
@@ -50,13 +50,13 @@ class TestChecklistListView(TestCase):
         response = self.client.get(reverse("checklist-home"))
         self.assertTemplateUsed(response, "checklist/home.html")
 
-    def test_no_questions(self):
+    def test_no_lists(self):
         response = self.client.get(reverse("checklist-home"))
 
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
 
-    def test_one_question(self):
+    def test_one_list(self):
         list1 = create_checklist(
             title="list 1",
             content="content 1",
@@ -68,7 +68,7 @@ class TestChecklistListView(TestCase):
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], list1)
 
-    def test_two_questions(self):
+    def test_two_lists(self):
         list1 = create_checklist(
             title="list 1",
             content="content 1",
@@ -86,3 +86,60 @@ class TestChecklistListView(TestCase):
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], list2)
         self.assertEqual(response.context["checklist_upvotes"][1][0], list1)
+
+    def tearDown(self):
+        self.user.delete()
+
+
+class TestUserChecklistListView(TestCase):
+    def setUp(self):
+        self.user = create_user_if_not_exists("testuser", "12345")
+        self.category = create_category_if_not_exists("test_category")
+
+    def test_userchecklist_list_view_url(self):
+        url = resolve("/user/testuser/")
+        self.assertEqual(url.func.__name__, UserChecklistListView.__name__)
+
+    def test_checklist_list_view_template(self):
+        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        self.assertTemplateUsed(response, "checklist/user_checklists.html")
+
+    def test_no_lists(self):
+        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
+
+    def test_one_list(self):
+        list1 = create_checklist(
+            title="list 1",
+            content="content 1",
+            user=self.user,
+            category=self.category,
+        )
+
+        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        self.assertEqual(response.context["checklist_upvotes"].number, 1)
+        self.assertEqual(response.context["checklist_upvotes"][0][0], list1)
+
+    def test_two_lists(self):
+        list1 = create_checklist(
+            title="list 1",
+            content="content 1",
+            user=self.user,
+            category=self.category,
+        )
+        list2 = create_checklist(
+            title="list 2",
+            content="content 2",
+            user=self.user,
+            category=self.category,
+        )
+
+        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        self.assertEqual(response.context["checklist_upvotes"].number, 1)
+        self.assertEqual(response.context["checklist_upvotes"][0][0], list2)
+        self.assertEqual(response.context["checklist_upvotes"][1][0], list1)
+
+    def tearDown(self):
+        self.user.delete()
