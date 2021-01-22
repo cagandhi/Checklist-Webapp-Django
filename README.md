@@ -16,6 +16,8 @@ Website: https://django-checklist.herokuapp.com/
 * See your own published checklists
 * Assign topics to checklists and view checklists by topics
 
+
+
 ## Features in Pipeline
 * Recommendations for checklists below each checklist
 * Automatically infer category from checklist title and description
