@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from .models import Checklist, Upvote, Bookmark, Category, Item, Follow
+from .models import Checklist, Upvote, Bookmark, Category, Item, Follow, Notification
 from django import forms
 from django.contrib.auth.decorators import login_required
 from itertools import chain
@@ -58,6 +58,8 @@ class ChecklistListView(ListView):
 		upvoted_bool_list = []
 		bookmarked_bool_list = []
 
+		notif_list = Notification.objects.filter(toUser=self.request.user)
+
 		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
 
@@ -95,6 +97,7 @@ class ChecklistListView(ListView):
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'home'
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
+		context['notif_list'] = notif_list
 
 		return context
 
@@ -732,6 +735,17 @@ def save_and_edit(request, checklist_id):
 	
 	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
+
+# DISMISS NOTIF
+@login_required
+def dismiss_notif(request, notif_id):
+	Notification.objects.filter(notif_id=notif_id).delete()
+
+	if request.META.get('HTTP_REFERER'):
+			if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):
+				return redirect('checklist-home')
+		
+	return redirect(request.META.get('HTTP_REFERER', 'checklist-home'))
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------

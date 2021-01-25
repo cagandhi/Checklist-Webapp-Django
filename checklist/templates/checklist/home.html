@@ -2,6 +2,16 @@
 <!-- template inheritance -->
 {% extends "checklist/base.html" %}
 
+<!-- only replace the notifs content with this code -->
+{% block notifs %}
+	{% for notif in notif_list %}
+	<div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+		<p style="vertical-align: middle" class="dropdown-item">{{ notif.msg }}</p>
+		<a style="text-align: center; vertical-align: middle" href="{% url 'dismiss-notif' notif.notif_id %}"><i class="fa fa-times" style="color:red" aria-hidden="true"></i></a>
+	</div>
+	{% endfor %}
+{% endblock notifs %}
+
 <!-- only replace the block content with this code -->
 {% block content %}
 	<!-- loop over posts list provided in context; use variable name used as key in context -->
@@ -40,7 +50,6 @@
 
 	<!-- pagination part; display page numbers to view posts -->
 	{% if is_paginated %}
-
 		{% if checklist_upvotes.has_previous %}
 			<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
 			<a class="btn btn-outline-info mb-4" href="?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
@@ -60,4 +69,4 @@
 		{% endif %}
 	{% endif %}
 
-{% endblock content  %}
+{% endblock content %}

@@ -40,4 +40,5 @@ urlpatterns = [
     path('checklist/item/<int:pk>/view/', ItemDetailView.as_view(), name='item-detail'),
     path('checklist/item/<int:pk>/update/', ItemUpdateView.as_view(), name='item-update'),
     path('checklist/item/<int:item_id>/<str:action_type>/', views.item_action, name='item-action'),
+    path('notif/<int:notif_id>/dismiss', views.dismiss_notif, name='dismiss-notif'),
 ]

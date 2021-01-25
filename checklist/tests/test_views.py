@@ -101,12 +101,16 @@ class TestUserChecklistListView(TestCase):
         self.assertEqual(url.func.__name__, UserChecklistListView.__name__)
 
     def test_checklist_list_view_template(self):
-        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        response = self.client.get(
+            reverse("user-checklists", kwargs={"username": "testuser"})
+        )
         self.assertTemplateUsed(response, "checklist/user_checklists.html")
 
     def test_no_lists(self):
-        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
-        
+        response = self.client.get(
+            reverse("user-checklists", kwargs={"username": "testuser"})
+        )
+
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
 
@@ -118,7 +122,9 @@ class TestUserChecklistListView(TestCase):
             category=self.category,
         )
 
-        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        response = self.client.get(
+            reverse("user-checklists", kwargs={"username": "testuser"})
+        )
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], list1)
 
@@ -136,7 +142,9 @@ class TestUserChecklistListView(TestCase):
             category=self.category,
         )
 
-        response = self.client.get(reverse("user-checklists", kwargs={'username': 'testuser'}))
+        response = self.client.get(
+            reverse("user-checklists", kwargs={"username": "testuser"})
+        )
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], list2)
         self.assertEqual(response.context["checklist_upvotes"][1][0], list1)
