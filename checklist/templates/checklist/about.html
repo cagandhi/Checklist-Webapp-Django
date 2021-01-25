@@ -1,6 +1,33 @@
 <!-- check home.html for common code understanding -->
 {% extends "checklist/base.html" %}
-
 {% block content %}
-	<h1>About page!</h1>
-{% endblock %}
+<h1>About the Checklist Manager WebApp</h1>
+<p>This web app is a checklist manager which is developed on the Django REST framework and helps users create, search, upvote and bookmark checklists, connect with other users and share lists on social media.
+    <br><br>
+    The webapp is hosted on Heroku and uses AWS S3 for file storage and AWS Lambda to reduce profile image size upon upload. The project started with the idea to create a <a href="https://www.checkli.com/"><strong>checkli.com</strong></a> style website.</p>
+<h2>Website</h2>
+<a href="https://django-checklist.herokuapp.com/">https://django-checklist.herokuapp.com/</a>
+<br><br>
+<h2>Primary Features</h2>
+<ul>
+    <li>Email as well as social media based authorization along with password reset functionality</li>
+    <li>Perform CRUD operations on own checklists</li>
+    <li>View other users' checklists with no of upvotes</li>
+    <li>Upvote/Bookmark checklists by other users and view them</li>
+    <li>Search checklists by title and description</li>
+    <li>Share checklists on social media such as Facebook, LinkedIn, Reddit, Twitter</li>
+    <li>Save draft checklists and come back anytime to edit and publish them</li>
+    <li>Follow other users and be notified when they publish a new checklist</li>
+    <li>Save and edit others' published checklists to make them your own!</li>
+    <li>Assign topics to checklists and view checklists by topics</li>
+</ul>
+<br>
+<h2>About the Developer</h2>
+<p>Hey, I am Chintan Gandhi, a graduate student at North Carolina State University. I started working on this side-project in May 2020 and have been sparing time to slowly develop this further. Hope you find this webapp useful.
+    <br><br>
+    If you have any questions, feedback or feature requests, let me know on my <a href="mailto: cagandhi@ncsu.edu">email</a>.
+    <br>
+    If you would like to connect and chat, reach out to me on <a href="https://www.linkedin.com/in/cagandhi97">LinkedIn</a>.
+    <br>
+    If you would like to see more projects in my portfolio, visit my <a href="https://github.com/cagandhi">GitHub</a>.
+    {% endblock %}

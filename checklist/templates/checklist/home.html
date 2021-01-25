@@ -2,16 +2,6 @@
 <!-- template inheritance -->
 {% extends "checklist/base.html" %}
 
-<!-- only replace the notifs content with this code -->
-{% block notifs %}
-	{% for notif in notif_list %}
-	<div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-		<p style="vertical-align: middle" class="dropdown-item">{{ notif.msg }}</p>
-		<a style="text-align: center; vertical-align: middle" href="{% url 'dismiss-notif' notif.id %}"><i class="fa fa-times" style="color:red" aria-hidden="true"></i></a>
-	</div>
-	{% endfor %}
-{% endblock notifs %}
-
 
 <!-- only replace the block content with this code -->
 {% block content %}
