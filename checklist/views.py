@@ -738,8 +738,8 @@ def save_and_edit(request, checklist_id):
 
 # DISMISS NOTIF
 @login_required
-def dismiss_notif(request, notif_id):
-	Notification.objects.filter(notif_id=notif_id).delete()
+def dismiss_notif(request, id):
+	Notification.objects.filter(id=id).delete()
 
 	if request.META.get('HTTP_REFERER'):
 			if 'login' in request.META.get('HTTP_REFERER') and 'next' in request.META.get('HTTP_REFERER'):

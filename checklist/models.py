@@ -77,7 +77,6 @@ class Follow(models.Model):
 
 
 class Notification(models.Model):
-    notif_id = models.AutoField(primary_key=True)
     fromUser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="fromUserNotif"
     )
