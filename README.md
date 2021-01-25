@@ -3,26 +3,23 @@ Implemented a checklist manager webapp by utilizing the Django REST framework to
 
 Website: https://django-checklist.herokuapp.com/
 
-## Features implemented
-* Email-based authorization as well as Social media based authorization with ability to request password reset
+## Primary Features of the web app
+* Email as well as social media based authorization along with password reset functionality
 * Perform CRUD operations on own checklists
-* View checklists published by other user with no. of upvotes displayed for each list
-* Upvote/Bookmark checklists published by other users and view these lists
+* View other users' checklists with no of upvotes
+* Upvote/Bookmark checklists by other users and view them
 * Search checklists by title and description
-* Easily share checklists on social media such as Facebook, LinkedIn, Reddit, Twitter
+* Share checklists on social media such as Facebook, LinkedIn, Reddit, Twitter
 * Save draft checklists and come back anytime to edit and publish them
-* Follow other users and view their checklists
-* Save and edit others' published checklists to make it your own!
-* See your own published checklists
+* Follow other users and be notified when they publish a new checklist
+* Save and edit others' published checklists to make them your own!
 * Assign topics to checklists and view checklists by topics
 
-
-
 ## Features in Pipeline
-* Recommendations for checklists below each checklist
-* Automatically infer category from checklist title and description
-* Follow a checklist and notify a user if a change is made by the author
 * Notifications functionality - when a user follows you, checklist upvoted
+* Follow a checklist and notify a user if a change is made by the author
+* Recommendations for checklists displayed below each list
+* Automatically infer category from checklist title and description
 
 ## Usage Information
   > <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
