@@ -60,7 +60,7 @@
                               <!-- to see how no_notif (template tag) is used to populate notif_list, refer: https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#simple-tags -->
                               {% no_notif as notif_list %}
                               {% for notif in notif_list %}
-                                <div style="display:flex; flex-direction: row; justify-content: center; align-items: left">
+                                <div style="display:flex; flex-direction: row; justify-content: center; align-items: left; margin-left: 1em; margin-right: 1em;">
                                     <p style="vertical-align: middle" class="dropdown-item">
                                       {% if notif.notif_type == 1 %}
                                         User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> upvoted your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
@@ -68,9 +68,9 @@
                                         User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed you
                                       {% endif %}
                                     </p>
-                                    <a style="text-align: center; vertical-align: middle" href="{% url 'dismiss-notif' notif.id %}"><i class="fa fa-times" style="color:red" aria-hidden="true"></i></a>
-                                    <div class="dropdown-divider"></div>
+                                    <a style="text-align: center; vertical-align: middle;" href="{% url 'dismiss-notif' notif.id %}"><i class="fa fa-times" style="color:red; align-self: center" aria-hidden="true"></i></a>
                                 </div>
+                                <div class="dropdown-divider"></div>
                               {% endfor %}
                           </div>
                         </li>
