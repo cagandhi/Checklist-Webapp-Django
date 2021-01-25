@@ -53,7 +53,6 @@
 	{% if is_paginated %}
 
 		{% if checklist_upvotes.has_previous %}
-			<!-- <a class="btn btn-outline-info mb-4" href="?{% url_replace page=1 %}">First</a> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' 1 %}">First</a>
 			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.previous_page_number }}"> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' checklist_upvotes.previous_page_number %}">Previous</a>
@@ -73,7 +72,6 @@
 		{% if checklist_upvotes.has_next %}
 			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.next_page_number }}">Next</a> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' checklist_upvotes.next_page_number %}">Next</a>
-			<!-- <a class="btn btn-outline-info mb-4" href="?{% url_replace page=checklist_upvotes.paginator.num_pages %}">Last</a> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' checklist_upvotes.paginator.num_pages %}">Last</a>
 		{% endif %}
 	{% endif %}

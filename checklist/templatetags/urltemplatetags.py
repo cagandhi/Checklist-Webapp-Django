@@ -13,11 +13,11 @@ register = template.Library()
 
 @register.simple_tag
 def url_replace_mod(request, field, value):
-	print('inside template tag url replace mode')
+	# print('inside template tag url replace mode')
 	d = request.GET.copy()
 	d[field] = value
-	print(d)
-	print('?'+d.urlencode())
+	# print(d)
+	# print('?'+d.urlencode())
 	return '?'+d.urlencode()
 
 @register.simple_tag

@@ -58,8 +58,6 @@ class ChecklistListView(ListView):
 		upvoted_bool_list = []
 		bookmarked_bool_list = []
 
-		notif_list = Notification.objects.filter(toUser=self.request.user)
-
 		# .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 		checklists_var = Checklist.objects.filter(is_draft=False).order_by('-date_posted')
 
@@ -97,7 +95,6 @@ class ChecklistListView(ListView):
 		context['checklist_upvotes'] = page_checklist_upvotes
 		context['title'] = 'home'
 		context['is_paginated'] = page_checklist_upvotes.has_other_pages
-		context['notif_list'] = notif_list
 
 		return context
 
