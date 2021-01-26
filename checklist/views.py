@@ -22,6 +22,7 @@ from .models import (
     Category,
     Item,
     Follow,
+    FollowChecklist,
     Notification,
 )
 from django import forms
@@ -273,9 +274,15 @@ class ChecklistDetailView(DetailView):
                 if_bookmarked = True
             else:
                 if_bookmarked = False
+
+            if FollowChecklist.objects.filter(toChecklist=chk).filter(fromUser=self.request.user):
+                if_followed = True
+            else:
+                if_followed = False
         else:
             if_upvoted = True
             if_bookmarked = True
+            if_followed = True
 
         # if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in. If not logged in, this is not relevant
 
@@ -295,6 +302,7 @@ class ChecklistDetailView(DetailView):
 
         context["if_upvoted"] = if_upvoted
         context["if_bookmarked"] = if_bookmarked
+        context["if_followed"] = if_followed
         context["uvote"] = uvote
         context["itemset"] = itemset
 
@@ -885,25 +893,26 @@ def dismiss_notif(request, id):
 
 # FOLLOW CHECKLIST
 @login_required
-def follow_checklist(request, username):
-    pass
-    
-    if request.user.username == username:
-        msg = "Action Denied! You can only follow other users!"
+def follow_checklist(request, checklist_id):
+    # pass
+
+    checklist = Checklist.objects.get(id=checklist_id)
+
+    if request.user == checklist.author:
+        msg = "Action Denied! You can not follow your own checklists!"
         messages.info(request, msg)
     else:
-        toUser = User.objects.filter(username=username).first()
-        obj = Follow.objects.filter(fromUser=request.user, toUser=toUser)
+        obj = FollowChecklist.objects.filter(fromUser=request.user, toChecklist=checklist)
 
         if obj:
             obj.delete()
-            msg = "User unfollowed!"
+            msg = "Checklist unfollowed!"
         else:
-            Follow(fromUser=request.user, toUser=toUser).save()
-            msg = "User followed!"
+            FollowChecklist(fromUser=request.user, toChecklist=checklist).save()
+            msg = "Checklist followed!"
 
             fromUser = request.user
-            Notification(fromUser=fromUser, toUser=toUser, notif_type=2).save()
+            Notification(fromUser=fromUser, toUser=checklist.author, notif_type=3, checklist=checklist).save()
 
         messages.info(request, msg)
 

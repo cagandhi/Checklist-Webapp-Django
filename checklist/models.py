@@ -92,7 +92,7 @@ class Notification(models.Model):
         User, on_delete=models.CASCADE, related_name="fromUserNotif"
     )
     toUser = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="toUserNotif"
+        User, on_delete=models.CASCADE, null=True, related_name="toUserNotif"
     )
     date_notified = models.DateTimeField(default=timezone.now)
     notif_type = models.PositiveIntegerField(

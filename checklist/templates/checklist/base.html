@@ -69,6 +69,8 @@
                                         User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> upvoted your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
                                       {% elif notif.notif_type == 2 %}
                                         User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed you
+                                      {% elif notif.notif_type == 3 %}
+                                        User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
                                       {% endif %}
                                     </p>
                                     </div>
