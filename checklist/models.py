@@ -66,13 +66,26 @@ class Follow(models.Model):
     )
 
 
+class FollowChecklist(models.Model):
+    # why use related_name property - refer https://stackoverflow.com/a/2642645/6543250
+    fromUser = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="fromUserFC"
+    )
+    toChecklist = models.ForeignKey(
+        Checklist, on_delete=models.CASCADE, related_name="toChecklist"
+    )
+
+
 class Notification(models.Model):
+
     UPVOTE = 1
     USER_FOLLOW = 2
+    CHECKLIST_FOLLOW = 3
 
     NOTIF_CHOICES = (
-      (UPVOTE, 'upvote'),
-      (USER_FOLLOW, 'user_follow'),
+        (UPVOTE, "upvote"),
+        (USER_FOLLOW, "user_follow"),
+        (CHECKLIST_FOLLOW, "checklist_follow"),
     )
 
     fromUser = models.ForeignKey(
@@ -82,5 +95,9 @@ class Notification(models.Model):
         User, on_delete=models.CASCADE, related_name="toUserNotif"
     )
     date_notified = models.DateTimeField(default=timezone.now)
-    notif_type=models.PositiveIntegerField(choices=NOTIF_CHOICES, default=UPVOTE)
-    checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, null=True, blank=True)
+    notif_type = models.PositiveIntegerField(
+        choices=NOTIF_CHOICES, default=UPVOTE
+    )
+    checklist = models.ForeignKey(
+        Checklist, on_delete=models.CASCADE, null=True, blank=True
+    )
