@@ -883,6 +883,38 @@ def dismiss_notif(request, id):
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
 
 
+# FOLLOW CHECKLIST
+@login_required
+def follow_checklist(request, username):
+    pass
+    
+    if request.user.username == username:
+        msg = "Action Denied! You can only follow other users!"
+        messages.info(request, msg)
+    else:
+        toUser = User.objects.filter(username=username).first()
+        obj = Follow.objects.filter(fromUser=request.user, toUser=toUser)
+
+        if obj:
+            obj.delete()
+            msg = "User unfollowed!"
+        else:
+            Follow(fromUser=request.user, toUser=toUser).save()
+            msg = "User followed!"
+
+            fromUser = request.user
+            Notification(fromUser=fromUser, toUser=toUser, notif_type=2).save()
+
+        messages.info(request, msg)
+
+    if request.META.get("HTTP_REFERER"):
+        if "login" in request.META.get(
+            "HTTP_REFERER"
+        ) and "next" in request.META.get("HTTP_REFERER"):
+            return redirect("checklist-home")
+
+    return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
+
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
 
