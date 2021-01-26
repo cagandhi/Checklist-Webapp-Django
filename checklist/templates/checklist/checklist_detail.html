@@ -105,6 +105,12 @@
 				{% endif %}
 				
 				<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-save' object.id %}">Save and Edit</a>
+				{% if if_followed %}
+					<a class="btn btn-info" style="margin-top: 20px" href="{% url 'checklist-follow' object.id %}">Follow checklist</a>
+				{% else %}
+					<a class="btn btn-outline-info" style="margin-top: 20px" href="{% url 'checklist-follow' object.id %}">Follow checklist</a>
+				{% endif %}
+				
 			{% else %}
 				<a class="btn btn-outline-info disabled" style="margin-top: 20px">{{ uvote }} Upvotes</a>
 			{% endif %}
