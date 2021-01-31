@@ -1,0 +1,21 @@
+language: python
+python:
+  - "3.7"
+# command to install dependencies
+install:
+  - python setup.py install
+  - pip install coverage
+  - pip install codecov
+# command to run tests
+git:
+  depth: 50
+jobs:
+  include:
+  - name: "django-project"
+    python: "3.7"
+script:
+  # - python -m pytest --flake8
+  - flake8
+  - coverage run --source='.' manage.py test checklist # coverage run -m pytest -q test/
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t 0595e9dc-f36d-439a-85bf-0e27891785a9
