@@ -2,6 +2,8 @@ language: python
 python:
   - "3.7"
 # command to install dependencies
+# env:
+#   DB=sqlite
 install:
   - python setup.py install
   - pip install coverage
@@ -14,8 +16,10 @@ jobs:
   - name: "django-project"
     python: "3.7"
 script:
-  # - python -m pytest --flake8
-  - flake8
-  - coverage run --source='.' manage.py test checklist # coverage run -m pytest -q test/
+  - python manage.py test
+  # - coverage run --source=. checklist_project/manage.py test --settings=checklist_project.settings
+  # - coverage run --source="checklist" setup.py test
+  # - coverage run --source='.' manage.py test checklist
+  # - coverage run manage.py test
 after_success:
   - bash <(curl -s https://codecov.io/bash) -t 0595e9dc-f36d-439a-85bf-0e27891785a9
