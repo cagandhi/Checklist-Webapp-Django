@@ -1,4 +1,12 @@
-# Checklist-django
+# Checklist Webapp in Django
+
+[![Build Status](https://travis-ci.com/cagandhi/Checklist-Webapp-Django.svg?branch=master)](https://travis-ci.com/cagandhi/Checklist-Webapp-Django)
+![GitHub](https://img.shields.io/github/license/cagandhi/Checklist-Webapp-Django)
+<br>
+![GitHub](https://img.shields.io/badge/language-python-blue.svg)
+![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/cagandhi/Checklist-Webapp-Django)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/cagandhi/Checklist-Webapp-Django)
+
 Implemented a checklist manager webapp by utilizing the Django REST framework to help users create, search, upvote and bookmark checklists, connect with other users and share lists on social media. The webapp is hosted on Heroku and uses AWS S3 for file storage and AWS Lambda to reduce profile image size upon upload. The project started with the idea to create a [<strong>checkli.com</strong>](https://www.checkli.com/) style web app.
 
 Website: https://django-checklist.herokuapp.com/
