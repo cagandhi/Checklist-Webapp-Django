@@ -11,6 +11,13 @@ Implemented a checklist manager webapp by utilizing the Django REST framework to
 
 Website: https://django-checklist.herokuapp.com/
 
+
+## Table of Contents
+  * [Primary Features of the web app](#primary-features-of-the-web-app)
+  * [Features in Pipeline](#features-in-pipeline)
+  * [Installation](#installation)
+  * [Usage](#usage)
+
 ## Primary Features of the web app
 * Email as well as social media based authorization along with password reset functionality
 * Perform CRUD operations on own checklists
@@ -29,11 +36,15 @@ Website: https://django-checklist.herokuapp.com/
 * Recommendations for checklists displayed below each list
 * Automatically infer category from checklist title and description
 
-## Usage Information
-  > <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
+> <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
 
+## Installation
 1. Clone the project.
 2. Create a new virtual environment with: ```python3 -m venv <path_to_new_env>```
 3. Activate the newly created virtualenv as: ```source <path_to_new_env>/bin/activate```
 4. Run command: ```pip install -r requirements.txt```
-5. To run the webapp on your local machine, execute the command: ```python manage.py runserver```
+5. To create database tables based on the migrations, run: `python manage.py migrate`
+6. To load categories data into the categories table in database, run the command: `./manage.py shell < load_categories.py`
+
+## Usage
+1. To run the webapp on your local machine, execute the command: ```python manage.py runserver```
