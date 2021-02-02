@@ -14,10 +14,4 @@ class Migration(migrations.Migration):
             model_name='notification',
             name='id',
         ),
-        migrations.AddField(
-            model_name='notification',
-            name='notif_id',
-            field=models.AutoField(default=1, primary_key=True, serialize=False),
-            preserve_default=False,
-        ),
     ]
