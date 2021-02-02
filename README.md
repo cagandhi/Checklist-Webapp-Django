@@ -11,6 +11,13 @@ Implemented a checklist manager webapp by utilizing the Django REST framework to
 
 Website: https://django-checklist.herokuapp.com/
 
+
+## Table of Contents
+  * [Primary Features of the web app](#primary-features-of-the-web-app)
+  * [Features in Pipeline](#features-in-pipeline)
+  * [Installation](#installation)
+  * [Usage](#usage)
+
 ## Primary Features of the web app
 * Email as well as social media based authorization along with password reset functionality
 * Perform CRUD operations on own checklists
