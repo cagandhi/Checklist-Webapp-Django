@@ -29,7 +29,7 @@ Website: https://django-checklist.herokuapp.com/
 * Recommendations for checklists displayed below each list
 * Automatically infer category from checklist title and description
 
-  > <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
+> <strong>Note:</strong> The web-app is already hosted on Heroku for use by anyone so these steps are only required if you are cloning the project on local.
 
 ## Installation
 1. Clone the project.
