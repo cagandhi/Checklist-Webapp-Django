@@ -44,7 +44,7 @@ Website: https://django-checklist.herokuapp.com/
 2. Create a new virtual environment with: ```python3 -m venv <path_to_new_env>```
 3. Activate the newly created virtualenv as: ```source <path_to_new_env>/bin/activate```
 4. If your operating system is `MacOS`, jump to step 8. If your OS is Ubuntu, proceed to the next step. The commands are tested for `Ubuntu Focal 20.04.2 LTS` and `Python 3.8.5`.
-5. Install `psycopg2-binary` package with: `pip install psycopg2-binary`
+5. Install `psycopg2-binary` package with: `pip install psycopg2-binary==2.8.6`
 6. Run command: `sudo apt install libpq-dev python3-dev`
 7. Run command: `sudo apt install build-essential`
 8. Run command: ```pip install -r requirements.txt```
