@@ -149,7 +149,6 @@ class UserChecklistListView(ListView):
         checklists_var = Checklist.objects.filter(
             author=user, is_draft=False
         ).order_by("-date_posted")
-        # checklists_var = Checklist.objects.filter(author=user).order_by('-date_posted')
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
@@ -174,12 +173,6 @@ class UserChecklistListView(ListView):
                 upvoted_bool_list.append(True)
                 bookmarked_bool_list.append(True)
 
-        print(
-            len(checklists_var),
-            len(upvotes_cnt_list),
-            len(upvoted_bool_list),
-            len(bookmarked_bool_list),
-        )
         checklist_upvotes = zip(
             checklists_var,
             upvotes_cnt_list,
@@ -224,6 +217,9 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         )
 
         upvotes_cnt_list = []
+        upvoted_bool_list = []
+        bookmarked_bool_list = []
+
         # to protect draft checklists from being seen
         checklists_var = Checklist.objects.filter(
             author=self.request.user, is_draft=True
@@ -234,7 +230,15 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
                 Upvote.objects.filter(checklist=checklist).count()
             )
 
-        checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
+            upvoted_bool_list.append(False)
+            bookmarked_bool_list.append(False)
+
+        checklist_upvotes = zip(
+            checklists_var,
+            upvotes_cnt_list,
+            upvoted_bool_list,
+            bookmarked_bool_list,
+        )
 
         paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
