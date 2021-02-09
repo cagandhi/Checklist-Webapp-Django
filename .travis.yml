@@ -16,10 +16,6 @@ jobs:
   - name: "django-project"
     python: "3.7"
 script:
-  - python manage.py test
-  # - coverage run --source=. checklist_project/manage.py test --settings=checklist_project.settings
-  # - coverage run --source="checklist" setup.py test
-  # - coverage run --source='.' manage.py test checklist
-  # - coverage run manage.py test
+  - python -m coverage run manage.py test
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t 0595e9dc-f36d-439a-85bf-0e27891785a9
+  - python -m codecov
