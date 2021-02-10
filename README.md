@@ -1,6 +1,7 @@
 # Checklist Webapp in Django <a href="http://www.djangoproject.com/"><img src="https://www.djangoproject.com/m/img/badges/djangomade124x25.gif" border="0" alt="Made with Django." title="Made with Django." /></a>
 
 [![Build Status](https://travis-ci.com/cagandhi/Checklist-Webapp-Django.svg?branch=master)](https://travis-ci.com/cagandhi/Checklist-Webapp-Django)
+[![codecov](https://codecov.io/gh/cagandhi/Checklist-Webapp-Django/branch/master/graph/badge.svg?token=JBJFR6B7TL)](https://codecov.io/gh/cagandhi/Checklist-Webapp-Django)<br>
 [![DOI](https://zenodo.org/badge/246933227.svg)](https://zenodo.org/badge/latestdoi/246933227)
 ![GitHub](https://img.shields.io/github/license/cagandhi/Checklist-Webapp-Django)
 <br>
