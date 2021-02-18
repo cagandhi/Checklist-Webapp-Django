@@ -1,0 +1,16 @@
+# to refer codecov.yml syntax :: https://community.codecov.io/t/cannot-disable-codecov-patch-check/682/23
+
+# configuration related to pull request comments
+comment: no # do not comment PR with the result
+
+coverage:
+  range: 35..90 # coverage lower than 35 is red, higher than 90 green, between color code
+
+  status:
+    project: # settings affecting project coverage
+      default:
+        target: auto # auto % coverage target
+        threshold: 35%  # allow for 5% reduction of coverage without failing
+
+    # do not run coverage on patch nor changes
+    patch: false
