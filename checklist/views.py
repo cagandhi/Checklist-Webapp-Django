@@ -492,6 +492,9 @@ class SearchChecklistListView(ListView):
                     bookmarked_bool_list.append(True)
                 else:
                     bookmarked_bool_list.append(False)
+            else:
+                upvoted_bool_list.append(True)
+                bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
@@ -509,8 +512,6 @@ class SearchChecklistListView(ListView):
             page_checklist_upvotes = paginator.page(1)
         except EmptyPage:
             page_checklist_upvotes = paginator.page(paginator.num_pages)
-
-        print(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "search"
