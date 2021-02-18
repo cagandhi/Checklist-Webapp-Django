@@ -1,13 +1,10 @@
 <!-- template inheritance -->
 {% extends "checklist/base.html" %}
-
 {% load urltemplatetags %}
-
 <!-- only replace the block content with this code -->
 {% block content %}
 	{% if checklist_upvotes %}
 		<h2 class="mb-3">({{ checklist_upvotes.paginator.count }}) search results for term: <strong>{{ query_string }}</strong></h2>
-
 		<!-- loop over posts list provided in context; use variable name used as key in context -->
 		{% for checklist, uvote, if_upvoted, if_bookmarked in checklist_upvotes %}
 			<article class="media content-section">
@@ -23,7 +20,6 @@
 					<p class="article-content">{{ checklist.content|safe }}</p>
 					<!-- since user cannot upvote own post; does not need to bookmark own post, can see it under my checklists -->
 					{% if user.is_authenticated and checklist.author.username != user.username %}
-
 						{% if if_upvoted %}
 							<a class="btn btn-info" href="{% url 'checklist-upvote' checklist.id %}">Upvote | {{ uvote }}</a>
 						{% else %}
@@ -48,27 +44,23 @@
 		<h1>No search results for term: <strong>{{ query_string }}</strong></h1>
 	{% endif %}
 	
-
 	<!-- pagination part; display page numbers to view posts -->
 	{% if is_paginated %}
-
 		{% if checklist_upvotes.has_previous %}
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' 1 %}">First</a>
 			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.previous_page_number }}"> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' checklist_upvotes.previous_page_number %}">Previous</a>
 		{% endif %}
-
 		<!-- use of template tag to preserve get parameters in URL  -->
 		{% for num in checklist_upvotes.paginator.page_range %}
 			{% if num == checklist_upvotes.number %}
 				<!-- <a class="btn btn-info mb-4" href="?q={{ query_string }}&page={{ num }}">{{ num }}</a> -->
 				<a class="btn btn-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' num %}">{{ num }}</a>
-			{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
+				{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
 				<!-- <a class="btn btn-info-outline mb-4" href="?q={{ query_string }}&page={{ num }}">{{ num }}</a> -->
 				<a class="btn btn-info-outline mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' num %}">{{ num }}</a>
 			{% endif %}
 		{% endfor %}
-
 		{% if checklist_upvotes.has_next %}
 			<!-- <a class="btn btn-outline-info mb-4" href="?q={{ query_string }}&page={{ checklist_upvotes.next_page_number }}">Next</a> -->
 			<a class="btn btn-outline-info mb-4" href="{% url 'search' %}{% url_replace_mod request 'page' checklist_upvotes.next_page_number %}">Next</a>

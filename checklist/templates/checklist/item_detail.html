@@ -1,14 +1,13 @@
 <!-- view a single post - ChecklistDetailView -->
 {% extends "checklist/base.html" %}
-
 <!-- only replace the block content with this code -->
 {% block content %}
 	<article class="media content-section">
 		<div class="media-body">
 			<h2>Item Description</h2><br>
 			<p class="article-content"><strong>Item title: </strong>{{ object.title }}</h2>
-			<p class="article-content"><strong>Completed: </strong>{% if object.completed %} Yes {% else %} No {% endif %}</p>
-			<p class="article-content"><strong>Source Checklist: </strong><a href="{% url 'checklist-detail' object.checklist.id %}">{{ object.checklist.title }}</a></p>
+				<p class="article-content"><strong>Completed: </strong>{% if object.completed %} Yes {% else %} No {% endif %}</p>
+				<p class="article-content"><strong>Source Checklist: </strong><a href="{% url 'checklist-detail' object.checklist.id %}">{{ object.checklist.title }}</a></p>
 		</div>
 		<div>
 			{% if object.checklist.author == user %}

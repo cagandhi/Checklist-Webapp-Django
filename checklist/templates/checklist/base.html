@@ -1,10 +1,9 @@
 {% load static %}
 {# {% load notiftemplatetags %} #}
-
 <!DOCTYPE html>
 <html>
-<head>
-	<!-- Required meta tags -->
+  <head>
+    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <base href="/">
@@ -13,127 +12,118 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'checklist/main.css' %}">
     <script src="https://cdn.ckeditor.com/ckeditor5/19.0.0/classic/ckeditor.js"></script>
-
-	{% if title %}
-		<title>Checklist - {{ title }}</title>
-	{% else %}
-		<title>Checklist</title>
-	{% endif %}
-</head>
-<body>
-
+    {% if title %}
+      <title>Checklist - {{ title }}</title>
+    {% else %}
+      <title>Checklist</title>
+    {% endif %}
+  </head>
+  <body>
     <!-- NAVIGATION BAR start -->
-	<header class="site-header">
-        <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-            <div class="navbar-brand mr-4 ml-4">Django Checklist</div>
-
-            <div class="collapse navbar-collapse" id="navbarToggle">
-                <!-- Navbar Left Side -->
-                <ul class="navbar-nav mr-auto">
-                  <li class="nav-item active"> <a class="nav-item nav-link" href="{% url 'checklist-home' %}">Home</a> </li>
-                  <li class="nav-item"> <a class="nav-item nav-link" href="{% url 'checklist-about' %}">About</a> </li>
-                </ul>
-
-                <!-- search bar here -->
-                <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}" method="get" placeholder="Search" aria-label="Search">
-                    <input type="text" size="30" maxlength="30" placeholder="Search checklists by title, content" name="q" value="" class="form-control mr-sm-2" id="q">
-                    <input style="margin-right: 30px" type="submit" value="Search" class="btn btn-outline-success my-2 my-sm-0">
-                </form>
-
-                <!-- Navbar Right Side -->
-                <ul class="navbar-nav mr-5">
-                    {% if user.is_authenticated %}
-                        <li><a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Collections </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
-                                <a class="dropdown-item" href="{% url 'bookmarks' %}">My Bookmarks</a>
-                                <a class="dropdown-item" href="{% url 'upvotes' %}">My Upvoted Lists</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'user-drafts' %}">My Drafts</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                          <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bell"></i></a>
-                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                              <!-- to see how no_notif (template tag) is used to populate notif_list, refer: https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#simple-tags -->
-                              {# {% no_notif as notif_list %} #}
-                              {% for notif in notif_list %}
-                              <div>
-                                  <p style="text-align: right; font-size:80%;" class="text-muted">{{ notif.date_notified }}</p>
-                                  <div style="display:flex; flex-direction: row; align-items: left; margin-left: 1em; margin-right: 1em;">
-                                    <div>
-                                    <p style="vertical-align: middle" class="dropdown-item">
-                                      {% if notif.notif_type == 1 %}
-                                        User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> upvoted your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
-                                      {% elif notif.notif_type == 2 %}
-                                        User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed you
-                                      {% elif notif.notif_type == 3 %}
-                                        User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
-                                      {% endif %}
-                                    </p>
-                                    </div>
-                                    <a style="text-align: right; vertical-align: middle;" href="{% url 'dismiss-notif' notif.id %}"><i class="fa fa-times" style="color:red; align-self: right; " aria-hidden="true"></i></a>
-                                </div>
-                                <div class="dropdown-divider"></div>
-                              {% endfor %}
-                          </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Profile </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{% url 'profile' %}">Account Page</a>
-                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                            </div>
-                        </li>
-                    {% else %}
-                        <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
-                        <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
-                    {% endif %}
-                </ul>
-            </div>
-    </nav>
-    </header>
-    <!-- NAVIGATION BAR end -->
-
-    <!-- MAIN CONTENT along with sidebar (disabled for now) -->
-	<main role="main" class="container">
-      <div class="row">
-        <div class="col-md-8">
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-          {% block content %}{% endblock %}
-        </div>
-        <!-- <div>{{ category_list }}</div> -->
-        <div class="col-md-3 ml-3">
-          <div class="content-section" style="font-size: 0.9em">
-            <h3>Categories</h3>
-            <p class='text-muted'>
-              <ul class="list-group">
-                {% for category in category_list %}
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="navbar-brand mr-4 ml-4">Django Checklist</div>
+        <div class="collapse navbar-collapse" id="navbarToggle">
+          <!-- Navbar Left Side -->
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active"> <a class="nav-item nav-link" href="{% url 'checklist-home' %}">Home</a> </li>
+            <li class="nav-item"> <a class="nav-item nav-link" href="{% url 'checklist-about' %}">About</a> </li>
+          </ul>
+          <!-- search bar here -->
+          <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}" method="get" placeholder="Search" aria-label="Search">
+            <input type="text" size="30" maxlength="30" placeholder="Search checklists by title, content" name="q" value="" class="form-control mr-sm-2" id="q">
+            <input style="margin-right: 30px" type="submit" value="Search" class="btn btn-outline-success my-2 my-sm-0">
+          </form>
+          <!-- Navbar Right Side -->
+          <ul class="navbar-nav mr-5">
+            {% if user.is_authenticated %}
+              <li><a class="nav-item nav-link" href="{% url 'checklist-create' %}">New Checklist</a></li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Collections </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'user-checklists' user.username %}">My CheckLists</a>
+                  <a class="dropdown-item" href="{% url 'bookmarks' %}">My Bookmarks</a>
+                  <a class="dropdown-item" href="{% url 'upvotes' %}">My Upvoted Lists</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'user-drafts' %}">My Drafts</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bell"></i></a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                  <!-- to see how no_notif (template tag) is used to populate notif_list, refer: https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#simple-tags -->
+                  {# {% no_notif as notif_list %} #}
+                  {% for notif in notif_list %}
+                    <div>
+                      <p style="text-align: right; font-size:80%;" class="text-muted">{{ notif.date_notified }}</p>
+                      <div style="display:flex; flex-direction: row; align-items: left; margin-left: 1em; margin-right: 1em;">
+                        <div>
+                          <p style="vertical-align: middle" class="dropdown-item">
+                            {% if notif.notif_type == 1 %}
+                              User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> upvoted your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
+                              {% elif notif.notif_type == 2 %}
+                              User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed you
+                              {% elif notif.notif_type == 3 %}
+                              User <a href="{% url 'user-checklists' notif.fromUser.username %}">{{ notif.fromUser.username }}</a> followed your checklist titled <a href="{% url 'checklist-detail' notif.checklist.id %}">{{ notif.checklist.title }}</a>
+                            {% endif %}
+                          </p>
+                        </div>
+                        <a style="text-align: right; vertical-align: middle;" href="{% url 'dismiss-notif' notif.id %}"><i class="fa fa-times" style="color:red; align-self: right; " aria-hidden="true"></i></a>
+                      </div>
+                      <div class="dropdown-divider"></div>
+                    {% endfor %}
+                  </div>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> My Profile </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'profile' %}">Account Page</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                  </div>
+                </li>
+              {% else %}
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!-- NAVIGATION BAR end -->
+      <!-- MAIN CONTENT along with sidebar (disabled for now) -->
+      <main role="main" class="container">
+        <div class="row">
+          <div class="col-md-8">
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+          </div>
+          <!-- <div>{{ category_list }}</div> -->
+          <div class="col-md-3 ml-3">
+            <div class="content-section" style="font-size: 0.9em">
+              <h3>Categories</h3>
+              <p class='text-muted'>
+                <ul class="list-group">
+                  {% for category in category_list %}
                     <li class="list-group-item list-group-item-light">
-                        <a href="{% url 'category' category %}">{{ category }}</a>
+                      <a href="{% url 'category' category %}">{{ category }}</a>
                     </li>
-                {% endfor %}
-              </ul>
-            </p>
+                  {% endfor %}
+                </ul>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
-	
-
-	<!-- OPTIONAL JAVASCRIPT -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-</body>
-
-</html>
+      </main>
+      <!-- OPTIONAL JAVASCRIPT -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </body>
+  </html>

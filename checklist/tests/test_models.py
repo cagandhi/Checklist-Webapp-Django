@@ -1,5 +1,11 @@
 from django.test import TestCase
-from checklist.models import Checklist, Category, Item, Upvote, Bookmark, Follow
+from checklist.models import (
+    Checklist,
+    Category,
+    Item,
+    Upvote,
+    Bookmark,
+)
 from django.contrib.auth.models import User
 
 
@@ -87,7 +93,9 @@ class UpvoteModelTest(TestCase):
     def test_str_method(self):
         self.assertEqual(
             UpvoteModelTest.upvote.__str__(),
-            UpvoteModelTest.user.username + " - " + UpvoteModelTest.checklist.title,
+            UpvoteModelTest.user.username
+            + " - "
+            + UpvoteModelTest.checklist.title,
         )
 
     def tearDown(self):
@@ -117,7 +125,9 @@ class BookmarkModelTest(TestCase):
     def test_str_method(self):
         self.assertEqual(
             BookmarkModelTest.bookmark.__str__(),
-            BookmarkModelTest.user.username + " - " + BookmarkModelTest.checklist.title,
+            BookmarkModelTest.user.username
+            + " - "
+            + BookmarkModelTest.checklist.title,
         )
 
     def tearDown(self):
@@ -132,5 +142,5 @@ class CategoryModelTest(TestCase):
     def test_str_method(self):
         self.assertEqual(
             CategoryModelTest.category.__str__(),
-            CategoryModelTest.category.name
+            CategoryModelTest.category.name,
         )

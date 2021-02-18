@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
 
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -25,11 +24,8 @@ from .models import (
     FollowChecklist,
     Notification,
 )
-from django import forms
 from django.contrib.auth.decorators import login_required
-from itertools import chain
 from django.utils import timezone
-from django.core import serializers
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -41,29 +37,29 @@ class ChecklistListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ChecklistListView, self).get_context_data(**kwargs)
 
-        """ 
-		---------- X ----------
-		# This code snippet is for displaying followed users posts on top
+        """
+        ---------- X ----------
+        # This code snippet is for displaying followed users posts on top
 
-		followed_checklists=Checklist.objects.none()
-		
-		for userFollowed in self.request.user.fromUser.all():
-			followed_checklists = followed_checklists.union(userFollowed.toUser.checklist_set.filter(is_draft=False))
+        followed_checklists=Checklist.objects.none()
 
-		# all checklists
-		checklists_all = Checklist.objects.filter(is_draft=False)
-		
-		# those checklists which are written by authors not followed by the logged in user
-		checklists_var = checklists_all.difference(followed_checklists).order_by('-date_posted')
+        for userFollowed in self.request.user.fromUser.all():
+            followed_checklists = followed_checklists.union(userFollowed.toUser.checklist_set.filter(is_draft=False))
 
-		followed_or_not_list = ['Followed']*followed_checklists.count()
-		followed_or_not_list.extend(['']*checklists_var.count())
-		
-		# arrange checklists by followed authors and then by non-followed authors
-		checklists_var = list(chain(followed_checklists, checklists_var))
+        # all checklists
+        checklists_all = Checklist.objects.filter(is_draft=False)
 
-		---------- X ----------
-		"""
+        # those checklists which are written by authors not followed by the logged in user
+        checklists_var = checklists_all.difference(followed_checklists).order_by('-date_posted')
+
+        followed_or_not_list = ['Followed']*followed_checklists.count()
+        followed_or_not_list.extend(['']*checklists_var.count())
+
+        # arrange checklists by followed authors and then by non-followed authors
+        checklists_var = list(chain(followed_checklists, checklists_var))
+
+        ---------- X ----------
+        """
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
@@ -75,9 +71,7 @@ class ChecklistListView(ListView):
         )
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(
-                checklist.upvote_set.count()
-            )  # Upvote.objects.filter(checklist=checklist).count()
+            upvotes_cnt_list.append(checklist.upvote_set.count())
 
             # if user is not anonymous
             if not self.request.user.is_anonymous:
@@ -91,6 +85,7 @@ class ChecklistListView(ListView):
                     bookmarked_bool_list.append(True)
                 else:
                     bookmarked_bool_list.append(False)
+            # need this else clause so that empty lists for upvoted and bookmarked are not passed in checklist_upvotes while zipping
             else:
                 upvoted_bool_list.append(True)
                 bookmarked_bool_list.append(True)
@@ -201,16 +196,9 @@ class UserChecklistListView(ListView):
 # DRAFT CHECKLISTS BY USER
 class UserDraftChecklistListView(LoginRequiredMixin, ListView):
     model = Checklist
-    template_name = (
-        "checklist/user_checklists.html"  # <app_name>/<model>_<viewtype>.html
-    )
+    template_name = "checklist/user_checklists.html"
     paginate_by = 5
 
-    # https://stackoverflow.com/a/36950584/6543250 - when to use get_queryset() vs get_context_data()
-
-    # how to paginate when get_context_data() implemented
-    # 1. https://stackoverflow.com/a/33485595/6543250
-    # 2. https://docs.djangoproject.com/en/1.8/topics/pagination/#using-paginator-in-a-view
     def get_context_data(self, **kwargs):
         context = super(UserDraftChecklistListView, self).get_context_data(
             **kwargs
@@ -279,7 +267,9 @@ class ChecklistDetailView(DetailView):
             else:
                 if_bookmarked = False
 
-            if FollowChecklist.objects.filter(toChecklist=chk).filter(fromUser=self.request.user):
+            if FollowChecklist.objects.filter(toChecklist=chk).filter(
+                fromUser=self.request.user
+            ):
                 if_followed = True
             else:
                 if_followed = False
@@ -288,21 +278,13 @@ class ChecklistDetailView(DetailView):
             if_bookmarked = True
             if_followed = True
 
-        # if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in. If not logged in, this is not relevant
+        # if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in.
+        # If not logged in, this is not relevant
 
         uvote = Upvote.objects.filter(
             checklist_id=self.kwargs.get("pk")
         ).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
-
-        # priority_levels = []
-        # d = dict(Item.PRIORITY_CHOICES)
-
-        # for item in itemset:
-        # 	priority_levels.append(d.get(item.priority, 'None'))
-        # print(priority_levels)
-
-        # itemset_priority = zip(itemset, priority_levels)
 
         context["if_upvoted"] = if_upvoted
         context["if_bookmarked"] = if_bookmarked
@@ -315,10 +297,11 @@ class ChecklistDetailView(DetailView):
 
 """
 class ChecklistCreateForm(forms.ModelForm):
-	class Meta:
-		model = Checklist
-		fields = ['title', 'content','category','is_draft']
+    class Meta:
+        model = Checklist
+        fields = ['title', 'content','category','is_draft']
 """
+
 
 # CREATE CHECKLIST
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
@@ -367,7 +350,7 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
     paginate_by = 5
 
     # def get_queryset(self):
-    # 	return Bookmark.objects.filter(user=self.request.user)
+    #   return Bookmark.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(BookmarkChecklistListView, self).get_context_data(
@@ -633,8 +616,8 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     # # to link logged in user as author to the checklist being updated
     # def form_valid(self, form):
-    # 	form.instance.author = self.request.user
-    # 	return super().form_valid(form)
+    #   form.instance.author = self.request.user
+    #   return super().form_valid(form)
 
     # checks if currently logged in user is the checklist author
     def test_func(self):
@@ -659,8 +642,8 @@ def upvote_checklist(request, checklist_id):
     """
 
     """
-	Note: notifications recorded only when a user upvotes the checklist not downvote in order to promote healthy behaviour and not let the author inundate with downvote notifs in case some user decides to harass the author. 
-	"""
+    Note: notifications recorded only when a user upvotes the checklist not downvote in order to promote healthy behaviour and not let the author inundate with downvote notifs in case some user decides to harass the author.
+    """
 
     if Checklist.objects.get(id=checklist_id).author == request.user:
         msg = "Action Denied! You cannot upvote your own checklist!"
@@ -907,17 +890,26 @@ def follow_checklist(request, checklist_id):
         msg = "Action Denied! You can not follow your own checklists!"
         messages.info(request, msg)
     else:
-        obj = FollowChecklist.objects.filter(fromUser=request.user, toChecklist=checklist)
+        obj = FollowChecklist.objects.filter(
+            fromUser=request.user, toChecklist=checklist
+        )
 
         if obj:
             obj.delete()
             msg = "Checklist unfollowed!"
         else:
-            FollowChecklist(fromUser=request.user, toChecklist=checklist).save()
+            FollowChecklist(
+                fromUser=request.user, toChecklist=checklist
+            ).save()
             msg = "Checklist followed!"
 
             fromUser = request.user
-            Notification(fromUser=fromUser, toUser=checklist.author, notif_type=3, checklist=checklist).save()
+            Notification(
+                fromUser=fromUser,
+                toUser=checklist.author,
+                notif_type=3,
+                checklist=checklist,
+            ).save()
 
         messages.info(request, msg)
 
@@ -928,6 +920,7 @@ def follow_checklist(request, checklist_id):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
+
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------

@@ -2,72 +2,78 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import PasswordChangeDoneView
+from django.contrib.auth.views import PasswordChangeDoneView  # noqa: F401
 
 import os
 
+
 # Create your views here.
 def register(request):
-	if request.method == 'POST':
-		form = UserRegisterForm(request.POST)
-		if form.is_valid():
-			form.save()
-			username = form.cleaned_data.get('username')
-			messages.success(request, f'Your account has been created successfully! You can now log in!')
-			return redirect('login')
-	else:
-		form = UserRegisterForm()
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get("username")  # noqa: F841
+            messages.success(
+                request,
+                f"Your account has been created successfully! You can now log in!",  # noqa: F541
+            )
+            return redirect("login")
+    else:
+        form = UserRegisterForm()
 
-	return render(request, 'users/register.html', {'form': form})
+    return render(request, "users/register.html", {"form": form})
+
 
 # "@" denotes a decorator - user must be logged in to access this page
 @login_required
 def profile(request):
-	if request.method == 'POST':
-		u_form = UserUpdateForm(request.POST, instance=request.user)
-		p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-	else:
-		u_form = UserUpdateForm(instance=request.user)
-		p_form = ProfileUpdateForm(instance=request.user.profile)
-	
-	old_image_url = request.user.profile.image.url
+    if request.method == "POST":
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(
+            request.POST, request.FILES, instance=request.user.profile
+        )
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
 
-	if u_form.is_valid() and p_form.is_valid():
-		print('OLD IMAGE')
-		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		print(BASE_DIR)
-		print(old_image_url)
-		print('OLD IMAGE')
-		
-		"""
-		print('-----------------------------------------------------------------')
-		print('NEW IMAGE')
-		print(BASE_DIR)
-		print(request.user.profile.image.url)
-		print('NEW IMAGE')
-		"""
+    old_image_url = request.user.profile.image.url
 
-		u_form.save()
-		p_form.save()
+    if u_form.is_valid() and p_form.is_valid():
+        print("OLD IMAGE")
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        print(BASE_DIR)
+        print(old_image_url)
+        print("OLD IMAGE")
 
-		try:
-			# don't remove default image
-			if old_image_url.split('/')[-1] != 'default.jpg':
-				
-				# remove old image so that unused profile pics don't clutter space
-				os.remove(BASE_DIR+old_image_url)
-				print('OLD IMAGE REMOVED SUCCESSFULLY')
+        """
+        print('-----------------------------------------------------------------')
+        print('NEW IMAGE')
+        print(BASE_DIR)
+        print(request.user.profile.image.url)
+        print('NEW IMAGE')
+        """
 
-		# if image does not exist		
-		except OSError as error:
-			print('OLD IMAGE NOT REMOVED')
+        u_form.save()
+        p_form.save()
 
-		messages.success(request, f'Your profile has been updated successfully!')
-		return redirect('profile')
+        try:
+            # don't remove default image
+            if old_image_url.split("/")[-1] != "default.jpg":
 
-	context = {
-		'u_form': u_form, 
-		'p_form': p_form
-	}
+                # remove old image so that unused profile pics don't clutter space
+                os.remove(BASE_DIR + old_image_url)
+                print("OLD IMAGE REMOVED SUCCESSFULLY")
 
-	return render(request, 'users/profile.html', context)
+        # if image does not exist
+        except OSError as error:
+            print("OLD IMAGE NOT REMOVED")
+
+        messages.success(
+            request, f"Your profile has been updated successfully!"
+        )
+        return redirect("profile")
+
+    context = {"u_form": u_form, "p_form": p_form}
+
+    return render(request, "users/profile.html", context)

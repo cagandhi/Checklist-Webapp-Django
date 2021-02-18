@@ -1,14 +1,10 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from checklist.views import ChecklistListView, UserChecklistListView
 from django.urls import reverse, resolve
 
 from checklist.models import (
     Checklist,
     Category,
-    Item,
-    Upvote,
-    Bookmark,
-    Follow,
 )
 from django.contrib.auth.models import User
 

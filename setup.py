@@ -1,7 +1,8 @@
-# Reference :  Setup script documentation 
+# Reference :  Setup script documentation
 # https://setuptools.readthedocs.io/en/latest/setuptools.html
 
-#!/usr/bin/ev python3
+
+# !/usr/bin/ev python3
 from pathlib import Path
 import setuptools
 
