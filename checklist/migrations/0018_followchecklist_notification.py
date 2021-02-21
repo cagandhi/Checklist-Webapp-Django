@@ -10,27 +10,93 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('checklist', '0017_remove_item_priority'),
+        ("checklist", "0017_remove_item_priority"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date_notified', models.DateTimeField(default=django.utils.timezone.now)),
-                ('notif_type', models.PositiveIntegerField(choices=[(1, 'upvote'), (2, 'user_follow'), (3, 'checklist_follow')], default=1)),
-                ('checklist', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='checklist.Checklist')),
-                ('fromUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fromUserNotif', to=settings.AUTH_USER_MODEL)),
-                ('toUser', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='toUserNotif', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "date_notified",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "notif_type",
+                    models.PositiveIntegerField(
+                        choices=[
+                            (1, "upvote"),
+                            (2, "user_follow"),
+                            (3, "checklist_follow"),
+                        ],
+                        default=1,
+                    ),
+                ),
+                (
+                    "checklist",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="checklist.Checklist",
+                    ),
+                ),
+                (
+                    "fromUser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fromUserNotif",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "toUser",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="toUserNotif",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FollowChecklist',
+            name="FollowChecklist",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fromUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fromUserFC', to=settings.AUTH_USER_MODEL)),
-                ('toChecklist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='toChecklist', to='checklist.Checklist')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "fromUser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fromUserFC",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "toChecklist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="toChecklist",
+                        to="checklist.Checklist",
+                    ),
+                ),
             ],
         ),
     ]

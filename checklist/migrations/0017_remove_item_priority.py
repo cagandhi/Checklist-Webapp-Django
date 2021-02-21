@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklist', '0016_follow'),
+        ("checklist", "0016_follow"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='item',
-            name='priority',
+            model_name="item",
+            name="priority",
         ),
     ]

@@ -12,9 +12,7 @@ from django.contrib.auth.models import User
 class ChecklistModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="testuser", password="12345"
-        )
+        cls.user = User.objects.create_user(username="testuser", password="12345")
         cls.user.save()
 
         cls.category = Category.objects.create(name="Category_test")
@@ -26,9 +24,7 @@ class ChecklistModelTest(TestCase):
         )
 
     def test_str_method(self):
-        self.assertEqual(
-            ChecklistModelTest.checklist.__str__(), "New Checklist 1"
-        )
+        self.assertEqual(ChecklistModelTest.checklist.__str__(), "New Checklist 1")
 
     def test_get_absolute_url(self):
         self.assertEqual(
@@ -43,9 +39,7 @@ class ChecklistModelTest(TestCase):
 class ItemModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="testuser", password="12345"
-        )
+        cls.user = User.objects.create_user(username="testuser", password="12345")
         cls.user.save()
 
         cls.category = Category.objects.create(name="Category_test")
@@ -56,9 +50,7 @@ class ItemModelTest(TestCase):
             category=cls.category,
         )
 
-        cls.item = Item.objects.create(
-            title="New Item 1", checklist=cls.checklist
-        )
+        cls.item = Item.objects.create(title="New Item 1", checklist=cls.checklist)
 
     def test_get_absolute_url(self):
         self.assertEqual(
@@ -73,9 +65,7 @@ class ItemModelTest(TestCase):
 class UpvoteModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="testuser", password="12345"
-        )
+        cls.user = User.objects.create_user(username="testuser", password="12345")
         cls.user.save()
 
         cls.category = Category.objects.create(name="Category_test")
@@ -86,16 +76,12 @@ class UpvoteModelTest(TestCase):
             category=cls.category,
         )
 
-        cls.upvote = Upvote.objects.create(
-            user=cls.user, checklist=cls.checklist
-        )
+        cls.upvote = Upvote.objects.create(user=cls.user, checklist=cls.checklist)
 
     def test_str_method(self):
         self.assertEqual(
             UpvoteModelTest.upvote.__str__(),
-            UpvoteModelTest.user.username
-            + " - "
-            + UpvoteModelTest.checklist.title,
+            UpvoteModelTest.user.username + " - " + UpvoteModelTest.checklist.title,
         )
 
     def tearDown(self):
@@ -105,9 +91,7 @@ class UpvoteModelTest(TestCase):
 class BookmarkModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="testuser", password="12345"
-        )
+        cls.user = User.objects.create_user(username="testuser", password="12345")
         cls.user.save()
 
         cls.category = Category.objects.create(name="Category_test")
@@ -118,16 +102,12 @@ class BookmarkModelTest(TestCase):
             category=cls.category,
         )
 
-        cls.bookmark = Bookmark.objects.create(
-            user=cls.user, checklist=cls.checklist
-        )
+        cls.bookmark = Bookmark.objects.create(user=cls.user, checklist=cls.checklist)
 
     def test_str_method(self):
         self.assertEqual(
             BookmarkModelTest.bookmark.__str__(),
-            BookmarkModelTest.user.username
-            + " - "
-            + BookmarkModelTest.checklist.title,
+            BookmarkModelTest.user.username + " - " + BookmarkModelTest.checklist.title,
         )
 
     def tearDown(self):

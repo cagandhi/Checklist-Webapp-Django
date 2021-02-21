@@ -141,18 +141,16 @@ class UserChecklistListView(ListView):
             if_followed = True
 
         # to protect draft checklists from being seen
-        checklists_var = Checklist.objects.filter(
-            author=user, is_draft=False
-        ).order_by("-date_posted")
+        checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by(
+            "-date_posted"
+        )
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
         bookmarked_bool_list = []
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(
-                Upvote.objects.filter(checklist=checklist).count()
-            )
+            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             if not self.request.user.is_anonymous:
                 if checklist.upvote_set.filter(user=self.request.user):
@@ -200,9 +198,7 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
-        context = super(UserDraftChecklistListView, self).get_context_data(
-            **kwargs
-        )
+        context = super(UserDraftChecklistListView, self).get_context_data(**kwargs)
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
@@ -214,9 +210,7 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         ).order_by("-date_posted")
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(
-                Upvote.objects.filter(checklist=checklist).count()
-            )
+            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             upvoted_bool_list.append(False)
             bookmarked_bool_list.append(False)
@@ -253,7 +247,8 @@ class ChecklistDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ChecklistDetailView, self).get_context_data(**kwargs)
 
-        chk = Checklist.objects.get(id=self.kwargs.get("pk"))
+        chk = get_object_or_404(Checklist, id=self.kwargs.get("pk"))
+        # chk = Checklist.objects.get(id=self.kwargs.get("pk"))
 
         # if user is not anonymous, meaning user is logged in
         if not self.request.user.is_anonymous:
@@ -281,9 +276,7 @@ class ChecklistDetailView(DetailView):
         # if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in.
         # If not logged in, this is not relevant
 
-        uvote = Upvote.objects.filter(
-            checklist_id=self.kwargs.get("pk")
-        ).count()
+        uvote = Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
         context["if_upvoted"] = if_upvoted
@@ -353,9 +346,7 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
     #   return Bookmark.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
-        context = super(BookmarkChecklistListView, self).get_context_data(
-            **kwargs
-        )
+        context = super(BookmarkChecklistListView, self).get_context_data(**kwargs)
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
@@ -368,16 +359,12 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
             )
 
             if not self.request.user.is_anonymous:
-                if bookmark.checklist.upvote_set.filter(
-                    user=self.request.user
-                ):
+                if bookmark.checklist.upvote_set.filter(user=self.request.user):
                     upvoted_bool_list.append(True)
                 else:
                     upvoted_bool_list.append(False)
 
-        checklist_upvotes = zip(
-            bookmarks_var, upvotes_cnt_list, upvoted_bool_list
-        )
+        checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list, upvoted_bool_list)
 
         paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
@@ -403,9 +390,7 @@ class UpvoteChecklistListView(LoginRequiredMixin, ListView):
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
-        context = super(UpvoteChecklistListView, self).get_context_data(
-            **kwargs
-        )
+        context = super(UpvoteChecklistListView, self).get_context_data(**kwargs)
 
         upvotes_cnt_list = []
         upvotes_var = Upvote.objects.filter(user=self.request.user)
@@ -441,9 +426,7 @@ class SearchChecklistListView(ListView):
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
-        context = super(SearchChecklistListView, self).get_context_data(
-            **kwargs
-        )
+        context = super(SearchChecklistListView, self).get_context_data(**kwargs)
 
         query = ""
         if self.request.GET:
@@ -461,9 +444,7 @@ class SearchChecklistListView(ListView):
         bookmarked_bool_list = []
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(
-                Upvote.objects.filter(checklist=checklist).count()
-            )
+            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             if not self.request.user.is_anonymous:
                 if checklist.upvote_set.filter(user=self.request.user):
@@ -507,17 +488,15 @@ class SearchChecklistListView(ListView):
 # DISPLAY CHECKLISTS FOR A CATEGORY PAGE
 class CategoryChecklistListView(ListView):
     model = Checklist
-    template_name = "checklist/category_checklists.html"  # <app_name>/<model>_<viewtype>.html
+    template_name = (
+        "checklist/category_checklists.html"  # <app_name>/<model>_<viewtype>.html
+    )
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
-        context = super(CategoryChecklistListView, self).get_context_data(
-            **kwargs
-        )
+        context = super(CategoryChecklistListView, self).get_context_data(**kwargs)
 
-        category = get_object_or_404(
-            Category, name=self.kwargs.get("category")
-        )
+        category = get_object_or_404(Category, name=self.kwargs.get("category"))
 
         # category_id = Category.objects.filter(name=self.kwargs.get('category')).first().id
         checklists_var = Checklist.objects.filter(
@@ -529,9 +508,7 @@ class CategoryChecklistListView(ListView):
         bookmarked_bool_list = []
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(
-                Upvote.objects.filter(checklist=checklist).count()
-            )
+            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             if not self.request.user.is_anonymous:
                 if checklist.upvote_set.filter(user=self.request.user):
@@ -578,10 +555,7 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
     # 1st method executed
     def dispatch(self, *args, **kwargs):
         self.checklist_id = self.kwargs.get("checklist_id")
-        if (
-            Checklist.objects.get(id=self.checklist_id).author
-            != self.request.user
-        ):
+        if Checklist.objects.get(id=self.checklist_id).author != self.request.user:
 
             # clear all messages
             system_messages = messages.get_messages(self.request)
@@ -590,9 +564,7 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
                 pass
             system_messages.used = True
 
-            msg = (
-                "Action Denied! You can only add items to your own checklist!"
-            )
+            msg = "Action Denied! You can only add items to your own checklist!"
             messages.info(self.request, msg)
             return redirect("checklist-detail", pk=self.checklist_id)
         else:
@@ -681,9 +653,9 @@ def upvote_checklist(request, checklist_id):
             messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     # redirect to home url; simply reload the page
@@ -718,9 +690,9 @@ def bookmark_checklist(request, checklist_id):
             messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
@@ -772,9 +744,9 @@ def publish_checklist(request, checklist_id):
         messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     # redirect to home url; simply reload the page
@@ -805,9 +777,9 @@ def follow_user(request, username):
         messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
@@ -857,9 +829,9 @@ def save_and_edit(request, checklist_id):
         return redirect("checklist-detail", old_obj.id)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
@@ -871,9 +843,9 @@ def dismiss_notif(request, id):
     Notification.objects.filter(id=id).delete()
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
@@ -898,9 +870,7 @@ def follow_checklist(request, checklist_id):
             obj.delete()
             msg = "Checklist unfollowed!"
         else:
-            FollowChecklist(
-                fromUser=request.user, toChecklist=checklist
-            ).save()
+            FollowChecklist(fromUser=request.user, toChecklist=checklist).save()
             msg = "Checklist followed!"
 
             fromUser = request.user
@@ -914,9 +884,9 @@ def follow_checklist(request, checklist_id):
         messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
-        if "login" in request.META.get(
+        if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
             "HTTP_REFERER"
-        ) and "next" in request.META.get("HTTP_REFERER"):
+        ):
             return redirect("checklist-home")
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
@@ -933,9 +903,7 @@ def home(request):
     upvotes_cnt_list = []
     checklists_var = Checklist.objects.all().order_by("-date_posted")
     for checklist in checklists_var:
-        upvotes_cnt_list.append(
-            Upvote.objects.filter(checklist=checklist).count()
-        )
+        upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
     checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
 
@@ -965,9 +933,7 @@ def home(request):
 # SHOW CHECKLISTS POSTED BY LOGGED IN USER
 def mychecklist(request):
     context = {
-        "checklists_var": request.user.checklist_set.all().order_by(
-            "-date_posted"
-        ),
+        "checklists_var": request.user.checklist_set.all().order_by("-date_posted"),
         "title": "My Checklists",
     }
 

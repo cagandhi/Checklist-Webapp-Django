@@ -66,11 +66,11 @@ def profile(request):
                 print("OLD IMAGE REMOVED SUCCESSFULLY")
 
         # if image does not exist
-        except OSError as error:
+        except OSError:
             print("OLD IMAGE NOT REMOVED")
 
         messages.success(
-            request, f"Your profile has been updated successfully!"
+            request, f"Your profile has been updated successfully!"  # noqa: F541
         )
         return redirect("profile")
 

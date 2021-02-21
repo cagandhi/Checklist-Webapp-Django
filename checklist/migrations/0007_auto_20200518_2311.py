@@ -7,13 +7,13 @@ import tinymce.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklist', '0006_bookmark'),
+        ("checklist", "0006_bookmark"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='checklist',
-            name='content',
+            model_name="checklist",
+            name="content",
             field=tinymce.models.HTMLField(),
         ),
     ]

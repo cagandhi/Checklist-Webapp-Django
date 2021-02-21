@@ -7,13 +7,13 @@ import djrichtextfield.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklist', '0007_auto_20200518_2311'),
+        ("checklist", "0007_auto_20200518_2311"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='checklist',
-            name='content',
+            model_name="checklist",
+            name="content",
             field=djrichtextfield.models.RichTextField(),
         ),
     ]

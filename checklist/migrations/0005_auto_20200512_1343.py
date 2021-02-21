@@ -8,12 +8,12 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('checklist', '0004_auto_20200512_1341'),
+        ("checklist", "0004_auto_20200512_1341"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Upvotes',
-            new_name='Upvote',
+            old_name="Upvotes",
+            new_name="Upvote",
         ),
     ]

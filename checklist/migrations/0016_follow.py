@@ -9,16 +9,38 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('checklist', '0015_checklist_is_draft'),
+        ("checklist", "0015_checklist_is_draft"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Follow',
+            name="Follow",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fromUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fromUser', to=settings.AUTH_USER_MODEL)),
-                ('toUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='toUser', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "fromUser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fromUser",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "toUser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="toUser",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

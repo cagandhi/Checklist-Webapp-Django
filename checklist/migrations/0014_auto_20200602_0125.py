@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklist', '0013_auto_20200602_0113'),
+        ("checklist", "0013_auto_20200602_0113"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='item',
-            name='priority',
-            field=models.PositiveIntegerField(choices=[(1, 'Low'), (2, 'Medium'), (3, 'High')], default=2),
+            model_name="item",
+            name="priority",
+            field=models.PositiveIntegerField(
+                choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2
+            ),
         ),
     ]

@@ -8,24 +8,38 @@ import djrichtextfield.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklist', '0010_auto_20200523_0718'),
+        ("checklist", "0010_auto_20200523_0718"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='checklist',
-            name='visibility',
+            model_name="checklist",
+            name="visibility",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.CreateModel(
-            name='Item',
+            name="Item",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', djrichtextfield.models.RichTextField()),
-                ('priority', models.PositiveIntegerField(default=0)),
-                ('completed', models.BooleanField(default=False)),
-                ('checklist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='checklist.Checklist')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", djrichtextfield.models.RichTextField()),
+                ("priority", models.PositiveIntegerField(default=0)),
+                ("completed", models.BooleanField(default=False)),
+                (
+                    "checklist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="checklist.Checklist",
+                    ),
+                ),
             ],
         ),
     ]
