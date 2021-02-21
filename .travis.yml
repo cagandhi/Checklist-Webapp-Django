@@ -16,8 +16,8 @@ jobs:
   - name: "django-project"
     python: "3.7"
 script:
-  - flake8 --ignore=E501,W503
-  - black .
+  - python -m flake8 --ignore=E501,W503
+  - python -m black .
   - python -m coverage run manage.py test
   - python -m coverage report --fail-under=35
 after_success:
