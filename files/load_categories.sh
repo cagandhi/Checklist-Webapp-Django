@@ -1,1 +1,1 @@
-./manage.py shell < load_categories.py
+../manage.py shell < load_categories.py

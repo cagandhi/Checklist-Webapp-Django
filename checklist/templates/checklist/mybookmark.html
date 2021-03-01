@@ -2,19 +2,19 @@
 {% extends "checklist/base.html" %}
 <!-- only replace the block content with this code -->
 {% block content %}
-	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for bookmark in bookmarks_var %}
-		<article class="media content-section">
-			<img class="rounded-circle article-img" src="{{ bookmark.checklist.author.profile.image.url }}">
-			<div class="media-body">
-				<div class="article-metadata">
-					<a class="mr-2" href="{% url 'user-checklists' bookmark.checklist.author.username %}">{{ bookmark.checklist.author }}</a>
-					<small class="text-muted">{{ bookmark.checklist.date_posted|date:'F d, Y' }}</small>
-					<button class="btn btn-sm btn-warning" disabled>{{ bookmark.checklist.category }}</button>
-				</div>
-				<h2><a class="article-title" href="#">{{ bookmark.checklist.title }}</a></h2>
-				<p class="article-content">{{ bookmark.checklist.content|safe }}</p>
-			</div>
-		</article>
-	{% endfor %}
+    <!-- loop over posts list provided in context; use variable name used as key in context -->
+    {% for bookmark in bookmarks_var %}
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ bookmark.checklist.author.profile.image.url }}">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url 'user-checklists' bookmark.checklist.author.username %}">{{ bookmark.checklist.author }}</a>
+                    <small class="text-muted">{{ bookmark.checklist.date_posted|date:'F d, Y' }}</small>
+                    <button class="btn btn-sm btn-warning" disabled>{{ bookmark.checklist.category }}</button>
+                </div>
+                <h2><a class="article-title" href="#">{{ bookmark.checklist.title }}</a></h2>
+                <p class="article-content">{{ bookmark.checklist.content|safe }}</p>
+            </div>
+        </article>
+    {% endfor %}
 {% endblock %}

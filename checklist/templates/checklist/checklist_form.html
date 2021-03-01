@@ -2,24 +2,24 @@
 {% extends "checklist/base.html" %}
 <!-- {% load crispy_forms_tags %} -->
 {% block content %}
-	<div class="content-section">
-		<!-- https://stackoverflow.com/a/22148483/6543250 -->
-		<form method="POST" name="myform" novalidate>
-			{% csrf_token %}
-			<fieldset class="form-group" >
-				<legend class="border-bottom mb-4">Create New Checklist</legend>
-				{{ form|crispy }}
-				<!-- to display classic editor in html form - https://ckeditor.com/docs/ckeditor5/latest/builds/guides/quick-start.html#classic-editor -->
-				<script>
-					ClassicEditor
-						.create( document.querySelector( '#id_content' ) ); // .create( document.getElementById('id_content') );
-				</script>
-			</fieldset>
-			<div class="form-group">
-				<button class="btn btn-outline-success" type="submit">Create/Update</button>
-				<!-- https://stackoverflow.com/a/56014882/6543250 - for cancel button ; use DOM history to redirect to previous page -->
-				<button type="button" class="btn btn-outline-danger" onclick="window.history.back();">Cancel</button>
-			</div>
-		</form>
-	</div>
+    <div class="content-section">
+        <!-- https://stackoverflow.com/a/22148483/6543250 -->
+        <form method="POST" name="myform" novalidate>
+            {% csrf_token %}
+            <fieldset class="form-group" >
+                <legend class="border-bottom mb-4">Create New Checklist</legend>
+                {{ form|crispy }}
+                <!-- to display classic editor in html form - https://ckeditor.com/docs/ckeditor5/latest/builds/guides/quick-start.html#classic-editor -->
+                <script>
+                ClassicEditor
+                .create( document.querySelector( '#id_content' ) ); // .create( document.getElementById('id_content') );
+                </script>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-success" type="submit">Create/Update</button>
+                <!-- https://stackoverflow.com/a/56014882/6543250 - for cancel button ; use DOM history to redirect to previous page -->
+                <button type="button" class="btn btn-outline-danger" onclick="window.history.back();">Cancel</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}
