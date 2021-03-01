@@ -29,6 +29,7 @@ from django.utils import timezone
 
 from .forms import CommentForm
 
+
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
     model = Checklist
@@ -250,36 +251,6 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
 # DISPLAY A SINGLE CHECKLIST
 class ChecklistDetailView(DetailView):
     model = Checklist
-    form_class = CommentForm
-    new_comment = None
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        context = super(ChecklistDetailView, self).get_context_data(**kwargs)
-        chk = get_object_or_404(Checklist, id=self.kwargs.get("pk"))
-        comments = chk.comments.all()
-
-        context["comment"] = comments
-        context["comment_form"] = form
-
-    def post(self, request, *args, **kwargs):
-        context = super(ChecklistDetailView, self).get_context_data(**kwargs)
-
-        form = self.form_class(request.POST)
-        chk = get_object_or_404(Checklist, id=self.kwargs.get("pk"))
-        comments = chk.comments.all()
-
-        if form.is_valid():
-            # Create Comment object but don't save to database yet
-            new_comment = form.save(commit=False)
-            # Assign the current post to the comment
-            new_comment.checklist = chk
-            new_comment.user = request.user
-            # Save the comment to the database
-            new_comment.save()
-
-            context["comment"] = comments
-            context["comment_form"] = form
 
     def get_context_data(self, **kwargs):
         context = super(ChecklistDetailView, self).get_context_data(**kwargs)
@@ -317,13 +288,18 @@ class ChecklistDetailView(DetailView):
         ).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
+        comments = chk.comments.all()
+        comment_form = CommentForm()
+
         context["if_upvoted"] = if_upvoted
         context["if_bookmarked"] = if_bookmarked
         context["if_followed"] = if_followed
         context["uvote"] = uvote
         context["itemset"] = itemset
 
-        context["new_comment"] = self.new_comment
+        context["comments"] = comments
+        context["comment_form"] = comment_form
+
         return context
 
 
@@ -956,9 +932,19 @@ def follow_checklist(request, checklist_id):
 
 # SUBMIT COMMENT
 @login_required
-def post_comment(request, checklist_id):
+def submit_comment(request, checklist_id):
+
+    # print("-------")
+    # print(
+    #     "in submit comment method: "
+    #     + str(checklist_id)
+    #     + " : "
+    #     + request.method
+    # )
+    # print("-------")
+
     checklist = get_object_or_404(Checklist, id=checklist_id)
-    comments = checklist.comments.filter(active=True)
+    comments = checklist.comments.all()
     new_comment = None
     # Comment posted
     if request.method == "POST":
@@ -967,18 +953,17 @@ def post_comment(request, checklist_id):
 
             # Create Comment object but don't save to database yet
             new_comment = comment_form.save(commit=False)
-            # Assign the current post to the comment
-            new_comment.post = post
+            # Assign the current checklist and user to the comment
+            new_comment.checklist = checklist
+            new_comment.user = request.user
             # Save the comment to the database
             new_comment.save()
     else:
         comment_form = CommentForm()
 
-    return render(
-        request,
-        template_name,
-        {
-            "post": post,
+    return redirect(
+        request.META.get("HTTP_REFERER", "checklist-home"),
+        kwargs={
             "comments": comments,
             "new_comment": new_comment,
             "comment_form": comment_form,

@@ -107,4 +107,9 @@ urlpatterns = [
         name="item-action",
     ),
     path("notif/<int:id>/dismiss/", views.dismiss_notif, name="dismiss-notif"),
+    path(
+        "checklist/<int:checklist_id>/comment/",
+        views.submit_comment,
+        name="comment-submit",
+    ),
 ]

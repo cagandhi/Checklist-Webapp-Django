@@ -122,7 +122,13 @@
         <div class="col-md-8 card mb-4  mt-3 ">
             <div class="card-body">
                 <!-- comments -->
-                <h2>{{ comments.count }} comments</h2>
+                {% if comments.count == 0 %}
+                    <h2>No Comments</h2>
+                    {% elif comments.count == 1 %}
+                    <h2>{{ comments.count }} Comment</h2>
+                {% else %}
+                    <h2>{{ comments.count }} Comments</h2>
+                {% endif %}
                 {% for comment in comments %}
                     <div class="comments" style="padding: 10px;">
                         <p class="font-weight-bold">
@@ -138,18 +144,12 @@
         </div>
         <div class="col-md-8 card mb-4  mt-3 ">
             <div class="card-body">
-                {% if new_comment %}
-                    <div class="alert alert-success" role="alert">
-                        Your comment is awaiting moderation
-                    </div>
-                {% else %}
-                    <h3>Leave a comment</h3>
-                    <form method="POST" style="margin-top: 1.3em;">
-                        {{ comment_form | crispy }}
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
-                    </form>
-                {% endif %}
+                <h3>Leave a comment</h3>
+                <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;">
+                    {{ comment_form | crispy }}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+                </form>
             </div>
         </div>
     </div>
