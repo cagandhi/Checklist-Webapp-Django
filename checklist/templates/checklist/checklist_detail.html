@@ -119,7 +119,7 @@
             </div>
         </article>
         <!-- COMMENTS -->
-        <div class="col-md-8 card mb-4  mt-3 ">
+        <div class="col-md-12 card mb-4  mt-3 ">
             <div class="card-body">
                 <!-- comments -->
                 {% if comments.count == 0 %}
@@ -142,12 +142,16 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-md-8 card mb-4  mt-3 ">
+        <div class="col-md-10 card mb-4  mt-3 ">
             <div class="card-body">
                 <h3>Leave a comment</h3>
                 <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;">
-                    {{ comment_form | crispy }}
+                    {{ comment_form|crispy }}
                     {% csrf_token %}
+                    <script>
+                    ClassicEditor
+                    .create( document.querySelector( '#id_body' ) );
+                    </script>
                     <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
                 </form>
             </div>

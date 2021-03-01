@@ -110,7 +110,7 @@ class Comment(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="users"
     )
-    body = models.TextField()
+    body = RichTextField()
     created_on = models.DateTimeField(default=timezone.now)
 
     class Meta:
