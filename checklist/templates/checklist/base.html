@@ -93,7 +93,7 @@
       <!-- MAIN CONTENT along with sidebar (disabled for now) -->
       <main role="main" class="container">
         <div class="row">
-          <div class="col-md-8">
+          <div class="col-md-10">
             {% if messages %}
               {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
@@ -102,21 +102,6 @@
               {% endfor %}
             {% endif %}
             {% block content %}{% endblock %}
-          </div>
-          <!-- <div>{{ category_list }}</div> -->
-          <div class="col-md-3 ml-3">
-            <div class="content-section" style="font-size: 0.9em">
-              <h3>Categories</h3>
-              <p class='text-muted'>
-                <ul class="list-group">
-                  {% for category in category_list %}
-                    <li class="list-group-item list-group-item-light">
-                      <a href="{% url 'category' category %}">{{ category }}</a>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </p>
-            </div>
           </div>
         </div>
       </main>

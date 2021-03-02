@@ -2,48 +2,48 @@
 {% extends "checklist/base.html" %}
 <!-- only replace the block content with this code -->
 {% block content %}
-	<h1 class="mb-3">Your Bookmarks ({{ checklist_upvotes.paginator.count }})</h1>
-	<!-- loop over posts list provided in context; use variable name used as key in context -->
-	{% for bookmark, uvote, if_upvoted in checklist_upvotes %}
-		<article class="media content-section">
-			<img class="rounded-circle article-img" src="{{ bookmark.checklist.author.profile.image.url }}">
-			<div class="media-body">
-				<div class="article-metadata">
-					<a class="mr-2" href="{% url 'user-checklists' bookmark.checklist.author.username %}">{{ bookmark.checklist.author }}</a>
-					<small class="text-muted">{{ bookmark.checklist.date_posted|date:'F d, Y' }}</small>
-					<a class="btn btn-sm btn-warning mb-1" href="{% url 'category' bookmark.checklist.category %}" >{{ bookmark.checklist.category }}</a>
-					<a style="float: right;" class="btn btn-danger btn-sm mb-3 mr-1" href="{% url 'checklist-bookmark' bookmark.checklist.id %}">Remove bookmark</a>
-				</div>
-				<h2><a class="article-title" href="{% url 'checklist-detail' bookmark.checklist.id %}">{{ bookmark.checklist.title }}</a></h2>
-				<p class="article-content">{{ bookmark.checklist.content|safe }}</p>
-				{% if user.is_authenticated and bookmark.checklist.author.username != user.username %}
-					{% if if_upvoted %}
-						<a class="btn btn-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
-					{% else %}
-						<a class="btn btn-outline-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
-					{% endif %}
-				{% else %}
-					<a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
-				{% endif %}
-			</div>
-		</article>
-	{% endfor %}
-	<!-- pagination part -->
-	{% if is_paginated %}
-		{% if checklist_upvotes.has_previous %}
-			<a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page=1">First</a>
-			<a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
-		{% endif %}
-		{% for num in checklist_upvotes.paginator.page_range %}
-			{% if num == checklist_upvotes.number %}
-				<a class="btn btn-info mb-4" href="{% url 'bookmarks' %}?page={{ num }}">{{ num }}</a>
-				{% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
-				<a class="btn btn-info-outline mb-4" href="{% url 'bookmarks' %}?page={{ num }}">{{ num }}</a>
-			{% endif %}
-		{% endfor %}
-		{% if checklist_upvotes.has_next %}
-			<a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.next_page_number }}">Next</a>
-			<a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
-		{% endif %}
-	{% endif %}
+    <h1 class="mb-3">Your Bookmarks ({{ checklist_upvotes.paginator.count }})</h1>
+    <!-- loop over posts list provided in context; use variable name used as key in context -->
+    {% for bookmark, uvote, if_upvoted in checklist_upvotes %}
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ bookmark.checklist.author.profile.image.url }}">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url 'user-checklists' bookmark.checklist.author.username %}">{{ bookmark.checklist.author }}</a>
+                    <small class="text-muted">{{ bookmark.checklist.date_posted|date:'F d, Y' }}</small>
+                    <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' bookmark.checklist.category %}" >{{ bookmark.checklist.category }}</a>
+                    <a style="float: right;" class="btn btn-danger btn-sm mb-3 mr-1" href="{% url 'checklist-bookmark' bookmark.checklist.id %}">Remove bookmark</a>
+                </div>
+                <h2><a class="article-title" href="{% url 'checklist-detail' bookmark.checklist.id %}">{{ bookmark.checklist.title }}</a></h2>
+                <p class="article-content">{{ bookmark.checklist.content|safe }}</p>
+                {% if user.is_authenticated and bookmark.checklist.author.username != user.username %}
+                    {% if if_upvoted %}
+                        <a class="btn btn-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
+                    {% else %}
+                        <a class="btn btn-outline-info" href="{% url 'checklist-upvote' bookmark.checklist.id %}">Upvote | {{ uvote }}</a>
+                    {% endif %}
+                {% else %}
+                    <a class="btn btn-outline-info disabled">{{ uvote }} Upvotes</a>
+                {% endif %}
+            </div>
+        </article>
+    {% endfor %}
+    <!-- pagination part -->
+    {% if is_paginated %}
+        {% if checklist_upvotes.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.previous_page_number }}">Previous</a>
+        {% endif %}
+        {% for num in checklist_upvotes.paginator.page_range %}
+            {% if num == checklist_upvotes.number %}
+                <a class="btn btn-info mb-4" href="{% url 'bookmarks' %}?page={{ num }}">{{ num }}</a>
+                {% elif num > checklist_upvotes.number|add:'-3' and num < checklist_upvotes.number|add:'3' %}
+                <a class="btn btn-info-outline mb-4" href="{% url 'bookmarks' %}?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if checklist_upvotes.has_next %}
+            <a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-4" href="{% url 'bookmarks' %}?page={{ checklist_upvotes.paginator.num_pages }}">Last</a>
+        {% endif %}
+    {% endif %}
 {% endblock content  %}
