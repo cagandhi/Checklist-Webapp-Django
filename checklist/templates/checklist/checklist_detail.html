@@ -118,10 +118,24 @@
                 </div>
             </div>
         </article>
-        <!-- COMMENTS -->
+        <!-- write a comment form -->
         <div class="col-md-12 card mb-4  mt-3 ">
             <div class="card-body">
-                <!-- comments -->
+                <h3>Leave a comment</h3>
+                <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
+                    {{ comment_form|crispy }}
+                    {% csrf_token %}
+                    <script>
+                    ClassicEditor
+                    .create( document.querySelector( '#id_body' ) );
+                    </script>
+                    <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+                </form>
+            </div>
+        </div>
+        <!-- display comments -->
+        <div class="col-md-12 card mb-4  mt-3 ">
+            <div class="card-body">
                 {% if comments.count == 0 %}
                     <h2>No Comments</h2>
                     {% elif comments.count == 1 %}
@@ -132,28 +146,12 @@
                 {% for comment in comments %}
                     <div class="comments" style="padding: 10px;">
                         <p class="font-weight-bold">
-                            {{ comment.user.username }}
-                            <span class=" text-muted font-weight-normal">
-                                {{ comment.created_on }}
-                            </span>
+                            <a class="mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
+                            <small class="text-muted">{{ comment.created_on }}</small>
                         </p>
-                        {{ comment.body | linebreaks }}
+                        {{ comment.body | safe | linebreaks }}
                     </div>
                 {% endfor %}
-            </div>
-        </div>
-        <div class="col-md-10 card mb-4  mt-3 ">
-            <div class="card-body">
-                <h3>Leave a comment</h3>
-                <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;">
-                    {{ comment_form|crispy }}
-                    {% csrf_token %}
-                    <script>
-                    ClassicEditor
-                    .create( document.querySelector( '#id_body' ) );
-                    </script>
-                    <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
-                </form>
             </div>
         </div>
     </div>

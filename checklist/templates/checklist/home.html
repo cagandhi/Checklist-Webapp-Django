@@ -37,12 +37,27 @@
                 </article>
             {% endfor %}
         </div>
+        <div>
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Categories</h3>
+                </div>
+                <ul class="list-unstyled components">
+                    {% for category in category_list %}
+                        <li>
+                            <a href="{% url 'category' category %}">{{ category }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+        <!--
         <div class="col-md-4">
             <div class="content-section" style="font-size: 0.9em">
                 <h3>Categories</h3>
                 <p class='text-muted'>
                     <ul class="list-group">
-                        {% for category in category_list %}
+                        {% for category in category_list|slice:":3" %}
                             <li class="list-group-item list-group-item-light">
                                 <a href="{% url 'category' category %}">{{ category }}</a>
                             </li>
@@ -51,6 +66,7 @@
                 </p>
             </div>
         </div>
+        -->
     </div>
     <!-- pagination part; display page numbers to view posts -->
     {% if is_paginated %}
