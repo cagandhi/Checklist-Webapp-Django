@@ -1,6 +1,7 @@
-import boto3
 import uuid
 from urllib.parse import unquote_plus
+
+import boto3
 from PIL import Image
 
 s3_client = boto3.client("s3")

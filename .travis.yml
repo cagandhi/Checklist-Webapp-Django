@@ -16,6 +16,7 @@ jobs:
   - name: "django-project"
     python: "3.7"
 script:
+  - python -m isort .
   - python -m black .
   - python -m flake8 --ignore=E501,W503
   - python -m coverage run manage.py test

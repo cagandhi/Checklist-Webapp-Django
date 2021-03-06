@@ -1,33 +1,18 @@
-from django.shortcuts import render, get_object_or_404, redirect
-
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib import messages
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
-
-from .models import (
-    Checklist,
-    Upvote,
-    Bookmark,
-    Category,
-    Item,
-    Follow,
-    FollowChecklist,
-    Notification,
-)
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from .forms import CommentForm
+from .models import (Bookmark, Category, Checklist, Follow, FollowChecklist,
+                     Item, Notification, Upvote)
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"

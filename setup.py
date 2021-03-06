@@ -4,6 +4,7 @@
 
 # !/usr/bin/ev python3
 from pathlib import Path
+
 import setuptools
 
 project_dir = Path(__file__).parent

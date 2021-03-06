@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+import os
+
 from django.contrib import messages
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeDoneView  # noqa: F401
+from django.shortcuts import redirect, render
 
-import os
+from .forms import ProfileUpdateForm, UserRegisterForm, UserUpdateForm
 
 
 # Create your views here.
@@ -70,7 +71,8 @@ def profile(request):
             print("OLD IMAGE NOT REMOVED")
 
         messages.success(
-            request, f"Your profile has been updated successfully!"  # noqa: F541
+            request,
+            f"Your profile has been updated successfully!",  # noqa: F541
         )
         return redirect("profile")
 

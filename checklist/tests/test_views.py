@@ -1,12 +1,9 @@
-from django.test import TestCase
-from checklist.views import ChecklistListView, UserChecklistListView
-from django.urls import reverse, resolve
-
-from checklist.models import (
-    Checklist,
-    Category,
-)
 from django.contrib.auth.models import User
+from django.test import TestCase
+from django.urls import resolve, reverse
+
+from checklist.models import Category, Checklist
+from checklist.views import ChecklistListView, UserChecklistListView
 
 
 def create_user_if_not_exists(username, password):

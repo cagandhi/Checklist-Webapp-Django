@@ -1,12 +1,7 @@
-from django.test import TestCase
-from checklist.models import (
-    Checklist,
-    Category,
-    Item,
-    Upvote,
-    Bookmark,
-)
 from django.contrib.auth.models import User
+from django.test import TestCase
+
+from checklist.models import Bookmark, Category, Checklist, Item, Upvote
 
 
 class ChecklistModelTest(TestCase):

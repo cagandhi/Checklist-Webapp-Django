@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from PIL import Image  # noqa: F401
 
 
@@ -13,11 +13,11 @@ class Profile(models.Model):
 
     # # When you are overriding model's save method in Django, you should also pass *args and **kwargs to overridden method.
     # def save(self, *args, **kwargs):
-    # 	super().save(*args, **kwargs)
+    #   super().save(*args, **kwargs)
 
-    # 	img = Image.open(self.image.path)
+    #   img = Image.open(self.image.path)
 
-    # 	if img.height>300 or img.width>300:
-    # 		output_size = (300, 300)
-    # 		img.thumbnail(output_size)
-    # 		img.save(self.image.path)
+    #   if img.height>300 or img.width>300:
+    #       output_size = (300, 300)
+    #       img.thumbnail(output_size)
+    #       img.save(self.image.path)
