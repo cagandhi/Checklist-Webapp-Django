@@ -6,8 +6,8 @@ python:
 #   DB=sqlite
 install:
   - python setup.py install
-  - pip install coverage
-  - pip install codecov
+  # - pip install coverage
+  # - pip install codecov
 # command to run tests
 git:
   depth: 50
@@ -16,7 +16,7 @@ jobs:
   - name: "django-project"
     python: "3.7"
 script:
-  - python -m isort .
+  - python -m isort --profile black .
   - python -m black .
   - python -m flake8 --ignore=E501,W503
   - python -m coverage run manage.py test

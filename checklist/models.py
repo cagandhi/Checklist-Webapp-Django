@@ -12,9 +12,7 @@ class Checklist(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     visibility = models.PositiveIntegerField(default=0)
-    category = models.ForeignKey(
-        "Category", null=True, on_delete=models.SET_NULL
-    )
+    category = models.ForeignKey("Category", null=True, on_delete=models.SET_NULL)
     is_draft = models.BooleanField(default=False)
 
     def __str__(self):
@@ -61,9 +59,7 @@ class Follow(models.Model):
     fromUser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="fromUser"
     )
-    toUser = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="toUser"
-    )
+    toUser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="toUser")
 
 
 class FollowChecklist(models.Model):
@@ -95,9 +91,7 @@ class Notification(models.Model):
         User, on_delete=models.CASCADE, null=True, related_name="toUserNotif"
     )
     date_notified = models.DateTimeField(default=timezone.now)
-    notif_type = models.PositiveIntegerField(
-        choices=NOTIF_CHOICES, default=UPVOTE
-    )
+    notif_type = models.PositiveIntegerField(choices=NOTIF_CHOICES, default=UPVOTE)
     checklist = models.ForeignKey(
         Checklist, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -107,9 +101,7 @@ class Comment(models.Model):
     checklist = models.ForeignKey(
         Checklist, on_delete=models.CASCADE, related_name="comments"
     )
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="users"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
     body = RichTextField()
     created_on = models.DateTimeField(default=timezone.now)
 

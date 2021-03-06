@@ -11,7 +11,7 @@
 
 Implemented a checklist manager webapp by utilizing the Django REST framework to help users create, search, upvote and bookmark checklists, connect with other users and share lists on social media. The webapp is hosted on Heroku and uses AWS S3 for file storage and AWS Lambda to reduce profile image size upon upload. The project started with the idea to create a [<strong>checkli.com</strong>](https://www.checkli.com/) style web app.
 
-Website: https://django-checklist.herokuapp.com/
+Heroku Website: https://django-checklist.herokuapp.com/
 
 
 ## Table of Contents
