@@ -21,6 +21,7 @@ from .models import (
     Bookmark,
     Category,
     Checklist,
+    Comment,
     Follow,
     FollowChecklist,
     Item,
@@ -249,7 +250,6 @@ class ChecklistDetailView(DetailView):
         context = super(ChecklistDetailView, self).get_context_data(**kwargs)
 
         chk = get_object_or_404(Checklist, id=self.kwargs.get("pk"))
-        # chk = Checklist.objects.get(id=self.kwargs.get("pk"))
 
         # if user is not anonymous, meaning user is logged in
         if not self.request.user.is_anonymous:
@@ -279,7 +279,7 @@ class ChecklistDetailView(DetailView):
         uvote = Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
-        comments = chk.comments.all()
+        comments = chk.comments.all().filter(parent=None)
         comment_form = CommentForm()
 
         context["if_upvoted"] = if_upvoted
@@ -902,28 +902,31 @@ def follow_checklist(request, checklist_id):
 @login_required
 def submit_comment(request, checklist_id):
 
-    # print("-------")
-    # print(
-    #     "in submit comment method: "
-    #     + str(checklist_id)
-    #     + " : "
-    #     + request.method
-    # )
-    # print("-------")
-
     checklist = get_object_or_404(Checklist, id=checklist_id)
-    comments = checklist.comments.all()
+
+    comments = checklist.comments.all().filter(parent=None)
+
     new_comment = None
     # Comment posted
     if request.method == "POST":
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
 
+            parent_obj = None
+            try:
+                parent_id = int(request.POST.get("parent_id"))
+            except TypeError:
+                parent_id = None
+
+            if parent_id:
+                parent_obj = Comment.objects.get(id=parent_id)
+
             # Create Comment object but don't save to database yet
             new_comment = comment_form.save(commit=False)
             # Assign the current checklist and user to the comment
             new_comment.checklist = checklist
             new_comment.user = request.user
+            new_comment.parent = parent_obj
             # Save the comment to the database
             new_comment.save()
     else:

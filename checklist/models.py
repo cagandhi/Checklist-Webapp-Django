@@ -104,9 +104,13 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
     body = RichTextField()
     created_on = models.DateTimeField(default=timezone.now)
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["-created_on"]
 
     def __str__(self):
-        return "Comment {} by {}".format(self.body, self.user.name)
+        return "Comment {} by {}".format(self.body, self.user.username)
+
+    def children(self):
+        return Comment.objects.filter(parent=self)

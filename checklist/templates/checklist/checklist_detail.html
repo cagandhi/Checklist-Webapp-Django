@@ -129,30 +129,59 @@
                     ClassicEditor
                     .create( document.querySelector( '#id_body' ) );
                     </script>
-                    <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+                    <button type="submit" class="btn btn-primary btn-md">Submit</button>
                 </form>
             </div>
         </div>
         <!-- display comments -->
         <div class="col-md-12 card mb-4  mt-3 ">
-            <div class="card-body">
+            <div>
                 {% if comments.count == 0 %}
-                    <h2>No Comments</h2>
+                    <h2 style="margin-top: 20px">No Comments</h2>
                     {% elif comments.count == 1 %}
-                    <h2>{{ comments.count }} Comment</h2>
+                    <h2 style="margin-top: 20px">{{ comments.count }} Comment</h2>
                 {% else %}
-                    <h2>{{ comments.count }} Comments</h2>
+                    <h2 style="margin-top: 20px">{{ comments.count }} Comments</h2>
                 {% endif %}
                 {% for comment in comments %}
-                    <div class="comments" style="padding: 10px;">
-                        <p class="font-weight-bold">
-                            <a class="mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
-                            <small class="text-muted">{{ comment.created_on }}</small>
-                        </p>
-                        {{ comment.body | safe | linebreaks }}
+                    <div class="p-3 mb-2 mt-4 bg-light text-dark">
+                        <div class="comments" style="margin-top: 4px">
+                            <p class="font-weight-bold">
+                                <img class="rounded-circle" width="40" height="40" src="{{ comment.user.profile.image.url }}">
+                                <a class="ml-1 mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
+                                <small class="text-muted">{{ comment.created_on|timesince }} ago</small>
+                            </p>
+                            <p style="font-size: 2em">{{ comment.body | safe | linebreaks }}</p>
+                        </div>
                     </div>
-                {% endfor %}
-            </div>
+                    <div class="p-3 mb-2 ml-5 mt-2 bg-light text-dark">
+                        {% for child_comment in comment.children %}
+                            <div class="comments" style="padding: 1px;">
+                                <p class="font-weight-bold">
+                                    <img class="rounded-circle" width="40" height="40" src="{{ child_comment.user.profile.image.url }}">
+                                    <a class="ml-1 mr-2" href="{% url 'user-checklists' child_comment.user.username %}">{{ child_comment.user }}</a>
+                                    <small class="text-muted">{{ child_comment.created_on|timesince }} ago</small>
+                                </p>
+                                <p>{{ child_comment.body | safe | linebreaks }}</p>
+                            </div>
+                            <hr/>
+                        {% endfor %}
+                        <form action="{% url 'comment-submit' object.id %}" method="post" style="padding: 1px;" novalidate>
+                            {{ comment_form|crispy }}
+                            {% csrf_token %}
+                            <!-- {% with "#id_body"|add:forloop.counter as idbody %}
+                            <script>
+                            ClassicEditor
+                            .create( document.querySelector( idbody ) );
+                            </script>
+                        {% endwith %} -->
+                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                        <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+                    </form>
+                </div>
+                <hr/>
+            {% endfor %}
         </div>
     </div>
+</div>
 {% endblock %}
