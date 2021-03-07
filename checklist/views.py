@@ -250,7 +250,6 @@ class ChecklistDetailView(DetailView):
         context = super(ChecklistDetailView, self).get_context_data(**kwargs)
 
         chk = get_object_or_404(Checklist, id=self.kwargs.get("pk"))
-        # chk = Checklist.objects.get(id=self.kwargs.get("pk"))
 
         # if user is not anonymous, meaning user is logged in
         if not self.request.user.is_anonymous:
@@ -898,27 +897,16 @@ def follow_checklist(request, checklist_id):
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
 
-
 # SUBMIT COMMENT
 @login_required
 def submit_comment(request, checklist_id):
 
-    # print("-------")
-    # print(
-    #     "in submit comment method: "
-    #     + str(checklist_id)
-    #     + " : "
-    #     + request.method
-    # )
-    print("-------")
 
 
     checklist = get_object_or_404(Checklist, id=checklist_id)
-    print(checklist)
+
     comments = checklist.comments.all().filter(parent=None)
-    print("-------")
-    print(comments)
-    print("-------")
+
     new_comment = None
     # Comment posted
     if request.method == "POST":
