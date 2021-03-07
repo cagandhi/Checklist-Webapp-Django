@@ -21,6 +21,7 @@ from .models import (
     Bookmark,
     Category,
     Checklist,
+    Comment,
     Follow,
     FollowChecklist,
     Item,
@@ -919,11 +920,17 @@ def submit_comment(request, checklist_id):
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
 
+            parent_id = int(request.POST.get("parent_id"))
+
+            if parent_id:
+                parent_obj = Comment.objects.get(id=parent_id)
+
             # Create Comment object but don't save to database yet
             new_comment = comment_form.save(commit=False)
             # Assign the current checklist and user to the comment
             new_comment.checklist = checklist
             new_comment.user = request.user
+            new_comment.parent = parent_obj
             # Save the comment to the database
             new_comment.save()
     else:
