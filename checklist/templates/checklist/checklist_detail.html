@@ -151,6 +151,16 @@
                         </p>
                         {{ comment.body | safe | linebreaks }}
                     </div>
+                    <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
+                        {{ comment_form|crispy }}
+                        {% csrf_token %}
+                        <script>
+                        ClassicEditor
+                        .create( document.querySelector( '#id_body' ) );
+                        </script>
+                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                        <button type="submit" class="btn btn-primary  btn-lg">Reply</button>
+                    </form>
                 {% endfor %}
             </div>
         </div>
