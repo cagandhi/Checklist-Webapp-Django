@@ -897,11 +897,10 @@ def follow_checklist(request, checklist_id):
 
     return redirect(request.META.get("HTTP_REFERER", "checklist-home"))
 
+
 # SUBMIT COMMENT
 @login_required
 def submit_comment(request, checklist_id):
-
-
 
     checklist = get_object_or_404(Checklist, id=checklist_id)
 

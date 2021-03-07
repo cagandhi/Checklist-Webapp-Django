@@ -148,7 +148,7 @@
                         <div class="comments" style="margin-top: 4px">
                             <p class="font-weight-bold">
                                 <img class="rounded-circle" width="40" height="40" src="{{ comment.user.profile.image.url }}">
-                                <a class="mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
+                                <a class="ml-1 mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
                                 <small class="text-muted">{{ comment.created_on|timesince }} ago</small>
                             </p>
                             <p style="font-size: 2em">{{ comment.body | safe | linebreaks }}</p>
