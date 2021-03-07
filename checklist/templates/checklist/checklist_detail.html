@@ -125,17 +125,17 @@
                 <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
                     {{ comment_form|crispy }}
                     {% csrf_token %}
-                    <script>
+                    <!-- <script>
                     ClassicEditor
                     .create( document.querySelector( '#id_body' ) );
-                    </script>
-                    <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
+                    </script> -->
+                    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
                 </form>
             </div>
         </div>
         <!-- display comments -->
         <div class="col-md-12 card mb-4  mt-3 ">
-            <div class="card-body">
+            <div>
                 {% if comments.count == 0 %}
                     <h2>No Comments</h2>
                     {% elif comments.count == 1 %}
@@ -144,25 +144,46 @@
                     <h2>{{ comments.count }} Comments</h2>
                 {% endif %}
                 {% for comment in comments %}
+                    {# <!-- #}
                     <div class="comments" style="padding: 10px;">
                         <p class="font-weight-bold">
                             <a class="mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
                             <small class="text-muted">{{ comment.created_on }}</small>
                         </p>
-                        {{ comment.body | safe | linebreaks }}
+                    <blockquote class="blockquote">{{ comment.body | safe | linebreaks }}</blockquote>
+                </div>
+                {# --> #}
+                {% for child_comment in comment.children %}
+                    <!--
+                    <div class="comments" style="padding: 10px;">
+                        <p class="font-weight-bold">
+                            <a class="mr-2" href="{% url 'user-checklists' child_comment.user.username %}">{{ child_comment.user }}</a>
+                            <small class="text-muted">{{ child_comment.created_on }}</small>
+                        </p>
+                        {{ child_comment.body | safe | linebreaks }}
                     </div>
-                    <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
-                        {{ comment_form|crispy }}
-                        {% csrf_token %}
-                        <script>
-                        ClassicEditor
-                        .create( document.querySelector( '#id_body' ) );
-                        </script>
-                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                        <button type="submit" class="btn btn-primary  btn-lg">Reply</button>
-                    </form>
+                    -->
+                    {# <!-- #}
+                    <blockquote class="blockquote">
+                        <p class="sm-4">{{ child_comment.body | safe | linebreaks }}</p>
+                        <small>via {{ child_comment.user.username }} | {{ child_comment.created_on | timesince }} ago</small>
+                    </blockquote>
+                    {# --> #}
                 {% endfor %}
-            </div>
-        </div>
+                <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
+                    {{ comment_form|crispy }}
+                    {% csrf_token %}
+                    <!-- {% with "#id_body"|add:forloop.counter as idbody %}
+                    <script>
+                    ClassicEditor
+                    .create( document.querySelector( idbody ) );
+                    </script>
+                {% endwith %} -->
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <button type="submit" class="btn btn-primary btn-lg">Reply</button>
+            </form>
+        {% endfor %}
     </div>
+</div>
+</div>
 {% endblock %}

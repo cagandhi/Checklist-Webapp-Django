@@ -280,7 +280,7 @@ class ChecklistDetailView(DetailView):
         uvote = Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
-        comments = chk.comments.all()
+        comments = chk.comments.all().filter(parent=None)
         comment_form = CommentForm()
 
         context["if_upvoted"] = if_upvoted
@@ -910,17 +910,26 @@ def submit_comment(request, checklist_id):
     #     + " : "
     #     + request.method
     # )
-    # print("-------")
+    print("-------")
+
 
     checklist = get_object_or_404(Checklist, id=checklist_id)
-    comments = checklist.comments.all()
+    print(checklist)
+    comments = checklist.comments.all().filter(parent=None)
+    print("-------")
+    print(comments)
+    print("-------")
     new_comment = None
     # Comment posted
     if request.method == "POST":
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
 
-            parent_id = int(request.POST.get("parent_id"))
+            parent_obj = None
+            try:
+                parent_id = int(request.POST.get("parent_id"))
+            except TypeError:
+                parent_id = None
 
             if parent_id:
                 parent_obj = Comment.objects.get(id=parent_id)

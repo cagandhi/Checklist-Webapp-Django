@@ -111,3 +111,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return "Comment {} by {}".format(self.body, self.user.username)
+
+    def children(self):
+        return Comment.objects.filter(parent=self)
