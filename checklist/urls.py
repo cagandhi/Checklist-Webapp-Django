@@ -9,6 +9,8 @@ from .views import (
     ChecklistDetailView,
     ChecklistListView,
     ChecklistUpdateView,
+    CommentDeleteView,
+    CommentUpdateView,
     ItemCreateView,
     ItemDetailView,
     ItemUpdateView,
@@ -16,8 +18,6 @@ from .views import (
     UpvoteChecklistListView,
     UserChecklistListView,
     UserDraftChecklistListView,
-    CommentUpdateView,
-    CommentDeleteView,
 )
 
 urlpatterns = [
