@@ -603,6 +603,32 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == item.checklist.author
 
 
+# UPDATE COMMENT
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    fields = ["body"]
+
+    # to link logged in user as author to the checklist being updated
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+    # checks if currently logged in user is the checklist author
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.user
+
+
+# DELETE COMMENT
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    success_url = "/"
+
+    # checks if currently logged in user is the checklist author
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.user
+
+
 # ABOUT PAGE
 def about(request):
     return render(request, "checklist/about.html", {"title_new": "about"})
@@ -907,28 +933,30 @@ def submit_comment(request, checklist_id):
     comments = checklist.comments.all().filter(parent=None)
 
     new_comment = None
+    comment_form = None
     # Comment posted
     if request.method == "POST":
-        comment_form = CommentForm(data=request.POST)
-        if comment_form.is_valid():
+        if request.user == checklist.author:
+            comment_form = CommentForm(data=request.POST)
+            if comment_form.is_valid():
 
-            parent_obj = None
-            try:
-                parent_id = int(request.POST.get("parent_id"))
-            except TypeError:
-                parent_id = None
+                parent_obj = None
+                try:
+                    parent_id = int(request.POST.get("parent_id"))
+                except TypeError:
+                    parent_id = None
 
-            if parent_id:
-                parent_obj = Comment.objects.get(id=parent_id)
+                if parent_id:
+                    parent_obj = Comment.objects.get(id=parent_id)
 
-            # Create Comment object but don't save to database yet
-            new_comment = comment_form.save(commit=False)
-            # Assign the current checklist and user to the comment
-            new_comment.checklist = checklist
-            new_comment.user = request.user
-            new_comment.parent = parent_obj
-            # Save the comment to the database
-            new_comment.save()
+                # Create Comment object but don't save to database yet
+                new_comment = comment_form.save(commit=False)
+                # Assign the current checklist and user to the comment
+                new_comment.checklist = checklist
+                new_comment.user = request.user
+                new_comment.parent = parent_obj
+                # Save the comment to the database
+                new_comment.save()
     else:
         comment_form = CommentForm()
 
