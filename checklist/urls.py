@@ -16,6 +16,8 @@ from .views import (
     UpvoteChecklistListView,
     UserChecklistListView,
     UserDraftChecklistListView,
+    CommentUpdateView,
+    CommentDeleteView,
 )
 
 urlpatterns = [
@@ -112,5 +114,15 @@ urlpatterns = [
         "checklist/<int:checklist_id>/comment/",
         views.submit_comment,
         name="comment-submit",
+    ),
+    path(
+        "comment/<int:pk>/update/",
+        CommentUpdateView.as_view(),
+        name="comment-update",
+    ),
+    path(
+        "comment/<int:pk>/delete/",
+        CommentDeleteView.as_view(),
+        name="comment-delete",
     ),
 ]

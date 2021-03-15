@@ -120,21 +120,23 @@
                 </div>
             </div>
         </article>
-        <!-- write a comment form -->
-        <div class="col-md-12 card mb-4  mt-3 ">
-            <div class="card-body">
-                <h3>Leave a comment</h3>
-                <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
-                    {{ comment_form|crispy }}
-                    {% csrf_token %}
-                    <script>
-                    ClassicEditor
-                    .create( document.querySelector( '#id_body' ) );
-                    </script>
-                    <button type="submit" class="btn btn-primary btn-md">Submit</button>
-                </form>
+        {% if user.is_authenticated and object.author != user %}
+            <!-- write a comment form -->
+            <div class="col-md-12 card mb-4  mt-3 ">
+                <div class="card-body">
+                    <h3>Leave a comment</h3>
+                    <form action="{% url 'comment-submit' object.id %}" method="post" style="margin-top: 1.3em;" novalidate>
+                        {{ comment_form|crispy }}
+                        {% csrf_token %}
+                        <!-- <script>
+                        ClassicEditor
+                        .create( document.querySelector( '#id_body' ) );
+                        </script> -->
+                        <button type="submit" class="btn btn-primary btn-md">Submit</button>
+                    </form>
+                </div>
             </div>
-        </div>
+        {% endif %}
         <!-- display comments -->
         <div class="col-md-12 card mb-4  mt-3 ">
             <div>
@@ -152,6 +154,10 @@
                                 <img class="rounded-circle" width="40" height="40" src="{{ comment.user.profile.image.url }}">
                                 <a class="ml-1 mr-2" href="{% url 'user-checklists' comment.user.username %}">{{ comment.user }}</a>
                                 <small class="text-muted">{{ comment.created_on|timesince }} ago</small>
+                                {% if user.is_authenticated and comment.user == user %}
+                                    <a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1 ml-1" href="{% url 'comment-update' comment.id %}">Update</a>
+                                    <a class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'comment-delete' comment.id %}">Delete</a>
+                                {% endif %}
                             </p>
                             <p style="font-size: 2em">{{ comment.body | safe | linebreaks }}</p>
                         </div>
@@ -163,6 +169,10 @@
                                     <img class="rounded-circle" width="40" height="40" src="{{ child_comment.user.profile.image.url }}">
                                     <a class="ml-1 mr-2" href="{% url 'user-checklists' child_comment.user.username %}">{{ child_comment.user }}</a>
                                     <small class="text-muted">{{ child_comment.created_on|timesince }} ago</small>
+                                    {% if user.is_authenticated and child_comment.user == user %}
+                                        <a class="btn btn-secondary btn-sm mt-1 mb-1 mr-1 ml-1" href="{% url 'comment-update' child_comment.id %}">Update</a>
+                                        <a class="btn btn-danger btn-sm mt-1 mb-1 mr-1" href="{% url 'comment-delete' child_comment.id %}">Delete</a>
+                                    {% endif %}
                                 </p>
                                 <p>{{ child_comment.body | safe | linebreaks }}</p>
                             </div>

@@ -1,0 +1,18 @@
+<!-- show form to create new checklist or update existing | CommentCreateView, CommentUpdateView -->
+{% extends "checklist/base.html" %}
+<!-- {% load crispy_forms_tags %} -->
+{% block content %}
+    <div class="content-section">
+        <!-- https://stackoverflow.com/a/22148483/6543250 -->
+        <form method="POST" name="myform" novalidate>
+            {% csrf_token %}
+            <fieldset class="form-group" >
+                <legend class="border-bottom mb-4">Update Comment</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-success" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
