@@ -13,6 +13,7 @@ Implemented a checklist manager webapp by utilizing the Django REST framework to
 
 Heroku Website: https://django-checklist.herokuapp.com/
 
+> This project wouldn't have been possible without reference from the [Django Tutorials](https://youtube.com/playlist?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p) playlist by [Corey Schafer](https://www.youtube.com/c/Coreyms) on YouTube.
 
 ## Table of Contents
   * [Primary Features of the web app](#primary-features-of-the-web-app)
