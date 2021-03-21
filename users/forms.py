@@ -14,6 +14,7 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    # update is restricted to only username and email fields
     email = forms.EmailField()
 
     class Meta:

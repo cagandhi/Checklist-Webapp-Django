@@ -32,9 +32,10 @@ from .models import (
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
-    model = Checklist
+    model = Checklist  # what model to query in order to create the list
     template_name = "checklist/home.html"  # <app_name>/<model>_<viewtype>.html
     paginate_by = 5
+    # context_object_name = 'checklists'
 
     def get_context_data(self, **kwargs):
         context = super(ChecklistListView, self).get_context_data(**kwargs)
@@ -67,17 +68,21 @@ class ChecklistListView(ListView):
         upvoted_bool_list = []
         bookmarked_bool_list = []
 
-        # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
+        # remove checklists which are still in draft mode
         checklists_var = Checklist.objects.filter(is_draft=False).order_by(
             "-date_posted"
         )
+        # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 
         for checklist in checklists_var:
+            # for each checklist, fetch the count of upvotes
+            # upvote_set - set of all upvotes who have foreign key checklist as the current checklist
             upvotes_cnt_list.append(checklist.upvote_set.count())
 
             # if user is not anonymous
             if not self.request.user.is_anonymous:
 
+                # if any of the upvote objects have this checklist as foreign key and the user for that object is the current logged in user, then append True to the list
                 if checklist.upvote_set.filter(user=self.request.user):
                     upvoted_bool_list.append(True)
                 else:
@@ -99,6 +104,7 @@ class ChecklistListView(ListView):
             bookmarked_bool_list,
         )  # ,followed_or_not_list)
 
+        # add paginator object
         paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
@@ -206,7 +212,7 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         upvoted_bool_list = []
         bookmarked_bool_list = []
 
-        # to protect draft checklists from being seen
+        # to display only draft checklists
         checklists_var = Checklist.objects.filter(
             author=self.request.user, is_draft=True
         ).order_by("-date_posted")
@@ -279,6 +285,10 @@ class ChecklistDetailView(DetailView):
         uvote = Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
+        # for comments stuff:
+        # 1. https://www.youtube.com/watch?v=KrGQ2Nrz4Dc
+        # 2. https://djangocentral.com/creating-comments-system-with-django/
+
         comments = chk.comments.all().filter(parent=None)
         comment_form = CommentForm()
 
@@ -301,8 +311,11 @@ class ChecklistCreateForm(forms.ModelForm):
         fields = ['title', 'content','category','is_draft']
 """
 
+# mixins need to be declared before the base class based views such as CreateView, DeleteView
+
 
 # CREATE CHECKLIST
+# LoginRequiredMixin - required so that the CBV can only be accessed when the user is logged in
 class ChecklistCreateView(LoginRequiredMixin, CreateView):
     model = Checklist  # even though model is specified in ChecklistCreateForm, we need to specify the model again here
     fields = ["title", "content", "category", "is_draft"]
@@ -315,6 +328,7 @@ class ChecklistCreateView(LoginRequiredMixin, CreateView):
 
 
 # UPDATE CHECKLIST
+# UserPassesTestMixin - required so that an author can only edit a checklist authored by them
 class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Checklist
     fields = ["title", "content", "category", "is_draft"]
@@ -324,15 +338,19 @@ class ChecklistUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-    # checks if currently logged in user is the checklist author
+    # test_func is function invoked by the UserPassesTestMixin to see if our user passes a certain test condition
     def test_func(self):
+        # method of the UpdateView which gives us the current object(model - Checklist in our case)
         checklist = self.get_object()
+        # checks if currently logged in user is the checklist author
         return self.request.user == checklist.author
 
 
 # DELETE CHECKLIST
+# mixins required for delete view are the same as that of update
 class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Checklist
+    # url to redirect to when the deletion is a success
     success_url = "/"
 
     # checks if currently logged in user is the checklist author
@@ -345,7 +363,6 @@ class ChecklistDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class BookmarkChecklistListView(LoginRequiredMixin, ListView):
     model = Bookmark
     template_name = "checklist/bookmark_checklists.html"
-    # context_object_name = 'bookmarks_var'
     paginate_by = 5
 
     # def get_queryset(self):

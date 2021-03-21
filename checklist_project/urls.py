@@ -29,6 +29,7 @@ urlpatterns = [
     path("social_login/", include("social_django.urls", namespace="social")),
     path("register/", user_views.register, name="register"),
     path("profile/", user_views.profile, name="profile"),
+    # because django requires login template to be in dir registration/login.html by default
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="users/login.html"),
@@ -82,6 +83,6 @@ urlpatterns = [
     path("djrichtextfield/", include("djrichtextfield.urls")),
 ]
 
-# only in development
+# only in development, see https://docs.djangoproject.com/en/3.1/howto/static-files/#serving-files-uploaded-by-a-user-during-development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

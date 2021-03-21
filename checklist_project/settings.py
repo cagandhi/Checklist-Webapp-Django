@@ -171,12 +171,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+# full path to a dir where Django will store uploaded files
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# url where we access the images in the browser - /media/profile_pics/<image_name>
 MEDIA_URL = "/media/"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
+# where should the user be redirected after logging in
 LOGIN_REDIRECT_URL = "checklist-home"
+# where is the login route so people can be redirected to login page if they access login required pages when logged out
 LOGIN_URL = "login"
 
 # just for verification

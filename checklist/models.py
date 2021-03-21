@@ -63,7 +63,6 @@ class Follow(models.Model):
 
 
 class FollowChecklist(models.Model):
-    # why use related_name property - refer https://stackoverflow.com/a/2642645/6543250
     fromUser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="fromUserFC"
     )
