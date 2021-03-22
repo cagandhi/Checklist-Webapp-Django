@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -28,6 +30,8 @@ from .models import (
     Notification,
     Upvote,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -648,6 +652,8 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # ABOUT PAGE
 def about(request):
+    logger.error("Test!!")
+
     return render(request, "checklist/about.html", {"title_new": "about"})
 
 
