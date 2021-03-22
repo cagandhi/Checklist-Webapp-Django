@@ -214,6 +214,10 @@ django_heroku.settings(locals(), test_runner=False)
 # Add logging information - integrate logger
 # refer: https://www.scalyr.com/blog/getting-started-quickly-django-logging and https://docs.djangoproject.com/en/3.1/topics/logging/
 LOGGING_CONFIG = None
+LOG_FILE = "tmp/debug.log"
+
+os.makedirs("tmp/debug.log", exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -227,7 +231,7 @@ LOGGING = {
             "level": "WARNING",
             "class": "logging.FileHandler",
             "formatter": "file",
-            "filename": "tmp/debug.log",
+            "filename": LOG_FILE,
         },
     },
     "loggers": {"": {"level": "DEBUG", "handlers": ["file"]}},
