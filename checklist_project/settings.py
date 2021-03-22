@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import logging.config
 import os
 
 import django_heroku
@@ -205,4 +206,30 @@ DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # REGION to be set as default region is us-east-2
 AWS_S3_REGION_NAME = "us-east-1"
 
+# credentials to settings file so django app can talk to the database
+# pip install django-heroku
 django_heroku.settings(locals(), test_runner=False)
+
+
+# Add logging information - integrate logger
+# refer: https://www.scalyr.com/blog/getting-started-quickly-django-logging and https://docs.djangoproject.com/en/3.1/topics/logging/
+LOGGING_CONFIG = None
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {"format": "%(name)-12s %(levelname)-8s %(message)s"},
+        "file": {"format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "console"},
+        "file": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "formatter": "file",
+            "filename": "tmp/debug.log",
+        },
+    },
+    "loggers": {"": {"level": "DEBUG", "handlers": ["file"]}},
+}
+logging.config.dictConfig(LOGGING)
