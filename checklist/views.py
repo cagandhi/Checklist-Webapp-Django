@@ -33,6 +33,37 @@ def paginate_content(checklist_upvotes, page, paginate_by=5):
     return page_checklist_upvotes
 
 
+def get_upvote_bookmark_list(checklists_var, is_anonymous, user):
+    upvotes_cnt_list = []
+    upvoted_bool_list = []
+    bookmarked_bool_list = []
+
+    for checklist in checklists_var:
+        # for each checklist, fetch the count of upvotes
+        # upvote_set - set of all upvotes who have foreign key checklist as the current checklist
+        upvotes_cnt_list.append(checklist.upvote_set.count())
+
+        # if user is not anonymous
+        if not is_anonymous:
+
+            # if any of the upvote objects have this checklist as foreign key and the user for that object is the current logged in user, then append True to the list
+            if checklist.upvote_set.filter(user=user):
+                upvoted_bool_list.append(True)
+            else:
+                upvoted_bool_list.append(False)
+
+            if checklist.bookmark_set.filter(user=user):
+                bookmarked_bool_list.append(True)
+            else:
+                bookmarked_bool_list.append(False)
+        # need this else clause so that empty lists for upvoted and bookmarked are not passed in checklist_upvotes while zipping
+        else:
+            upvoted_bool_list.append(True)
+            bookmarked_bool_list.append(True)
+
+    return upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list
+
+
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
 class ChecklistListView(ListView):
     model = Checklist  # what model to query in order to create the list
@@ -43,34 +74,6 @@ class ChecklistListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ChecklistListView, self).get_context_data(**kwargs)
 
-        """
-        ---------- X ----------
-        # This code snippet is for displaying followed users posts on top
-
-        followed_checklists=Checklist.objects.none()
-
-        for userFollowed in self.request.user.fromUser.all():
-            followed_checklists = followed_checklists.union(userFollowed.toUser.checklist_set.filter(is_draft=False))
-
-        # all checklists
-        checklists_all = Checklist.objects.filter(is_draft=False)
-
-        # those checklists which are written by authors not followed by the logged in user
-        checklists_var = checklists_all.difference(followed_checklists).order_by('-date_posted')
-
-        followed_or_not_list = ['Followed']*followed_checklists.count()
-        followed_or_not_list.extend(['']*checklists_var.count())
-
-        # arrange checklists by followed authors and then by non-followed authors
-        checklists_var = list(chain(followed_checklists, checklists_var))
-
-        ---------- X ----------
-        """
-
-        upvotes_cnt_list = []
-        upvoted_bool_list = []
-        bookmarked_bool_list = []
-
         # fetch checklists which are published and not in draft, use class method get_published_lists()
         checklists_var = Checklist.get_checklists(is_draft=False)
         # checklists_var = Checklist.objects.filter(is_draft=False).order_by(
@@ -78,28 +81,40 @@ class ChecklistListView(ListView):
         # )
         # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 
-        for checklist in checklists_var:
-            # for each checklist, fetch the count of upvotes
-            # upvote_set - set of all upvotes who have foreign key checklist as the current checklist
-            upvotes_cnt_list.append(checklist.upvote_set.count())
+        is_anonymous = self.request.user.is_anonymous
+        user = self.request.user
+        (
+            upvotes_cnt_list,
+            upvoted_bool_list,
+            bookmarked_bool_list,
+        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-            # if user is not anonymous
-            if not self.request.user.is_anonymous:
+        # upvotes_cnt_list = []
+        # upvoted_bool_list = []
+        # bookmarked_bool_list = []
 
-                # if any of the upvote objects have this checklist as foreign key and the user for that object is the current logged in user, then append True to the list
-                if checklist.upvote_set.filter(user=self.request.user):
-                    upvoted_bool_list.append(True)
-                else:
-                    upvoted_bool_list.append(False)
+        # for checklist in checklists_var:
+        #     # for each checklist, fetch the count of upvotes
+        #     # upvote_set - set of all upvotes who have foreign key checklist as the current checklist
+        #     upvotes_cnt_list.append(checklist.upvote_set.count())
 
-                if checklist.bookmark_set.filter(user=self.request.user):
-                    bookmarked_bool_list.append(True)
-                else:
-                    bookmarked_bool_list.append(False)
-            # need this else clause so that empty lists for upvoted and bookmarked are not passed in checklist_upvotes while zipping
-            else:
-                upvoted_bool_list.append(True)
-                bookmarked_bool_list.append(True)
+        #     # if user is not anonymous
+        #     if not self.request.user.is_anonymous:
+
+        #         # if any of the upvote objects have this checklist as foreign key and the user for that object is the current logged in user, then append True to the list
+        #         if checklist.upvote_set.filter(user=self.request.user):
+        #             upvoted_bool_list.append(True)
+        #         else:
+        #             upvoted_bool_list.append(False)
+
+        #         if checklist.bookmark_set.filter(user=self.request.user):
+        #             bookmarked_bool_list.append(True)
+        #         else:
+        #             bookmarked_bool_list.append(False)
+        #     # need this else clause so that empty lists for upvoted and bookmarked are not passed in checklist_upvotes while zipping
+        #     else:
+        #         upvoted_bool_list.append(True)
+        #         bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
@@ -128,6 +143,30 @@ class ChecklistListView(ListView):
         context["is_paginated"] = page_checklist_upvotes.has_other_pages
 
         return context
+
+        """
+        ---------- X ----------
+        # This code snippet is for displaying followed users posts on top
+
+        followed_checklists=Checklist.objects.none()
+
+        for userFollowed in self.request.user.fromUser.all():
+            followed_checklists = followed_checklists.union(userFollowed.toUser.checklist_set.filter(is_draft=False))
+
+        # all checklists
+        checklists_all = Checklist.objects.filter(is_draft=False)
+
+        # those checklists which are written by authors not followed by the logged in user
+        checklists_var = checklists_all.difference(followed_checklists).order_by('-date_posted')
+
+        followed_or_not_list = ['Followed']*followed_checklists.count()
+        followed_or_not_list.extend(['']*checklists_var.count())
+
+        # arrange checklists by followed authors and then by non-followed authors
+        checklists_var = list(chain(followed_checklists, checklists_var))
+
+        ---------- X ----------
+        """
 
 
 # DISPLAY CHECKLISTS BY LOGGED IN USER
@@ -162,27 +201,35 @@ class UserChecklistListView(ListView):
         #     "-date_posted"
         # )
 
-        upvotes_cnt_list = []
-        upvoted_bool_list = []
-        bookmarked_bool_list = []
+        is_anonymous = self.request.user.is_anonymous
+        user = self.request.user
+        (
+            upvotes_cnt_list,
+            upvoted_bool_list,
+            bookmarked_bool_list,
+        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-        for checklist in checklists_var:
-            upvotes_cnt_list.append(checklist.upvote_set.count())
-            # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+        # upvotes_cnt_list = []
+        # upvoted_bool_list = []
+        # bookmarked_bool_list = []
 
-            if not self.request.user.is_anonymous:
-                if checklist.upvote_set.filter(user=self.request.user):
-                    upvoted_bool_list.append(True)
-                else:
-                    upvoted_bool_list.append(False)
+        # for checklist in checklists_var:
+        #     upvotes_cnt_list.append(checklist.upvote_set.count())
+        #     # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-                if checklist.bookmark_set.filter(user=self.request.user):
-                    bookmarked_bool_list.append(True)
-                else:
-                    bookmarked_bool_list.append(False)
-            else:
-                upvoted_bool_list.append(True)
-                bookmarked_bool_list.append(True)
+        #     if not self.request.user.is_anonymous:
+        #         if checklist.upvote_set.filter(user=self.request.user):
+        #             upvoted_bool_list.append(True)
+        #         else:
+        #             upvoted_bool_list.append(False)
+
+        #         if checklist.bookmark_set.filter(user=self.request.user):
+        #             bookmarked_bool_list.append(True)
+        #         else:
+        #             bookmarked_bool_list.append(False)
+        #     else:
+        #         upvoted_bool_list.append(True)
+        #         bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
