@@ -23,7 +23,6 @@ urlpatterns = [
         name="user-drafts",
     ),
     path("bookmarks/", BookmarkChecklistListView.as_view(), name="bookmarks"),
-    path("mybookmark/", views.mybookmark, name="checklist-mybookmark"),
     path("upvotes/", UpvoteChecklistListView.as_view(), name="upvotes"),
     path(
         "checklist/<int:pk>/",
