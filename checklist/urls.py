@@ -1,24 +1,13 @@
 from django.urls import path
 
 from . import views
-from .views import (
-    BookmarkChecklistListView,
-    CategoryChecklistListView,
-    ChecklistCreateView,
-    ChecklistDeleteView,
-    ChecklistDetailView,
-    ChecklistListView,
-    ChecklistUpdateView,
-    CommentDeleteView,
-    CommentUpdateView,
-    ItemCreateView,
-    ItemDetailView,
-    ItemUpdateView,
-    SearchChecklistListView,
-    UpvoteChecklistListView,
-    UserChecklistListView,
-    UserDraftChecklistListView,
-)
+from .views import (BookmarkChecklistListView, CategoryChecklistListView,
+                    ChecklistCreateView, ChecklistDeleteView,
+                    ChecklistDetailView, ChecklistListView,
+                    ChecklistUpdateView, CommentDeleteView, CommentUpdateView,
+                    ItemCreateView, ItemDetailView, ItemUpdateView,
+                    SearchChecklistListView, UpvoteChecklistListView,
+                    UserChecklistListView, UserDraftChecklistListView)
 
 urlpatterns = [
     path("", ChecklistListView.as_view(), name="checklist-home"),
@@ -67,7 +56,6 @@ urlpatterns = [
         name="checklist-delete",
     ),
     path("about/", views.about, name="checklist-about"),
-    # path('mychecklist/', views.mychecklist, name='checklist-mychecklist'),
     path(
         "checklist/<int:checklist_id>/upvote/",
         views.upvote_checklist,
