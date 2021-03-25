@@ -21,6 +21,15 @@ class Checklist(models.Model):
     def get_absolute_url(self):
         return reverse("checklist-detail", kwargs={"pk": self.id})
 
+    @classmethod
+    def get_checklists(cls, is_draft=False, author=None):
+        if author is None:
+            return cls.objects.filter(is_draft=is_draft).order_by("-date_posted")
+        else:
+            return Checklist.objects.filter(author=author, is_draft=is_draft).order_by(
+                "-date_posted"
+            )
+
 
 class Item(models.Model):
     title = models.CharField(max_length=100)

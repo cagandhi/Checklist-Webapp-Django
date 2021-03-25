@@ -2,7 +2,6 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -10,28 +9,28 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from .forms import CommentForm
-from .models import (
-    Bookmark,
-    Category,
-    Checklist,
-    Comment,
-    Follow,
-    FollowChecklist,
-    Item,
-    Notification,
-    Upvote,
-)
+from .models import (Bookmark, Category, Checklist, Comment, Follow,
+                     FollowChecklist, Item, Notification, Upvote)
 
 logger = logging.getLogger(__name__)
+
+
+def paginate_content(checklist_upvotes, page, paginate_by=5):
+    # add paginator object
+    paginator = Paginator(list(checklist_upvotes), paginate_by)
+
+    try:
+        page_checklist_upvotes = paginator.page(page)
+    except PageNotAnInteger:
+        page_checklist_upvotes = paginator.page(1)
+    except EmptyPage:
+        page_checklist_upvotes = paginator.page(paginator.num_pages)
+
+    return page_checklist_upvotes
 
 
 # CHECKLIST HOME - display all checklists order by most recent - this class is used when user navigates to "localhost:8000/"
@@ -72,10 +71,11 @@ class ChecklistListView(ListView):
         upvoted_bool_list = []
         bookmarked_bool_list = []
 
-        # remove checklists which are still in draft mode
-        checklists_var = Checklist.objects.filter(is_draft=False).order_by(
-            "-date_posted"
-        )
+        # fetch checklists which are published and not in draft, use class method get_published_lists()
+        checklists_var = Checklist.get_checklists(is_draft=False)
+        # checklists_var = Checklist.objects.filter(is_draft=False).order_by(
+        #     "-date_posted"
+        # )
         # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 
         for checklist in checklists_var:
@@ -109,15 +109,19 @@ class ChecklistListView(ListView):
         )  # ,followed_or_not_list)
 
         # add paginator object
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "home"
@@ -153,16 +157,18 @@ class UserChecklistListView(ListView):
             if_followed = True
 
         # to protect draft checklists from being seen
-        checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by(
-            "-date_posted"
-        )
+        checklists_var = Checklist.get_checklists(is_draft=False, author=user)
+        # checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by(
+        #     "-date_posted"
+        # )
 
         upvotes_cnt_list = []
         upvoted_bool_list = []
         bookmarked_bool_list = []
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+            upvotes_cnt_list.append(checklist.upvote_set.count())
+            # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             if not self.request.user.is_anonymous:
                 if checklist.upvote_set.filter(user=self.request.user):
@@ -185,15 +191,22 @@ class UserChecklistListView(ListView):
             bookmarked_bool_list,
         )
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # add paginator object
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page")
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["if_followed"] = if_followed
         context["checklist_upvotes"] = page_checklist_upvotes
@@ -217,12 +230,16 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         bookmarked_bool_list = []
 
         # to display only draft checklists
-        checklists_var = Checklist.objects.filter(
-            author=self.request.user, is_draft=True
-        ).order_by("-date_posted")
+        checklists_var = Checklist.get_checklists(
+            is_draft=True, author=self.request.user
+        )
+        # checklists_var = Checklist.objects.filter(
+        #     author=self.request.user, is_draft=True
+        # ).order_by("-date_posted")
 
         for checklist in checklists_var:
-            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+            upvotes_cnt_list.append(checklist.upvote_set.count())
+            # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             upvoted_bool_list.append(False)
             bookmarked_bool_list.append(False)
@@ -234,15 +251,21 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
             bookmarked_bool_list,
         )
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page")
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["draft"] = "draft"
@@ -393,15 +416,21 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
 
         checklist_upvotes = zip(bookmarks_var, upvotes_cnt_list, upvoted_bool_list)
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page")
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "bookmarks"
@@ -429,15 +458,21 @@ class UpvoteChecklistListView(LoginRequiredMixin, ListView):
 
         checklist_upvotes = zip(upvotes_var, upvotes_cnt_list)
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page")
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "bookmarks"
@@ -494,15 +529,21 @@ class SearchChecklistListView(ListView):
             bookmarked_bool_list,
         )
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        page = self.request.GET.get("page", 1)
+        page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page", 1)
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "search"
@@ -555,15 +596,21 @@ class CategoryChecklistListView(ListView):
             bookmarked_bool_list,
         )
 
-        paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
 
-        try:
-            page_checklist_upvotes = paginator.page(page)
-        except PageNotAnInteger:
-            page_checklist_upvotes = paginator.page(1)
-        except EmptyPage:
-            page_checklist_upvotes = paginator.page(paginator.num_pages)
+        page_checklist_upvotes = paginate_content(
+            checklist_upvotes, page, self.paginate_by
+        )
+
+        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
+        # page = self.request.GET.get("page")
+
+        # try:
+        #     page_checklist_upvotes = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_checklist_upvotes = paginator.page(1)
+        # except EmptyPage:
+        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "user"
