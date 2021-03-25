@@ -356,7 +356,9 @@ class ChecklistDetailView(DetailView):
 
         # if_upvoted and if_bookmarked are flags I use to toggle type of button shown on frontend but this is relevant only when user is logged in. If not logged in, this is not relevant.
 
-        uvote = Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
+        uvote = (
+            chk.upvote_set.count()
+        )  # Upvote.objects.filter(checklist_id=self.kwargs.get("pk")).count()
         itemset = chk.item_set.order_by("title")  # ,'completed')
 
         # for comments stuff:
@@ -548,26 +550,34 @@ class SearchChecklistListView(ListView):
                     & Q(is_draft=False)
                 )
 
-        upvotes_cnt_list = []
-        upvoted_bool_list = []
-        bookmarked_bool_list = []
+        is_anonymous = self.request.user.is_anonymous
+        user = self.request.user
+        (
+            upvotes_cnt_list,
+            upvoted_bool_list,
+            bookmarked_bool_list,
+        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-        for checklist in checklists_var:
-            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+        # upvotes_cnt_list = []
+        # upvoted_bool_list = []
+        # bookmarked_bool_list = []
 
-            if not self.request.user.is_anonymous:
-                if checklist.upvote_set.filter(user=self.request.user):
-                    upvoted_bool_list.append(True)
-                else:
-                    upvoted_bool_list.append(False)
+        # for checklist in checklists_var:
+        #     upvotes_cnt_list.append(checklist.upvote_set.count())
 
-                if checklist.bookmark_set.filter(user=self.request.user):
-                    bookmarked_bool_list.append(True)
-                else:
-                    bookmarked_bool_list.append(False)
-            else:
-                upvoted_bool_list.append(True)
-                bookmarked_bool_list.append(True)
+        #     if not self.request.user.is_anonymous:
+        #         if checklist.upvote_set.filter(user=self.request.user):
+        #             upvoted_bool_list.append(True)
+        #         else:
+        #             upvoted_bool_list.append(False)
+
+        #         if checklist.bookmark_set.filter(user=self.request.user):
+        #             bookmarked_bool_list.append(True)
+        #         else:
+        #             bookmarked_bool_list.append(False)
+        #     else:
+        #         upvoted_bool_list.append(True)
+        #         bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
@@ -618,23 +628,31 @@ class CategoryChecklistListView(ListView):
             category_id=category.id, is_draft=False
         ).order_by("-date_posted")
 
-        upvotes_cnt_list = []
-        upvoted_bool_list = []
-        bookmarked_bool_list = []
+        is_anonymous = self.request.user.is_anonymous
+        user = self.request.user
+        (
+            upvotes_cnt_list,
+            upvoted_bool_list,
+            bookmarked_bool_list,
+        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-        for checklist in checklists_var:
-            upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
+        # upvotes_cnt_list = []
+        # upvoted_bool_list = []
+        # bookmarked_bool_list = []
 
-            if not self.request.user.is_anonymous:
-                if checklist.upvote_set.filter(user=self.request.user):
-                    upvoted_bool_list.append(True)
-                else:
-                    upvoted_bool_list.append(False)
+        # for checklist in checklists_var:
+        #     upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
-                if checklist.bookmark_set.filter(user=self.request.user):
-                    bookmarked_bool_list.append(True)
-                else:
-                    bookmarked_bool_list.append(False)
+        #     if not self.request.user.is_anonymous:
+        #         if checklist.upvote_set.filter(user=self.request.user):
+        #             upvoted_bool_list.append(True)
+        #         else:
+        #             upvoted_bool_list.append(False)
+
+        #         if checklist.bookmark_set.filter(user=self.request.user):
+        #             bookmarked_bool_list.append(True)
+        #         else:
+        #             bookmarked_bool_list.append(False)
 
         checklist_upvotes = zip(
             checklists_var,
