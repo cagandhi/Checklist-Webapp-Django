@@ -76,9 +76,6 @@ class ChecklistListView(ListView):
 
         # fetch checklists which are published and not in draft, use class method get_published_lists()
         checklists_var = Checklist.get_checklists(is_draft=False)
-        # checklists_var = Checklist.objects.filter(is_draft=False).order_by(
-        #     "-date_posted"
-        # )
         # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 
         is_anonymous = self.request.user.is_anonymous
@@ -88,33 +85,6 @@ class ChecklistListView(ListView):
             upvoted_bool_list,
             bookmarked_bool_list,
         ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        # upvotes_cnt_list = []
-        # upvoted_bool_list = []
-        # bookmarked_bool_list = []
-
-        # for checklist in checklists_var:
-        #     # for each checklist, fetch the count of upvotes
-        #     # upvote_set - set of all upvotes who have foreign key checklist as the current checklist
-        #     upvotes_cnt_list.append(checklist.upvote_set.count())
-
-        #     # if user is not anonymous
-        #     if not self.request.user.is_anonymous:
-
-        #         # if any of the upvote objects have this checklist as foreign key and the user for that object is the current logged in user, then append True to the list
-        #         if checklist.upvote_set.filter(user=self.request.user):
-        #             upvoted_bool_list.append(True)
-        #         else:
-        #             upvoted_bool_list.append(False)
-
-        #         if checklist.bookmark_set.filter(user=self.request.user):
-        #             bookmarked_bool_list.append(True)
-        #         else:
-        #             bookmarked_bool_list.append(False)
-        #     # need this else clause so that empty lists for upvoted and bookmarked are not passed in checklist_upvotes while zipping
-        #     else:
-        #         upvoted_bool_list.append(True)
-        #         bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
@@ -126,17 +96,9 @@ class ChecklistListView(ListView):
         # add paginator object
         # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
         page = self.request.GET.get("page")
-
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "home"
@@ -197,9 +159,6 @@ class UserChecklistListView(ListView):
 
         # to protect draft checklists from being seen
         checklists_var = Checklist.get_checklists(is_draft=False, author=user)
-        # checklists_var = Checklist.objects.filter(author=user, is_draft=False).order_by(
-        #     "-date_posted"
-        # )
 
         is_anonymous = self.request.user.is_anonymous
         user = self.request.user
@@ -208,28 +167,6 @@ class UserChecklistListView(ListView):
             upvoted_bool_list,
             bookmarked_bool_list,
         ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        # upvotes_cnt_list = []
-        # upvoted_bool_list = []
-        # bookmarked_bool_list = []
-
-        # for checklist in checklists_var:
-        #     upvotes_cnt_list.append(checklist.upvote_set.count())
-        #     # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
-
-        #     if not self.request.user.is_anonymous:
-        #         if checklist.upvote_set.filter(user=self.request.user):
-        #             upvoted_bool_list.append(True)
-        #         else:
-        #             upvoted_bool_list.append(False)
-
-        #         if checklist.bookmark_set.filter(user=self.request.user):
-        #             bookmarked_bool_list.append(True)
-        #         else:
-        #             bookmarked_bool_list.append(False)
-        #     else:
-        #         upvoted_bool_list.append(True)
-        #         bookmarked_bool_list.append(True)
 
         checklist_upvotes = zip(
             checklists_var,
@@ -244,16 +181,6 @@ class UserChecklistListView(ListView):
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page")
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["if_followed"] = if_followed
         context["checklist_upvotes"] = page_checklist_upvotes
@@ -280,13 +207,9 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         checklists_var = Checklist.get_checklists(
             is_draft=True, author=self.request.user
         )
-        # checklists_var = Checklist.objects.filter(
-        #     author=self.request.user, is_draft=True
-        # ).order_by("-date_posted")
 
         for checklist in checklists_var:
             upvotes_cnt_list.append(checklist.upvote_set.count())
-            # upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
 
             upvoted_bool_list.append(False)
             bookmarked_bool_list.append(False)
@@ -303,16 +226,6 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page")
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["draft"] = "draft"
@@ -379,13 +292,6 @@ class ChecklistDetailView(DetailView):
 
         return context
 
-
-"""
-class ChecklistCreateForm(forms.ModelForm):
-    class Meta:
-        model = Checklist
-        fields = ['title', 'content','category','is_draft']
-"""
 
 # mixins need to be declared before the base class based views such as CreateView, DeleteView
 
@@ -471,16 +377,6 @@ class BookmarkChecklistListView(LoginRequiredMixin, ListView):
             checklist_upvotes, page, self.paginate_by
         )
 
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page")
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
-
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "bookmarks"
         context["is_paginated"] = page_checklist_upvotes.has_other_pages
@@ -512,16 +408,6 @@ class UpvoteChecklistListView(LoginRequiredMixin, ListView):
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page")
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "bookmarks"
@@ -558,27 +444,6 @@ class SearchChecklistListView(ListView):
             bookmarked_bool_list,
         ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-        # upvotes_cnt_list = []
-        # upvoted_bool_list = []
-        # bookmarked_bool_list = []
-
-        # for checklist in checklists_var:
-        #     upvotes_cnt_list.append(checklist.upvote_set.count())
-
-        #     if not self.request.user.is_anonymous:
-        #         if checklist.upvote_set.filter(user=self.request.user):
-        #             upvoted_bool_list.append(True)
-        #         else:
-        #             upvoted_bool_list.append(False)
-
-        #         if checklist.bookmark_set.filter(user=self.request.user):
-        #             bookmarked_bool_list.append(True)
-        #         else:
-        #             bookmarked_bool_list.append(False)
-        #     else:
-        #         upvoted_bool_list.append(True)
-        #         bookmarked_bool_list.append(True)
-
         checklist_upvotes = zip(
             checklists_var,
             upvotes_cnt_list,
@@ -591,16 +456,6 @@ class SearchChecklistListView(ListView):
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page", 1)
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "search"
@@ -636,24 +491,6 @@ class CategoryChecklistListView(ListView):
             bookmarked_bool_list,
         ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
 
-        # upvotes_cnt_list = []
-        # upvoted_bool_list = []
-        # bookmarked_bool_list = []
-
-        # for checklist in checklists_var:
-        #     upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
-
-        #     if not self.request.user.is_anonymous:
-        #         if checklist.upvote_set.filter(user=self.request.user):
-        #             upvoted_bool_list.append(True)
-        #         else:
-        #             upvoted_bool_list.append(False)
-
-        #         if checklist.bookmark_set.filter(user=self.request.user):
-        #             bookmarked_bool_list.append(True)
-        #         else:
-        #             bookmarked_bool_list.append(False)
-
         checklist_upvotes = zip(
             checklists_var,
             upvotes_cnt_list,
@@ -666,16 +503,6 @@ class CategoryChecklistListView(ListView):
         page_checklist_upvotes = paginate_content(
             checklist_upvotes, page, self.paginate_by
         )
-
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        # page = self.request.GET.get("page")
-
-        # try:
-        #     page_checklist_upvotes = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_checklist_upvotes = paginator.page(1)
-        # except EmptyPage:
-        #     page_checklist_upvotes = paginator.page(paginator.num_pages)
 
         context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "user"
@@ -797,8 +624,6 @@ def upvote_checklist(request, checklist_id):
             msg = "Upvote retracted!"
             messages.info(request, msg)
         else:
-            # if fetching by id, use "get()", else "filter()"
-            # User.objects.filter(username=username).first()
             upvote_obj = Upvote(
                 user=request.user,
                 checklist=Checklist.objects.get(id=checklist_id),
@@ -1103,66 +928,3 @@ def submit_comment(request, checklist_id):
             "comment_form": comment_form,
         },
     )
-
-
-# ------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------
-
-
-# @DEPRECATED
-# HOME - show all checklists - this function will be called when user navigates to "localhost:8000/"
-def home(request):
-    # count upvotes for each post
-    upvotes_cnt_list = []
-    checklists_var = Checklist.objects.all().order_by("-date_posted")
-    for checklist in checklists_var:
-        upvotes_cnt_list.append(Upvote.objects.filter(checklist=checklist).count())
-
-    checklist_upvotes = zip(checklists_var, upvotes_cnt_list)
-
-    paginate_by = 5
-    paginator = Paginator(list(checklist_upvotes), paginate_by)
-    page = request.GET.get("page")
-
-    try:
-        page_checklist_upvotes = paginator.page(page)
-    except PageNotAnInteger:
-        page_checklist_upvotes = paginator.page(1)
-    except EmptyPage:
-        page_checklist_upvotes = paginator.page(paginator.num_pages)
-
-    context = {
-        "checklist_upvotes": page_checklist_upvotes,
-        "title": "home",
-        "is_paginated": True,
-    }
-
-    return render(
-        request, "checklist/home.html", context
-    )  # because render looks in templates subdirectory, by default
-
-
-# @DEPRECATED
-# SHOW CHECKLISTS POSTED BY LOGGED IN USER
-def mychecklist(request):
-    context = {
-        "checklists_var": request.user.checklist_set.all().order_by("-date_posted"),
-        "title": "My Checklists",
-    }
-
-    return render(
-        request, "checklist/mychecklist.html", context
-    )  # because render looks in templates subdirectory, by default
-
-
-# @DEPRECATED
-# VIWE BOOKMARKS PAGE | ALTERNATE - can be used if "BookmarkChecklistListView" does not work
-def mybookmark(request):
-    context = {
-        "bookmarks_var": Bookmark.objects.filter(user=request.user),
-        "title": "My Bookmarks",
-    }
-
-    return render(
-        request, "checklist/mybookmark.html", context
-    )  # because render looks in templates subdirectory, by default
