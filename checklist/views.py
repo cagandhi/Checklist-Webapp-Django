@@ -2,7 +2,6 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -10,26 +9,12 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from .forms import CommentForm
-from .models import (
-    Bookmark,
-    Category,
-    Checklist,
-    Comment,
-    Follow,
-    FollowChecklist,
-    Item,
-    Notification,
-    Upvote,
-)
+from .models import (Bookmark, Category, Checklist, Comment, Follow,
+                     FollowChecklist, Item, Notification, Upvote)
 
 logger = logging.getLogger(__name__)
 

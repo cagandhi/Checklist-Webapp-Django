@@ -18,7 +18,7 @@ urlpatterns = [
     ),
     path("user/<str:username>/follow", views.follow_user, name="user-follow"),
     path(
-        "checklist/drafts",
+        "checklist/drafts/",
         UserDraftChecklistListView.as_view(),
         name="user-drafts",
     ),
@@ -30,12 +30,12 @@ urlpatterns = [
         name="checklist-detail",
     ),
     path(
-        "checklist/<int:checklist_id>/publish",
+        "checklist/<int:checklist_id>/publish/",
         views.publish_checklist,
         name="checklist-publish",
     ),
     path(
-        "checklist/<int:checklist_id>/save",
+        "checklist/<int:checklist_id>/save/",
         views.save_and_edit,
         name="checklist-save",
     ),
