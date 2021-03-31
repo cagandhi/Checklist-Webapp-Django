@@ -35,7 +35,7 @@ def create_bookmark_upvote(user, checklist):
     return Bookmark.objects.create(user=user, checklist=checklist)
 
 
-# wrap unit tests for a class
+# test listviews and detailviews
 class TestChecklistListView(TestCase):
     def setUp(self):
         self.user = create_user_if_not_exists("testuser", "12345")
@@ -174,7 +174,7 @@ class TestUserDraftChecklistListView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
 
-    def test_no_lists_nologin(self):
+    def test_no_lists_guest(self):
         response = self.client.get(reverse("user-drafts"))
 
         self.assertEqual(response.status_code, 302)
@@ -194,7 +194,7 @@ class TestUserDraftChecklistListView(TestCase):
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], list1)
 
-    def test_one_list_nologin(self):
+    def test_one_list_guest(self):
         list1 = create_checklist(  # noqa: F841
             title="list 1",
             content="content 1",
@@ -233,12 +233,12 @@ class TestUserDraftChecklistListView(TestCase):
         self.user.delete()
 
 
+# test CRUD views
 class TestChecklistDetailView(TestCase):
     def setUp(self):
         self.user = create_user_if_not_exists("testuser", "12345")
         self.category = create_category_if_not_exists("test_category")
 
-        self.client.login(username="testuser", password="12345")
         self.list1 = create_checklist(
             title="list 1",
             content="content 1",
@@ -267,18 +267,32 @@ class TestChecklistCreateView(TestCase):
     def setUp(self):
         self.user = create_user_if_not_exists("testuser", "12345")
         self.category = create_category_if_not_exists("test_category")
-        self.client.login(username="testuser", password="12345")
 
     def test_view_url(self):
         url = resolve("/checklist/new/")
         self.assertEqual(url.func.__name__, ChecklistCreateView.__name__)
 
-    def test_view_template(self):
+    def test_view_template_guest(self):
+        response = self.client.get(reverse("checklist-create"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_template_login(self):
+        self.client.login(username="testuser", password="12345")
         response = self.client.get(reverse("checklist-create"))
         self.assertTemplateUsed(response, "checklist/checklist_form.html")
 
-    def test_create_checklist(self):
-        # rf = RequestFactory()
+    def test_create_checklist_guest(self):
+        list_data = {
+            "title": "list 1",
+            "content": "content 1",
+            "category": self.category,
+            "is_draft": False,
+        }
+        response = self.client.post("/checklist/new/", data=list_data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_checklist_login(self):
+        self.client.login(username="testuser", password="12345")
         list_data = {
             "title": "list 1",
             "content": "content 1",
@@ -301,17 +315,33 @@ class TestChecklistUpdateView(TestCase):
             is_draft=False,
         )
 
-        self.client.login(username="testuser", password="12345")
-
     def test_view_url(self):
         url = resolve("/checklist/1/update/")
         self.assertEqual(url.func.__name__, ChecklistUpdateView.__name__)
 
-    def test_view_template(self):
+    def test_view_template_guest(self):
+        response = self.client.get(reverse("checklist-update", kwargs={"pk": 1}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_template_login(self):
+        self.client.login(username="testuser", password="12345")
         response = self.client.get(reverse("checklist-update", kwargs={"pk": 1}))
         self.assertTemplateUsed(response, "checklist/checklist_form.html")
 
-    def test_update_checklist(self):
+    def test_update_checklist_guest(self):
+        list_data = {
+            "title": "list 1 updated",
+            "content": "content 1",
+            "category": self.category,
+        }
+
+        response = self.client.post(
+            reverse("checklist-update", kwargs={"pk": 1}), data=list_data
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_update_checklist_login(self):
+        self.client.login(username="testuser", password="12345")
         list_data = {
             "title": "list 1 updated",
             "content": "content 1",
@@ -336,24 +366,47 @@ class TestChecklistDeleteView(TestCase):
             is_draft=False,
         )
 
-        self.client.login(username="testuser", password="12345")
+        # self.client.login(username="testuser", password="12345")
 
     def test_view_url(self):
         url = resolve("/checklist/1/delete/")
         self.assertEqual(url.func.__name__, ChecklistDeleteView.__name__)
 
-    def test_view_template(self):
+    def test_view_template_guest(self):
+        response = self.client.get(reverse("checklist-delete", kwargs={"pk": 1}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_template_login(self):
+        self.client.login(username="testuser", password="12345")
         response = self.client.get(reverse("checklist-delete", kwargs={"pk": 1}))
         self.assertTemplateUsed(response, "checklist/checklist_confirm_delete.html")
 
+    def test_delete_checklist_get_request_guest(self):
+        response = self.client.get(
+            reverse("checklist-delete", kwargs={"pk": 1}), follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_checklist_post_request_guest(self):
+        post_response = self.client.post(
+            reverse("checklist-delete", kwargs={"pk": 1}), follow=True
+        )
+        self.assertRedirects(
+            post_response,
+            "/login/?next=" + reverse("checklist-delete", kwargs={"pk": 1}),
+            status_code=302,
+        )
+
     # refer https://stackoverflow.com/a/16010105/6543250 for the following methods
-    def test_delete_checklist_get_request(self):
+    def test_delete_checklist_get_request_login(self):
+        self.client.login(username="testuser", password="12345")
         response = self.client.get(
             reverse("checklist-delete", kwargs={"pk": 1}), follow=True
         )
         self.assertContains(response, "Are you sure you want to delete the checklist?")
 
-    def test_delete_checklist_post_request(self):
+    def test_delete_checklist_post_request_login(self):
+        self.client.login(username="testuser", password="12345")
         post_response = self.client.post(
             reverse("checklist-delete", kwargs={"pk": 1}), follow=True
         )
