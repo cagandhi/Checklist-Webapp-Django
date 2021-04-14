@@ -1,10 +1,9 @@
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from django.contrib.messages import get_messages
-
-from checklist.models import Bookmark, Category, Checklist, Item, Comment
+from checklist.models import Bookmark, Category, Checklist, Comment, Item
 from checklist.views import (
     BookmarkChecklistListView,
     CategoryChecklistListView,
@@ -13,6 +12,8 @@ from checklist.views import (
     ChecklistDetailView,
     ChecklistListView,
     ChecklistUpdateView,
+    CommentDeleteView,
+    CommentUpdateView,
     ItemCreateView,
     ItemDetailView,
     ItemUpdateView,
@@ -20,8 +21,6 @@ from checklist.views import (
     UpvoteChecklistListView,
     UserChecklistListView,
     UserDraftChecklistListView,
-    CommentUpdateView,
-    CommentDeleteView,
 )
 
 
