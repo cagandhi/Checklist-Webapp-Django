@@ -830,7 +830,7 @@ def save_and_edit(request, checklist_id):
             msg = "You have already saved this checklist once!"
             messages.info(request, msg)
     else:
-        msg = "You can only save and edit others' checklists"
+        msg = "You can only save and edit others' checklists!"
         messages.info(request, msg)
 
         return redirect("checklist-detail", old_obj.id)

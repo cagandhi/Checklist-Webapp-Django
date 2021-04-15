@@ -27,7 +27,7 @@ urlpatterns = [
         UserChecklistListView.as_view(),
         name="user-checklists",
     ),
-    path("user/<str:username>/follow", views.follow_user, name="user-follow"),
+    path("user/<str:username>/follow/", views.follow_user, name="user-follow"),
     path(
         "checklist/drafts/",
         UserDraftChecklistListView.as_view(),
