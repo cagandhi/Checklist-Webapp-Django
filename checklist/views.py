@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.generic import (
     CreateView,
@@ -594,14 +595,26 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 # DELETE COMMENT
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class CommentDeleteView(
+    SuccessMessageMixin, LoginRequiredMixin, UserPassesTestMixin, DeleteView
+):
     model = Comment
-    success_url = "/"
+    # success_url = "/"
 
     # checks if currently logged in user is the checklist author
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.user
+
+    # is accessed instead of success url attribute, refer https://stackoverflow.com/a/59475442/6543250
+    def get_success_url(self):
+        return reverse(
+            "checklist-detail", kwargs={"pk": self.get_object().checklist.id}
+        )
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Your comment has been successfully deleted!")
+        return super(CommentDeleteView, self).delete(request, *args, **kwargs)
 
 
 # ABOUT PAGE
@@ -830,7 +843,7 @@ def save_and_edit(request, checklist_id):
             msg = "You have already saved this checklist once!"
             messages.info(request, msg)
     else:
-        msg = "You can only save and edit others' checklists"
+        msg = "You can only save and edit others' checklists!"
         messages.info(request, msg)
 
         return redirect("checklist-detail", old_obj.id)
@@ -861,13 +874,10 @@ def dismiss_notif(request, id):
 # FOLLOW CHECKLIST
 @login_required
 def follow_checklist(request, checklist_id):
-    # pass
-
     checklist = Checklist.objects.get(id=checklist_id)
 
     if request.user == checklist.author:
         msg = "Action Denied! You can not follow your own checklists!"
-        messages.info(request, msg)
     else:
         obj = FollowChecklist.objects.filter(
             fromUser=request.user, toChecklist=checklist
@@ -888,7 +898,7 @@ def follow_checklist(request, checklist_id):
                 checklist=checklist,
             ).save()
 
-        messages.info(request, msg)
+    messages.info(request, msg)
 
     if request.META.get("HTTP_REFERER"):
         if "login" in request.META.get("HTTP_REFERER") and "next" in request.META.get(
@@ -911,35 +921,61 @@ def submit_comment(request, checklist_id):
     comment_form = None
     # Comment posted
     if request.method == "POST":
-        if request.user == checklist.author:
-            comment_form = CommentForm(data=request.POST)
-            if comment_form.is_valid():
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
 
-                parent_obj = None
-                try:
-                    parent_id = int(request.POST.get("parent_id"))
-                except TypeError:
-                    parent_id = None
+            parent_obj = None
+            try:
+                parent_id = int(request.POST.get("parent_id"))
+            except TypeError:
+                parent_id = None
 
-                if parent_id:
-                    parent_obj = Comment.objects.get(id=parent_id)
+            if parent_id:
+                parent_obj = Comment.objects.get(id=parent_id)
 
-                # Create Comment object but don't save to database yet
-                new_comment = comment_form.save(commit=False)
-                # Assign the current checklist and user to the comment
-                new_comment.checklist = checklist
-                new_comment.user = request.user
-                new_comment.parent = parent_obj
+            # Create Comment object but don't save to database yet
+            new_comment = comment_form.save(commit=False)
+            # Assign the current checklist and user to the comment
+            new_comment.checklist = checklist
+            new_comment.user = request.user
+            new_comment.parent = parent_obj
+
+            # don't allow the checklist author to post a parent comment (the first comment from which the thread starts)
+            if parent_obj is None and request.user == checklist.author:
+                msg = "Author can only to reply to others' comments!"
+                pass
+            else:
                 # Save the comment to the database
                 new_comment.save()
+                msg = "Your comment has been saved!"
+
+    # get request so return a new blank form
     else:
         comment_form = CommentForm()
 
-    return redirect(
-        request.META.get("HTTP_REFERER", "checklist-home"),
-        kwargs={
+    try:
+        messages.info(request, msg)
+    except:  # noqa: E722
+        pass
+
+    return_path = ""
+    kwargs_dict = {}
+
+    if not request.META.get("HTTP_REFERER"):
+        return_path = reverse("checklist-detail", kwargs={"pk": checklist_id})
+        kwargs_dict = {
             "comments": comments,
-            "new_comment": new_comment,
             "comment_form": comment_form,
-        },
+        }
+    else:
+        return_path = request.META.get("HTTP_REFERER")
+        kwargs_dict = {
+            "pk": checklist_id,
+            "comments": comments,
+            "comment_form": comment_form,
+        }
+
+    return redirect(
+        return_path,
+        kwargs=kwargs_dict,
     )
