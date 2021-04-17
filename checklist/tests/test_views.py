@@ -1348,6 +1348,7 @@ class TestFollowChecklistView(TestCase):
 class TestSubmitCommentView(TestCase):
     def setUp(self):
         self.user = create_user_if_not_exists("testuser", "12345")
+        _ = create_user_if_not_exists("testuser2", "12345")
         self.category = create_category_if_not_exists("test_category")
         self.list1 = create_checklist(
             title="list 1",
@@ -1355,16 +1356,6 @@ class TestSubmitCommentView(TestCase):
             user=self.user,
             category=self.category,
             is_draft=False,
-        )
-
-        self.comment_parent = create_comment(
-            checklist=self.list1, user=self.user, body="Test comment 1", parent=None
-        )
-        self.comment_child = create_comment(
-            checklist=self.list1,
-            user=self.user,
-            body="Child comment 1",
-            parent=self.comment_parent,
         )
 
     def test_view_url(self):
@@ -1379,33 +1370,42 @@ class TestSubmitCommentView(TestCase):
 
     def test_view_template_login(self):
         self.client.login(username="testuser", password="12345")
-        response = self.client.get(
-            reverse("comment-submit", kwargs={"checklist_id": 1})
+        response = self.client.post(
+            reverse("comment-submit", kwargs={"checklist_id": 1}),
+            data={"body": "This is body of the comment"},
         )
-        self.assertTemplateUsed(response, "checklist/comment_form.html")
+        self.assertEqual(response.status_code, 302)
 
-    # def test_update_comment_guest(self):
-    #     comment_data = {
-    #         "checklist": self.list1,
-    #         "user": self.user,
-    #         "body": "Update to comment 1",
-    #     }
+    def test_submit_comment_self(self):
+        self.client.login(username="testuser", password="12345")
+        response = self.client.post(
+            reverse("comment-submit", kwargs={"checklist_id": 1}),
+            data={"body": "This is body of the comment"},
+        )
 
-    #     response = self.client.post(
-    #         reverse("comment-update", kwargs={"pk": 1}), data=comment_data
-    #     )
-    #     self.assertEqual(response.status_code, 302)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(
+            str(messages[0]), "Author can only to reply to others' comments!"
+        )
+        self.assertRedirects(
+            response,
+            reverse("checklist-detail", kwargs={"pk": 1}),
+            status_code=302,
+        )
 
-    # def test_update_checklist_login(self):
-    #     self.client.login(username="testuser", password="12345")
-    #     comment_data = {
-    #         "checklist": self.list1,
-    #         "user": self.user,
-    #         "body": "Update to comment 1",
-    #     }
+    def test_submit_comment_other(self):
+        self.client.login(username="testuser2", password="12345")
+        response = self.client.post(
+            reverse("comment-submit", kwargs={"checklist_id": 1}),
+            data={"body": "This is body of the comment"},
+        )
 
-    #     response = self.client.post(
-    #         reverse("comment-update", kwargs={"pk": 1}), data=comment_data
-    #     )
-    #     # because it redirects me to the edit form page
-    #     self.assertEqual(response.status_code, 302)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Your comment has been saved!")
+        self.assertRedirects(
+            response,
+            reverse("checklist-detail", kwargs={"pk": 1}),
+            status_code=302,
+        )

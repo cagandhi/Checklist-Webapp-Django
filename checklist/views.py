@@ -921,8 +921,6 @@ def submit_comment(request, checklist_id):
     comment_form = None
     # Comment posted
     if request.method == "POST":
-        # if request.user != checklist.author:
-        print("request user is same as checklist author")
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
 
