@@ -3,7 +3,7 @@ from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from checklist.models import Bookmark, Category, Checklist, Comment, Item
+from checklist.models import Bookmark, Category, Checklist, Comment, Item, Notification
 from checklist.views import (
     BookmarkChecklistListView,
     CategoryChecklistListView,
@@ -57,6 +57,15 @@ def create_item(title, checklist, completed=False):
 def create_comment(checklist, user, body, parent):
     return Comment.objects.create(
         checklist=checklist, user=user, body=body, parent=parent
+    )
+
+
+def create_notif(fromUser, toUser, notif_type, checklist=None):
+    return Notification.objects.create(
+        fromUser=fromUser,
+        toUser=toUser,
+        notif_type=notif_type,
+        checklist=checklist,
     )
 
 
@@ -1226,3 +1235,177 @@ class TestSaveAndEditView(TestCase):
             str(messages[1]), "You have already saved this checklist once!"
         )
         self.assertRedirects(response, "/", status_code=302)
+
+
+class TestDismissNotifView(TestCase):
+    def setUp(self):
+        self.user = create_user_if_not_exists("testuser", "12345")
+        self.user2 = create_user_if_not_exists("testuser2", "12345")
+
+        # self.category = create_category_if_not_exists("test_category")
+        # self.list1 = create_checklist(
+        #     title="list 1",
+        #     content="content 1",
+        #     user=self.user,
+        #     category=self.category,
+        #     is_draft=True,
+        # )
+
+        self.notif = create_notif(self.user2, self.user, 2)
+
+    def test_view_url(self):
+        url = resolve("/notif/1/dismiss/")
+        self.assertEqual(url.func.__name__, "dismiss_notif")
+
+    def test_view_template_guest(self):
+        response = self.client.get(reverse("dismiss-notif", kwargs={"id": 1}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_template_login(self):
+        self.client.login(username="testuser", password="12345")
+        response = self.client.get(reverse("dismiss-notif", kwargs={"id": 1}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_dismiss_notif_self(self):
+        self.client.login(username="testuser", password="12345")
+        response = self.client.get(reverse("dismiss-notif", kwargs={"id": 1}))
+        self.assertRedirects(response, "/", status_code=302)
+
+    def test_dismiss_notif_other(self):
+        self.client.login(username="testuser2", password="12345")
+        response = self.client.get(reverse("dismiss-notif", kwargs={"id": 1}))
+        self.assertRedirects(response, "/", status_code=302)
+
+
+class TestFollowChecklistView(TestCase):
+    def setUp(self):
+        self.user = create_user_if_not_exists("testuser", "12345")
+        self.user2 = create_user_if_not_exists("testuser2", "12345")
+
+        self.category = create_category_if_not_exists("test_category")
+        self.list1 = create_checklist(
+            title="list 1",
+            content="content 1",
+            user=self.user,
+            category=self.category,
+            is_draft=True,
+        )
+
+    def test_view_url(self):
+        url = resolve("/checklist/1/follow/")
+        self.assertEqual(url.func.__name__, "follow_checklist")
+
+    def test_view_template_guest(self):
+        response = self.client.get(
+            reverse("checklist-follow", kwargs={"checklist_id": 1})
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_follow_checklist_self(self):
+        self.client.login(username="testuser", password="12345")
+        response = self.client.get(
+            reverse("checklist-follow", kwargs={"checklist_id": 1})
+        )
+
+        # refer https://stackoverflow.com/a/14909727/6543250
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(
+            str(messages[0]), "Action Denied! You can not follow your own checklists!"
+        )
+        # redirected to home because self.client.get is activated upon the server start meaning from the home page and hence am redirected back to home page
+        self.assertRedirects(response, "/", status_code=302)
+
+    def test_follow_checklist_other(self):
+        self.client.login(username="testuser2", password="12345")
+        response = self.client.get(
+            reverse("checklist-follow", kwargs={"checklist_id": 1})
+        )
+
+        # refer https://stackoverflow.com/a/14909727/6543250
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Checklist followed!")
+        self.assertRedirects(response, "/", status_code=302)
+
+    def test_unfollow_checklist_other(self):
+        self.client.login(username="testuser2", password="12345")
+        response = self.client.get(
+            reverse("checklist-follow", kwargs={"checklist_id": 1})
+        )
+
+        response = self.client.get(
+            reverse("checklist-follow", kwargs={"checklist_id": 1})
+        )
+        # refer https://stackoverflow.com/a/14909727/6543250
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(str(messages[0]), "Checklist followed!")
+        self.assertEqual(str(messages[1]), "Checklist unfollowed!")
+        self.assertRedirects(response, "/", status_code=302)
+
+
+class TestSubmitCommentView(TestCase):
+    def setUp(self):
+        self.user = create_user_if_not_exists("testuser", "12345")
+        self.category = create_category_if_not_exists("test_category")
+        self.list1 = create_checklist(
+            title="list 1",
+            content="content 1",
+            user=self.user,
+            category=self.category,
+            is_draft=False,
+        )
+
+        self.comment_parent = create_comment(
+            checklist=self.list1, user=self.user, body="Test comment 1", parent=None
+        )
+        self.comment_child = create_comment(
+            checklist=self.list1,
+            user=self.user,
+            body="Child comment 1",
+            parent=self.comment_parent,
+        )
+
+    def test_view_url(self):
+        url = resolve("/checklist/1/comment/")
+        self.assertEqual(url.func.__name__, "submit_comment")
+
+    def test_view_template_guest(self):
+        response = self.client.get(
+            reverse("comment-submit", kwargs={"checklist_id": 1})
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_template_login(self):
+        self.client.login(username="testuser", password="12345")
+        response = self.client.get(
+            reverse("comment-submit", kwargs={"checklist_id": 1})
+        )
+        self.assertTemplateUsed(response, "checklist/comment_form.html")
+
+    # def test_update_comment_guest(self):
+    #     comment_data = {
+    #         "checklist": self.list1,
+    #         "user": self.user,
+    #         "body": "Update to comment 1",
+    #     }
+
+    #     response = self.client.post(
+    #         reverse("comment-update", kwargs={"pk": 1}), data=comment_data
+    #     )
+    #     self.assertEqual(response.status_code, 302)
+
+    # def test_update_checklist_login(self):
+    #     self.client.login(username="testuser", password="12345")
+    #     comment_data = {
+    #         "checklist": self.list1,
+    #         "user": self.user,
+    #         "body": "Update to comment 1",
+    #     }
+
+    #     response = self.client.post(
+    #         reverse("comment-update", kwargs={"pk": 1}), data=comment_data
+    #     )
+    #     # because it redirects me to the edit form page
+    #     self.assertEqual(response.status_code, 302)
