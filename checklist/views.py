@@ -550,6 +550,7 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
             messages.info(self.request, msg)
             return redirect("checklist-detail", pk=self.checklist_id)
         else:
+            print("IN ELSE ItemCreateView")
             return super().dispatch(*args, **kwargs)
 
     # 2nd method executed
@@ -613,8 +614,28 @@ class CommentDeleteView(
         )
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, "Your comment has been successfully deleted!")
-        return super(CommentDeleteView, self).delete(request, *args, **kwargs)
+        comment = self.get_object()
+        # can_delete = (
+        #     comment.parent is None
+        #     and Comment.objects.filter(parent=comment).count() == 0
+        # ) or (comment.parent is not None)
+
+        cannot_delete = (
+            comment.parent is None
+            and Comment.objects.filter(parent=comment).count() != 0
+        )
+        if cannot_delete:
+            messages.error(
+                self.request,
+                "You cannot delete your comment as there are replies to your comment now!",
+            )
+            return redirect("checklist-detail", comment.checklist.id)
+            # return reverse("checklist-detail", kwargs={"pk": comment.checklist.id})
+        else:
+            messages.success(
+                self.request, "Your comment has been successfully deleted!"
+            )
+            return super(CommentDeleteView, self).delete(request, *args, **kwargs)
 
 
 # ABOUT PAGE
