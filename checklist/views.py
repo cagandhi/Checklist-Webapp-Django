@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 # mixins for checking if user is logged in and the checklist author is the same as logged in user
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.generic import (
     CreateView,
@@ -594,14 +595,26 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 # DELETE COMMENT
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class CommentDeleteView(
+    SuccessMessageMixin, LoginRequiredMixin, UserPassesTestMixin, DeleteView
+):
     model = Comment
-    success_url = "/"
+    # success_url = "/"
 
     # checks if currently logged in user is the checklist author
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.user
+
+    # is accessed instead of success url attribute, refer https://stackoverflow.com/a/59475442/6543250
+    def get_success_url(self):
+        return reverse(
+            "checklist-detail", kwargs={"pk": self.get_object().checklist.id}
+        )
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Your comment has been successfully deleted!")
+        return super(CommentDeleteView, self).delete(request, *args, **kwargs)
 
 
 # ABOUT PAGE
@@ -947,13 +960,24 @@ def submit_comment(request, checklist_id):
     except:  # noqa: E722
         pass
 
-    # print("redirect addr :: " + request.META.get("HTTP_REFERER"))
+    return_path = ""
+    kwargs_dict = {}
 
-    return redirect(
-        request.META.get("HTTP_REFERER", "checklist-detail"),
-        kwargs={
+    if not request.META.get("HTTP_REFERER"):
+        return_path = reverse("checklist-detail", kwargs={"pk": checklist_id})
+        kwargs_dict = {
+            "comments": comments,
+            "comment_form": comment_form,
+        }
+    else:
+        return_path = request.META.get("HTTP_REFERER")
+        kwargs_dict = {
             "pk": checklist_id,
             "comments": comments,
             "comment_form": comment_form,
-        },
+        }
+
+    return redirect(
+        return_path,
+        kwargs=kwargs_dict,
     )
