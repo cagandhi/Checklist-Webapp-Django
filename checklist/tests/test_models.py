@@ -5,12 +5,12 @@ from checklist.models import (
     Bookmark,
     Category,
     Checklist,
-    Item,
-    Upvote,
+    Comment,
     Follow,
     FollowChecklist,
+    Item,
     Notification,
-    Comment,
+    Upvote,
 )
 
 
