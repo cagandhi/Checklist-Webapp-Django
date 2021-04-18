@@ -20,6 +20,6 @@ script:
   - python -m black .
   - python -m flake8 --ignore=E501,W503
   - python -m coverage run manage.py test
-  - python -m coverage report --fail-under=35
+  - python -m coverage report --fail-under=80
 after_success:
   - python -m codecov
