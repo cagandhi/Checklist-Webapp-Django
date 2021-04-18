@@ -2,7 +2,7 @@ from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from .helper_methods import (
+from checklist.tests.helper_methods import (
     create_category_if_not_exists,
     create_checklist,
     create_item,

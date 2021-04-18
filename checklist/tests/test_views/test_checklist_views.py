@@ -11,7 +11,7 @@ from checklist.views import (
     UserDraftChecklistListView,
 )
 
-from .helper_methods import (
+from checklist.tests.helper_methods import (
     create_category_if_not_exists,
     create_checklist,
     create_user_if_not_exists,

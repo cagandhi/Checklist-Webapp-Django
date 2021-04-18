@@ -8,7 +8,7 @@ from checklist.views import (
     UpvoteChecklistListView,
 )
 
-from .helper_methods import (
+from checklist.tests.helper_methods import (
     create_bookmark_upvote,
     create_category_if_not_exists,
     create_checklist,
