@@ -1,18 +1,17 @@
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from checklist.views import (
-    BookmarkChecklistListView,
-    CategoryChecklistListView,
-    SearchChecklistListView,
-    UpvoteChecklistListView,
-)
-
 from checklist.tests.helper_methods import (
     create_bookmark_upvote,
     create_category_if_not_exists,
     create_checklist,
     create_user_if_not_exists,
+)
+from checklist.views import (
+    BookmarkChecklistListView,
+    CategoryChecklistListView,
+    SearchChecklistListView,
+    UpvoteChecklistListView,
 )
 
 

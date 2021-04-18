@@ -1,20 +1,19 @@
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from checklist.views import (
-    CommentDeleteView,
-    CommentUpdateView,
-    ItemCreateView,
-    ItemDetailView,
-    ItemUpdateView,
-)
-
 from checklist.tests.helper_methods import (
     create_category_if_not_exists,
     create_checklist,
     create_comment,
     create_item,
     create_user_if_not_exists,
+)
+from checklist.views import (
+    CommentDeleteView,
+    CommentUpdateView,
+    ItemCreateView,
+    ItemDetailView,
+    ItemUpdateView,
 )
 
 
