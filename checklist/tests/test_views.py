@@ -1,9 +1,7 @@
-from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.test import TestCase
 from django.urls import resolve, reverse
 
-from checklist.models import Bookmark, Category, Checklist, Comment, Item, Notification
 from checklist.views import (
     BookmarkChecklistListView,
     CategoryChecklistListView,
@@ -23,50 +21,15 @@ from checklist.views import (
     UserDraftChecklistListView,
 )
 
-
-# define helper functions
-def create_user_if_not_exists(username, password):
-    if not User.objects.filter(username=username):
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
-
-    return User.objects.filter(username=username).first()
-
-
-def create_category_if_not_exists(name):
-    if not Category.objects.filter(name=name):
-        Category.objects.create(name=name)
-
-    return Category.objects.filter(name=name).first()
-
-
-def create_checklist(title, content, user, category, is_draft=False):
-    return Checklist.objects.create(
-        title=title, content=content, author=user, category=category, is_draft=is_draft
-    )
-
-
-def create_bookmark_upvote(user, checklist):
-    return Bookmark.objects.create(user=user, checklist=checklist)
-
-
-def create_item(title, checklist, completed=False):
-    return Item.objects.create(title=title, checklist=checklist)
-
-
-def create_comment(checklist, user, body, parent):
-    return Comment.objects.create(
-        checklist=checklist, user=user, body=body, parent=parent
-    )
-
-
-def create_notif(fromUser, toUser, notif_type, checklist=None):
-    return Notification.objects.create(
-        fromUser=fromUser,
-        toUser=toUser,
-        notif_type=notif_type,
-        checklist=checklist,
-    )
+from .helper_methods import (
+    create_bookmark_upvote,
+    create_category_if_not_exists,
+    create_checklist,
+    create_comment,
+    create_item,
+    create_notif,
+    create_user_if_not_exists,
+)
 
 
 # test listviews and detailviews
@@ -478,7 +441,9 @@ class TestBookmarkChecklistListView(TestCase):
         self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
 
     def test_one_bookmark(self):
-        book1 = create_bookmark_upvote(user=self.user, checklist=self.list1)
+        book1 = create_bookmark_upvote(
+            user=self.user, checklist=self.list1, if_bookmark=True
+        )
 
         response = self.client.get(reverse("bookmarks"))
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
@@ -513,9 +478,11 @@ class TestUpvoteChecklistListView(TestCase):
         self.assertQuerysetEqual(response.context["checklist_upvotes"], [])
 
     def test_one_upvote(self):
-        upvote1 = create_bookmark_upvote(user=self.user, checklist=self.list1)
+        upvote1 = create_bookmark_upvote(
+            user=self.user, checklist=self.list1, if_bookmark=False
+        )
 
-        response = self.client.get(reverse("bookmarks"))
+        response = self.client.get(reverse("upvotes"))
         self.assertEqual(response.context["checklist_upvotes"].number, 1)
         self.assertEqual(response.context["checklist_upvotes"][0][0], upvote1)
 
@@ -1013,7 +980,7 @@ class TestItemActionView(TestCase):
         # refer https://stackoverflow.com/a/14909727/6543250
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), "Item deleted")
+        self.assertEqual(str(messages[0]), "Item deleted!")
         self.assertRedirects(response, "/checklist/1/", status_code=302)
 
     def test_delete_other(self):
@@ -1079,7 +1046,7 @@ class TestPublishChecklistView(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(
-            str(messages[0]), "Checklist published and removed from drafts"
+            str(messages[0]), "Checklist published and removed from drafts!"
         )
         self.assertRedirects(response, "/", status_code=302)
 

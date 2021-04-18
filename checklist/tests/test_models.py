@@ -13,79 +13,94 @@ from checklist.models import (
     Upvote,
 )
 
+from .helper_methods import (
+    create_bookmark_upvote,
+    create_category_if_not_exists,
+    create_checklist,
+    create_comment,
+    create_item,
+    create_notif,
+    create_user_if_not_exists,
+)
 
-def create_user_if_not_exists(username, password):
-    if not User.objects.filter(username=username):
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
 
-    return User.objects.filter(username=username).first()
-
-
-class ChecklistModelTest(TestCase):
+# test classes
+class TestChecklistModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = create_user_if_not_exists(username="testuser", password="12345")
 
-        cls.category = Category.objects.create(name="Category_test")
-        cls.checklist = Checklist.objects.create(
+        cls.category = create_category_if_not_exists("Category_test")
+        cls.checklist = create_checklist(
             title="New Checklist 1",
             content="Test content",
-            author=cls.user,
+            user=cls.user,
             category=cls.category,
         )
 
     def test_object_creation(self):
-        self.assertTrue(isinstance(ChecklistModelTest.checklist, Checklist))
-
-        # properties don't need to be asserted because it is Django's job to make sure model attributes hold correct values
-        # self.assertEqual(ChecklistModelTest.checklist.title, "New Checklist 1")
-        # self.assertEqual(ChecklistModelTest.checklist.content, "Test content")
-        # self.assertEqual(ChecklistModelTest.checklist.author, ChecklistModelTest.user)
-        # self.assertEqual(
-        #     ChecklistModelTest.checklist.category, ChecklistModelTest.category
-        # )
+        self.assertTrue(isinstance(TestChecklistModel.checklist, Checklist))
 
     def test_str_method(self):
-        self.assertEqual(ChecklistModelTest.checklist.__str__(), "New Checklist 1")
+        self.assertEqual(TestChecklistModel.checklist.__str__(), "New Checklist 1")
 
     def test_get_absolute_url(self):
         self.assertEqual(
-            ChecklistModelTest.checklist.get_absolute_url(),
-            "/checklist/" + str(ChecklistModelTest.user.id) + "/",
+            TestChecklistModel.checklist.get_absolute_url(),
+            "/checklist/" + str(TestChecklistModel.user.id) + "/",
         )
 
 
-class ItemModelTest(TestCase):
+class TestItemModel(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(username="testuser", password="12345")
-        cls.user.save()
-
-        cls.category = Category.objects.create(name="Category_test")
-        cls.checklist = Checklist.objects.create(
+        cls.user = create_user_if_not_exists(username="testuser", password="12345")
+        cls.category = create_category_if_not_exists("Category_test")
+        cls.checklist = create_checklist(
             title="New Checklist 1",
             content="Test content",
-            author=cls.user,
+            user=cls.user,
             category=cls.category,
         )
-
-        cls.item = Item.objects.create(title="New Item 1", checklist=cls.checklist)
+        cls.item = create_item(title="New Item 1", checklist=cls.checklist)
 
     def test_object_creation(self):
-        self.assertTrue(isinstance(ItemModelTest.item, Item))
-        # self.assertEqual(ItemModelTest.item.title, "New Item 1")
-        # self.assertEqual(ItemModelTest.item.checklist, ItemModelTest.checklist)
-        # self.assertEqual(ItemModelTest.item.completed, False)
+        self.assertTrue(isinstance(TestItemModel.item, Item))
 
     def test_get_absolute_url(self):
         self.assertEqual(
-            ItemModelTest.item.get_absolute_url(),
-            "/checklist/item/" + str(ItemModelTest.item.id) + "/view/",
+            TestItemModel.item.get_absolute_url(),
+            "/checklist/item/" + str(TestItemModel.item.id) + "/view/",
         )
 
 
-class UpvoteModelTest(TestCase):
+class TestUpvoteModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = create_user_if_not_exists(username="testuser", password="12345")
+        cls.category = create_category_if_not_exists("Category_test")
+        cls.checklist = create_checklist(
+            title="New Checklist 1",
+            content="Test content",
+            user=cls.user,
+            category=cls.category,
+        )
+
+        cls.upvote = create_bookmark_upvote(
+            user=cls.user, checklist=cls.checklist, if_bookmark=False
+        )
+
+    def test_object_creation(self):
+        self.assertTrue(isinstance(TestUpvoteModel.upvote, Upvote))
+
+    def test_str_method(self):
+        self.assertEqual(
+            TestUpvoteModel.upvote.__str__(),
+            TestUpvoteModel.user.username + " - " + TestUpvoteModel.checklist.title,
+        )
+
+
+class TestBookmarkModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username="testuser", password="12345")
@@ -99,67 +114,36 @@ class UpvoteModelTest(TestCase):
             category=cls.category,
         )
 
-        cls.upvote = Upvote.objects.create(user=cls.user, checklist=cls.checklist)
+        cls.bookmark = create_bookmark_upvote(
+            user=cls.user, checklist=cls.checklist, if_bookmark=True
+        )
 
     def test_object_creation(self):
-        self.assertTrue(isinstance(UpvoteModelTest.upvote, Upvote))
-        # self.assertEqual(UpvoteModelTest.upvote.user, UpvoteModelTest.user)
-        # self.assertEqual(UpvoteModelTest.upvote.checklist, UpvoteModelTest.checklist)
+        self.assertTrue(isinstance(TestBookmarkModel.bookmark, Bookmark))
 
     def test_str_method(self):
         self.assertEqual(
-            UpvoteModelTest.upvote.__str__(),
-            UpvoteModelTest.user.username + " - " + UpvoteModelTest.checklist.title,
+            TestBookmarkModel.bookmark.__str__(),
+            TestBookmarkModel.user.username + " - " + TestBookmarkModel.checklist.title,
         )
 
 
-class BookmarkModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(username="testuser", password="12345")
-        cls.user.save()
-
-        cls.category = Category.objects.create(name="Category_test")
-        cls.checklist = Checklist.objects.create(
-            title="New Checklist 1",
-            content="Test content",
-            author=cls.user,
-            category=cls.category,
-        )
-
-        cls.bookmark = Bookmark.objects.create(user=cls.user, checklist=cls.checklist)
-
-    def test_object_creation(self):
-        self.assertTrue(isinstance(BookmarkModelTest.bookmark, Bookmark))
-        # self.assertEqual(BookmarkModelTest.bookmark.user, BookmarkModelTest.user)
-        # self.assertEqual(
-        #     BookmarkModelTest.bookmark.checklist, BookmarkModelTest.checklist
-        # )
-
-    def test_str_method(self):
-        self.assertEqual(
-            BookmarkModelTest.bookmark.__str__(),
-            BookmarkModelTest.user.username + " - " + BookmarkModelTest.checklist.title,
-        )
-
-
-class CategoryModelTest(TestCase):
+class TestCategoryModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.category = Category.objects.create(name="Category_test")
 
     def test_object_creation(self):
-        self.assertTrue(isinstance(CategoryModelTest.category, Category))
-        # self.assertEqual(CategoryModelTest.category.name, "Category_test")
+        self.assertTrue(isinstance(TestCategoryModel.category, Category))
 
     def test_str_method(self):
         self.assertEqual(
-            CategoryModelTest.category.__str__(),
-            CategoryModelTest.category.name,
+            TestCategoryModel.category.__str__(),
+            TestCategoryModel.category.name,
         )
 
 
-class FollowModelTest(TestCase):
+class TestFollowModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user1 = create_user_if_not_exists(username="testuser", password="12345")
@@ -167,12 +151,12 @@ class FollowModelTest(TestCase):
 
     def test_object_creation(self):
         follow_obj = Follow.objects.create(
-            fromUser=FollowModelTest.user1, toUser=FollowModelTest.user2
+            fromUser=TestFollowModel.user1, toUser=TestFollowModel.user2
         )
         self.assertTrue(isinstance(follow_obj, Follow))
 
 
-class FollowChecklistModelTest(TestCase):
+class TestFollowChecklistModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = create_user_if_not_exists(username="testuser", password="12345")
@@ -187,13 +171,13 @@ class FollowChecklistModelTest(TestCase):
 
     def test_object_creation(self):
         follow_obj = FollowChecklist.objects.create(
-            fromUser=FollowChecklistModelTest.user,
-            toChecklist=FollowChecklistModelTest.checklist,
+            fromUser=TestFollowChecklistModel.user,
+            toChecklist=TestFollowChecklistModel.checklist,
         )
         self.assertTrue(isinstance(follow_obj, FollowChecklist))
 
 
-class NotificationModelTest(TestCase):
+class TestNotificationModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user1 = create_user_if_not_exists(username="testuser", password="12345")
@@ -208,15 +192,15 @@ class NotificationModelTest(TestCase):
         )
 
     def test_object_creation(self):
-        notif_obj = Notification.objects.create(
-            fromUser=NotificationModelTest.user1,
-            toUser=NotificationModelTest.user2,
+        notif_obj = create_notif(
+            fromUser=TestNotificationModel.user1,
+            toUser=TestNotificationModel.user2,
             notif_type=2,
         )
         self.assertTrue(isinstance(notif_obj, Notification))
 
 
-class CommentModelTest(TestCase):
+class TestCommentModel(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user1 = create_user_if_not_exists(username="testuser", password="12345")
@@ -231,9 +215,10 @@ class CommentModelTest(TestCase):
         )
 
     def test_object_creation(self):
-        comment_obj = Comment.objects.create(
-            checklist=CommentModelTest.checklist,
-            user=CommentModelTest.user2,
+        comment_obj = create_comment(
+            checklist=TestCommentModel.checklist,
+            user=TestCommentModel.user2,
             body="Test comment",
         )
+
         self.assertTrue(isinstance(comment_obj, Comment))
