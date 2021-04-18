@@ -7,13 +7,17 @@
             <!-- loop over posts list provided in context; use variable name used as key in context -->
             {% for checklist, uvote, if_upvoted, if_bookmarked in checklist_upvotes %}
                 <article class="media content-section">
-<img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
+                    <img class="rounded-circle article-img" src="{{ checklist.author.profile.image.url }}">
                     <div class="media-body">
                         <div class="article-metadata">
                             <a class="mr-2" href="{% url 'user-checklists' checklist.author.username %}">{{ checklist.author }}</a>
                             <small class="text-muted">{{ checklist.date_posted|date:'F d, Y' }}</small>
-                            <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' checklist.category %}">{{ checklist.category }}</a>
-                            <!-- <a style="float: right"><strong>{{ follow_status }}</strong></p> -->
+                            {% if checklist.category is None %}
+                                <!-- for disabled button https://stackoverflow.com/a/13955753/6543250 -->
+                                <button class="btn btn-sm btn-warning mb-1" style="cursor: default;" disabled>{{ checklist.category }}</button>
+                            {% else %}
+                                <a class="btn btn-sm btn-warning mb-1" href="{% url 'category' checklist.category %}">{{ checklist.category }}</a>
+                            {% endif %}
                         </div>
                         <h2><a class="article-title" href="{% url 'checklist-detail' checklist.id %}">{{ checklist.title }}</a></h2>
                         <!-- https://docs.djangoproject.com/en/dev/ref/templates/builtins/#safe -->
