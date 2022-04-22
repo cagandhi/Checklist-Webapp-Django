@@ -55,7 +55,7 @@ pyflakes==2.2.0
 PyJWT==1.7.1
 pylint==2.6.0
 pyparsing==2.4.7
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pytest==6.2.2
 python-dateutil==2.8.1
 python3-openid==3.1.0
