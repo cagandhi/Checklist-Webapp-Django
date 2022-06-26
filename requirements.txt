@@ -21,7 +21,7 @@ django-heroku==0.3.1
 django-richtextfield==1.5.0
 django-social-share==1.4.0
 django-storages==1.9.1
-django-tinymce==3.0.2
+django-tinymce==3.4.0
 docutils==0.15.2
 flake8==3.8.4
 Flask==1.0.2
