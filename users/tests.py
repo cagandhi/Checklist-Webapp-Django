@@ -27,14 +27,17 @@ class TestRegisterView(TestCase):
         response = self.client.get(reverse("register"))
         self.assertTemplateUsed(response, "users/register.html")
 
-    def test_register_success(self):
-        # password is more complicated because without that, form_valid() was not getting evaluated to True, refer https://stackoverflow.com/q/57337720/6543250
-        user_data = {
+    def get_user_data():
+        return {
             "username": "testuser",
             "email": "testuser@gmail.com",
             "password1": "My12345password",
             "password2": "My12345password",
         }
+
+    def test_register_success(self):
+        # password is more complicated because without that, form_valid() was not getting evaluated to True, refer https://stackoverflow.com/q/57337720/6543250
+        user_data = self.get_user_data()
         response = self.client.post("/register/", data=user_data)
         self.assertRedirects(response, reverse("login"), status_code=302)
         messages = list(get_messages(response.wsgi_request))
@@ -46,12 +49,7 @@ class TestRegisterView(TestCase):
         self.assertEqual(User.objects.count(), 1)
 
     def test_register_failure(self):
-        user_data = {
-            "username": "testuser",
-            "email": "testuser@gmail.com",
-            "password1": "My12345password",
-            "password2": "My12345password1",
-        }
+        user_data = self.get_user_data()
         response = self.client.post("/register/", data=user_data)
         self.assertEqual(User.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
@@ -71,15 +69,18 @@ class TestProfileView(TestCase):
         response = self.client.get(reverse("profile"))
         self.assertEqual(response.status_code, 302)
 
-    def test_profile_update_success(self):
-        self.client.login(username="testuser", password="12345")
-
-        user_data = {
+    def get_user_data():
+        return {
             "username": "testuser",
             "email": "testuser@gmail.com",
             "password1": "My12345password",
             "password2": "My12345password",
         }
+
+    def test_profile_update_success(self):
+        self.client.login(username="testuser", password="12345")
+
+        user_data = self.get_user_data()
         response = self.client.post("/register/", data=user_data)
 
         user_data = {
@@ -93,12 +94,7 @@ class TestProfileView(TestCase):
     def test_profile_update_failure(self):
         self.client.login(username="testuser", password="12345")
 
-        user_data = {
-            "username": "testuser",
-            "email": "testuser@gmail.com",
-            "password1": "My12345password",
-            "password2": "My12345password",
-        }
+        user_data = self.get_user_data()
         _ = self.client.post("/register/", data=user_data)
 
         user_data = {

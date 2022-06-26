@@ -44,3 +44,32 @@ def get_upvote_bookmark_list(checklists_var, is_anonymous, user):
             bookmarked_bool_list.append(True)
 
     return upvotes_cnt_list, upvoted_bool_list, bookmarked_bool_list
+
+
+def get_data_and_context(context, request, paginate_by, checklists_var):
+    is_anonymous = request.user.is_anonymous
+    # user = request.user
+    (
+        upvotes_cnt_list,
+        upvoted_bool_list,
+        bookmarked_bool_list,
+    ) = get_upvote_bookmark_list(checklists_var, is_anonymous, request.user)
+
+    print(upvotes_cnt_list)
+    print(upvoted_bool_list)
+    print(bookmarked_bool_list)
+
+    checklist_upvotes = zip(
+        checklists_var,
+        upvotes_cnt_list,
+        upvoted_bool_list,
+        bookmarked_bool_list,
+    )
+
+    page = request.GET.get("page")
+    page_checklist_upvotes = paginate_content(checklist_upvotes, page, paginate_by)
+
+    context["checklist_upvotes"] = page_checklist_upvotes
+    context["is_paginated"] = page_checklist_upvotes.has_other_pages
+
+    return context

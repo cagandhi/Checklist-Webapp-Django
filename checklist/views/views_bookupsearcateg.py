@@ -6,7 +6,7 @@ from django.views.generic import ListView
 
 from checklist.models import Bookmark, Category, Checklist, Upvote
 
-from .helper_methods import get_upvote_bookmark_list, paginate_content
+from .helper_methods import get_data_and_context, paginate_content
 
 
 # VIEW BOOKMARKS PAGE
@@ -104,30 +104,10 @@ class SearchChecklistListView(ListView):
                     & Q(is_draft=False)
                 )
 
-        is_anonymous = self.request.user.is_anonymous
-        user = self.request.user
-        (
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        checklist_upvotes = zip(
-            checklists_var,
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
+        context = get_data_and_context(
+            context, self.request, self.paginate_by, checklists_var
         )
-
-        page = self.request.GET.get("page")
-
-        page_checklist_upvotes = paginate_content(
-            checklist_upvotes, page, self.paginate_by
-        )
-
-        context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "search"
-        context["is_paginated"] = page_checklist_upvotes.has_other_pages
         context["query_string"] = query
 
         return context
@@ -151,29 +131,9 @@ class CategoryChecklistListView(ListView):
             category_id=category.id, is_draft=False
         ).order_by("-date_posted")
 
-        is_anonymous = self.request.user.is_anonymous
-        user = self.request.user
-        (
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        checklist_upvotes = zip(
-            checklists_var,
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
+        context = get_data_and_context(
+            context, self.request, self.paginate_by, checklists_var
         )
-
-        page = self.request.GET.get("page")
-
-        page_checklist_upvotes = paginate_content(
-            checklist_upvotes, page, self.paginate_by
-        )
-
-        context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "user"
-        context["is_paginated"] = page_checklist_upvotes.has_other_pages
 
         return context

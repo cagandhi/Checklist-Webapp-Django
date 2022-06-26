@@ -15,7 +15,7 @@ from django.views.generic import (
 from checklist.forms import CommentForm
 from checklist.models import Checklist, FollowChecklist
 
-from .helper_methods import get_upvote_bookmark_list, paginate_content
+from .helper_methods import get_data_and_context
 
 logger = logging.getLogger(__name__)
 
@@ -34,32 +34,11 @@ class ChecklistListView(ListView):
         checklists_var = Checklist.get_checklists(is_draft=False)
         # .exclude(author=self.request.user) - if user's own checklists not to be displayed on home page
 
-        is_anonymous = self.request.user.is_anonymous
-        user = self.request.user
-        (
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        checklist_upvotes = zip(
-            checklists_var,
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        )  # ,followed_or_not_list)
-
-        # add paginator object
-        # paginator = Paginator(list(checklist_upvotes), self.paginate_by)
-        page = self.request.GET.get("page")
-        page_checklist_upvotes = paginate_content(
-            checklist_upvotes, page, self.paginate_by
+        context = get_data_and_context(
+            context, self.request, self.paginate_by, checklists_var
         )
 
-        context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "home"
-        context["is_paginated"] = page_checklist_upvotes.has_other_pages
-
         return context
 
         """
@@ -116,33 +95,12 @@ class UserChecklistListView(ListView):
         # to protect draft checklists from being seen
         checklists_var = Checklist.get_checklists(is_draft=False, author=user)
 
-        is_anonymous = self.request.user.is_anonymous
-        user = self.request.user
-        (
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        ) = get_upvote_bookmark_list(checklists_var, is_anonymous, user)
-
-        checklist_upvotes = zip(
-            checklists_var,
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
-        )
-
-        # add paginator object
-        page = self.request.GET.get("page")
-
-        page_checklist_upvotes = paginate_content(
-            checklist_upvotes, page, self.paginate_by
+        context = get_data_and_context(
+            context, self.request, self.paginate_by, checklists_var
         )
 
         context["if_followed"] = if_followed
-        context["checklist_upvotes"] = page_checklist_upvotes
         context["title"] = "user"
-        context["is_paginated"] = page_checklist_upvotes.has_other_pages
-
         return context
 
 
@@ -155,39 +113,26 @@ class UserDraftChecklistListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(UserDraftChecklistListView, self).get_context_data(**kwargs)
 
-        upvotes_cnt_list = []
-        upvoted_bool_list = []
-        bookmarked_bool_list = []
-
         # to display only draft checklists
         checklists_var = Checklist.get_checklists(
             is_draft=True, author=self.request.user
         )
 
-        for checklist in checklists_var:
-            upvotes_cnt_list.append(checklist.upvote_set.count())
-
-            upvoted_bool_list.append(False)
-            bookmarked_bool_list.append(False)
-
-        checklist_upvotes = zip(
-            checklists_var,
-            upvotes_cnt_list,
-            upvoted_bool_list,
-            bookmarked_bool_list,
+        context = get_data_and_context(
+            context, self.request, self.paginate_by, checklists_var
         )
 
-        page = self.request.GET.get("page")
+        # upvotes_cnt_list = []
+        # upvoted_bool_list = []
+        # bookmarked_bool_list = []
 
-        page_checklist_upvotes = paginate_content(
-            checklist_upvotes, page, self.paginate_by
-        )
+        # for checklist in checklists_var:
+        #     upvotes_cnt_list.append(checklist.upvote_set.count())
+        #     upvoted_bool_list.append(False)
+        #     bookmarked_bool_list.append(False)
 
-        context["checklist_upvotes"] = page_checklist_upvotes
         context["draft"] = "draft"
         context["username"] = self.request.user.username
-        context["is_paginated"] = page_checklist_upvotes.has_other_pages
-
         return context
 
 
