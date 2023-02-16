@@ -75,7 +75,7 @@ typed-ast==1.4.2
 typing-extensions==3.7.4.3
 urllib3==1.25.9
 webencodings==0.5.1
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 whitenoise==5.1.0
 wrapt==1.12.1
 xhtml2pdf==0.2.4
